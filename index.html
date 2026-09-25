@@ -208,7 +208,7 @@ if ('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.s
 <script>
 const cables=["SNRVe 7x12 M","SNRVe 7x12 O","SNRVe 7x12 O/S","SNRVe 7x12 O/W","SNRVe 22x7 O","SNRVe 22x7 O/W","SNRVe 22x7 O/R","SNRVe 8x7 O","SNRVe 8x7 O/S","SNR 1x7","Gf-1x12","Gf-2x12","Gf-4x12","Gf-8x12","Gf-1x4","Gf-1x6"];
 const pieces=[["DN-50 Rohr","Stück"],["Verbinder 12mm","Stück"],["Verbinder 7mm","Stück"],["Endkappe 12mm","Stück"],["Endkappe 7mm","Stück"],["Trassenwarnband Telekom","Rollen"]];
-let pinCode=localStorage.getItem("mm_pin")||"1234", entered="", unlocked=false, selected="", unlocked=false, drums=JSON.parse(localStorage.getItem("mm_drums")||"[]"), history=JSON.parse(localStorage.getItem("mm_history")||"[]"), current={drums:[],pieces:[]};
+let pinCode=localStorage.getItem("mm_pin")||"1234", entered="", unlocked=false, selected="", drums=JSON.parse(localStorage.getItem("mm_drums")||"[]"), history=JSON.parse(localStorage.getItem("mm_history")||"[]"), current={drums:[],pieces:[]};
 const $=x=>document.getElementById(x);
 function today(){return new Date(Date.now()-new Date().getTimezoneOffset()*60000).toISOString().slice(0,10)}
 $("invDate").value=today();
