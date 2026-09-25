@@ -1,0 +1,10 @@
+{
+  "name": "Material Manager",
+  "short_name": "Material",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f4f7fb",
+  "theme_color": "#0b3558",
+  "lang": "de",
+  "description": "Lokaler Prototyp für Materialbestandsaufnahmen auf Baustellen."
+}

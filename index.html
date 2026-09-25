@@ -1,0 +1,138 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b3558">
+<title>Material Manager V2</title>
+<style>
+:root{--navy:#0b3558;--blue:#0878e8;--bg:#f4f7fb;--card:#fff;--text:#17324d;--muted:#6d7f90;--green:#159b60;--border:#dbe4ed}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+header{background:var(--navy);color:#fff;padding:15px max(16px,calc((100vw - 980px)/2));display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:5}
+header strong{font-size:19px}.wrap{max-width:980px;margin:auto;padding:18px}.screen{display:none}.screen.active{display:block}
+.card{background:var(--card);border-radius:18px;padding:20px;margin-bottom:16px;box-shadow:0 4px 18px #18324b12}
+h1{font-size:27px;margin:0 0 6px}h2{margin:0 0 12px}h3{margin:18px 0 8px}.muted{color:var(--muted);font-size:14px}
+input,select{width:100%;padding:13px 14px;border:1px solid var(--border);border-radius:11px;font-size:17px;background:#fff}
+label{display:block;font-weight:700;margin:12px 0 6px}
+button{border:0;border-radius:12px;padding:13px 16px;font-size:16px;font-weight:750;cursor:pointer}.primary{background:var(--blue);color:#fff}.green{background:var(--green);color:#fff}.ghost{background:#eaf1f8;color:var(--text)}.danger{background:#ffecec;color:#a40000}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(205px,1fr));gap:10px}
+.tile{text-align:left;background:#f8fafc;border:2px solid #e2e9f0;min-height:72px}.tile:active,.tile.active{border-color:var(--blue);background:#eaf4ff}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.pinbox{text-align:center;max-width:390px;margin:10vh auto}.pin-dots{font-size:30px;letter-spacing:10px;margin:14px}.numpad{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.numpad button{background:#edf3f8;font-size:21px;padding:16px}.error{color:#b00020;min-height:22px}
+.nav{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}.nav button{padding:20px;text-align:left;background:#fff;box-shadow:0 3px 12px #0000000d}
+table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px solid #e8edf2;text-align:left;vertical-align:top}.badge{display:inline-block;background:#e8f7ef;color:#087044;border-radius:999px;padding:4px 8px;font-size:12px;font-weight:700}
+.preview{max-width:100%;max-height:190px;border-radius:12px;margin-top:8px;display:none}.total{text-align:right;font-weight:800;font-size:20px}
+.history-item{padding:13px;border:1px solid var(--border);border-radius:12px;margin:9px 0;background:#fbfcfe}
+.empty{padding:20px;text-align:center;color:var(--muted)}
+@media(max-width:650px){.wrap{padding:11px}.row{grid-template-columns:1fr}header{padding:13px}.card{padding:16px}}
+@media print{header,.no-print{display:none!important}body{background:#fff}.card{box-shadow:none;border:0}.wrap{max-width:none}}
+</style>
+</head>
+<body>
+<header><strong>📦 Material Manager</strong><span id="headerSite">V2</span></header>
+<script>
+if ('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js'));
+</script>
+
+
+<div class="wrap">
+<section id="lock" class="screen active">
+<div class="card pinbox">
+<h1>Material Manager</h1><p class="muted">V3 – lokaler PWA-Prototyp · offline testbar</p>
+<div id="pinDots" class="pin-dots">○ ○ ○ ○</div><div id="pinError" class="error"></div>
+<div class="numpad">
+<button onclick="pin('1')">1</button><button onclick="pin('2')">2</button><button onclick="pin('3')">3</button>
+<button onclick="pin('4')">4</button><button onclick="pin('5')">5</button><button onclick="pin('6')">6</button>
+<button onclick="pin('7')">7</button><button onclick="pin('8')">8</button><button onclick="pin('9')">9</button>
+<button class="ghost" onclick="pinClear()">⌫</button><button onclick="pin('0')">0</button><button class="primary" onclick="pinOk()">OK</button>
+</div><p class="muted">Erst-PIN im Prototyp: <b>1234</b></p>
+</div>
+</section>
+
+<section id="home" class="screen">
+<div class="card"><h1>Startseite</h1><p>Willkommen im lokalen Material Manager.</p></div>
+<div class="nav">
+<button onclick="newInventory()">📋<br>Neue Bestandsaufnahme</button>
+<button onclick="showHistory()">📚<br>Vergangene Aufnahmen</button>
+<button onclick="showDrums()">🧵<br>Trommelverwaltung</button>
+<button onclick="showSettings()">⚙️<br>Einstellungen</button>
+</div>
+</section>
+
+<section id="setup" class="screen">
+<div class="card"><h2>Neue Bestandsaufnahme</h2>
+<label>Baustelle / Lagerplatz</label><select id="site"><option>Baustelle Müllerstraße</option><option>Baustelle Bahnhof</option><option>Baustelle Neustadt</option><option>Lagerplatz Dresden</option></select>
+<div class="row"><div><label>Datum</label><input id="invDate" type="date"></div><div><label>Mitarbeiter</label><input id="worker" value="Max Mustermann"></div></div>
+<div class="actions"><button class="ghost" onclick="show('home')">← Zurück</button><button class="primary" onclick="startInventory()">Aufnahme starten →</button></div>
+</div>
+</section>
+
+<section id="materials" class="screen">
+<div class="card"><h2>Material auswählen</h2><p class="muted">Kabel / Trommeln</p><div id="cables" class="grid"></div>
+<h3>Stückmaterial</h3><div id="pieces" class="grid"></div>
+<div class="actions"><button class="ghost" onclick="show('home')">← Startseite</button><button class="green" onclick="renderSummary();show('summary')">Aufnahme prüfen →</button></div></div>
+</section>
+
+<section id="drum" class="screen"><div class="card">
+<h2 id="drumTitle">Trommel erfassen</h2><div class="row"><div>
+<label>Trommelnummer</label><input id="drumNo" placeholder="z. B. T-2026-00125">
+<button class="ghost" style="margin-top:8px" onclick="document.getElementById('photo').click()">📷 Trommeletikett fotografieren</button>
+<input id="photo" class="screen" type="file" accept="image/*" capture="environment" onchange="photoChosen()">
+<img id="preview" class="preview"><p id="photoMsg" class="muted"></p>
+</div><div>
+<label>Gesamtlänge</label><input id="totalLen" type="number" min="0" step="1" value="2400"><span class="muted">Meter</span>
+<label>Restbestand</label><input id="restLen" type="number" min="0" step="1" value="2400"><span class="muted">Meter</span>
+</div></div>
+<div class="actions"><button class="ghost" onclick="show('materials')">← Zurück</button><button class="green" onclick="saveDrum()">✓ Trommel speichern</button></div>
+</div></section>
+
+<section id="piece" class="screen"><div class="card"><h2 id="pieceTitle">Stückmaterial</h2><label>Anzahl</label><input id="pieceQty" type="number" min="0" step="1" value="0"><div class="actions"><button class="ghost" onclick="show('materials')">← Zurück</button><button class="green" onclick="savePiece()">✓ Speichern</button></div></div></section>
+
+<section id="summary" class="screen"><div class="card">
+<h2>Aufnahme kontrollieren</h2><p id="summaryMeta"></p><div id="summaryBody"></div>
+<div class="actions no-print"><button class="ghost" onclick="show('materials')">← Einträge ändern</button><button class="green" onclick="completeInventory()">✓ Aufnahme bestätigen</button></div>
+</div></section>
+
+<section id="done" class="screen"><div class="card"><h1>✓ Aufnahme gespeichert</h1><p>Die Aufnahme liegt jetzt lokal auf diesem Gerät.</p>
+<div class="actions no-print"><button class="primary" onclick="window.print()">📄 Als PDF speichern</button><button class="primary" onclick="shareText()">📤 Teilen</button><button class="ghost" onclick="show('home')">⌂ Startseite</button></div>
+</div></section>
+
+<section id="history" class="screen"><div class="card"><h2>📚 Historie</h2><div id="historyList"></div><div class="actions"><button class="ghost" onclick="show('home')">← Startseite</button></div></div></section>
+
+<section id="drums" class="screen"><div class="card"><h2>🧵 Trommelverwaltung</h2><div id="drumList"></div><div class="actions"><button class="ghost" onclick="show('home')">← Startseite</button></div></div></section>
+
+<section id="settings" class="screen"><div class="card"><h2>⚙️ Einstellungen</h2><p class="muted">Lokale App-Einstellungen</p>
+<label>Neue PIN</label><input id="newPin" inputmode="numeric" maxlength="4" placeholder="4 Ziffern"><div class="actions"><button class="green" onclick="changePin()">PIN speichern</button><button class="ghost" onclick="show('home')">← Startseite</button></div>
+<p class="muted">Die Daten bleiben in diesem Browser auf diesem Gerät. Der Prototyp ist noch nicht für vertrauliche Unternehmensdaten gedacht.</p>
+</div></section>
+</div>
+
+<script>
+const cables=["SNRVe 7x12 M","SNRVe 7x12 O","SNRVe 7x12 O/S","SNRVe 7x12 O/W","SNRVe 22x7 O","SNRVe 22x7 O/W","SNRVe 22x7 O/R","SNRVe 8x7 O","SNRVe 8x7 O/S","SNR 1x7","Gf-1x12","Gf-2x12","Gf-4x12","Gf-8x12","Gf-1x4","Gf-1x6"];
+const pieces=[["DN-50 Rohr","Stück"],["Verbinder 12mm","Stück"],["Verbinder 7mm","Stück"],["Endkappe 12mm","Stück"],["Endkappe 7mm","Stück"],["Trassenwarnband Telekom","Rollen"]];
+let pinCode=localStorage.getItem("mm_pin")||"1234", entered="", selected="", drums=JSON.parse(localStorage.getItem("mm_drums")||"[]"), history=JSON.parse(localStorage.getItem("mm_history")||"[]"), current={drums:[],pieces:[]};
+const $=x=>document.getElementById(x);
+function today(){return new Date(Date.now()-new Date().getTimezoneOffset()*60000).toISOString().slice(0,10)}
+$("invDate").value=today();
+function show(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));$(id).classList.add("active");if(id==="history")renderHistory();if(id==="drums")renderDrums()}
+function pin(x){if(entered.length<4)entered+=x;updateDots();if(entered.length===4)setTimeout(pinOk,120)}
+function pinClear(){entered=entered.slice(0,-1);updateDots()}
+function updateDots(){$("pinDots").textContent=[0,1,2,3].map(i=>i<entered.length?"●":"○").join(" ")}
+function pinOk(){if(entered===pinCode){entered="";updateDots();$("pinError").textContent="";show("home")}else{$("pinError").textContent="Falsche PIN";entered="";updateDots()}}
+function changePin(){let p=$("newPin").value.trim();if(!/^\d{4}$/.test(p)){alert("Bitte genau 4 Ziffern eingeben.");return}pinCode=p;localStorage.setItem("mm_pin",p);$("newPin").value="";alert("PIN gespeichert.");show("home")}
+function newInventory(){current={drums:[],pieces:[]};$("invDate").value=today();show("setup")}
+function startInventory(){show("materials")}
+function selectCable(n){selected=n;$("drumTitle").textContent=n+" – Trommel erfassen";$("drumNo").value="";$("totalLen").value=2400;$("restLen").value=2400;$("preview").style.display="none";$("photoMsg").textContent="";show("drum")}
+function selectPiece(n){selected=n;$("pieceTitle").textContent=n;let old=current.pieces.find(x=>x.material===n);$("pieceQty").value=old?old.qty:0;show("piece")}
+function photoChosen(){let f=$("photo").files[0];if(!f)return;$("preview").src=URL.createObjectURL(f);$("preview").style.display="block";$("photoMsg").textContent="Foto gespeichert. Die automatische OCR-Erkennung der Nummer kommt in einer späteren Entwicklungsstufe."}
+function saveDrum(){let no=$("drumNo").value.trim(),total=+$("totalLen").value,rest=+$("restLen").value;if(!no||total<0||rest<0||rest>total){alert("Bitte Nummer und gültige Längen prüfen.");return}current.drums.push({material:selected,no,total,rest,photo:!!$("photo").files.length});show("materials")}
+function savePiece(){let q=+$("pieceQty").value;if(q<0){alert("Ungültige Menge.");return}let p=current.pieces.find(x=>x.material===selected);if(p)p.qty=q;else current.pieces.push({material:selected,qty:q,unit:pieces.find(x=>x[0]===selected)[1]});show("materials")}
+function renderSummary(){let meta=`<b>Baustelle:</b> ${$("site").value} &nbsp; <b>Datum:</b> ${new Date($("invDate").value+"T00:00").toLocaleDateString("de-DE")} &nbsp; <b>Mitarbeiter:</b> ${$("worker").value}`;$("summaryMeta").innerHTML=meta;let h="<h3>Kabel / Trommeln</h3><table><tr><th>Material</th><th>Trommel</th><th>Gesamt</th><th>Rest</th></tr>";if(!current.drums.length)h+="<tr><td colspan=4>Keine Trommeln erfasst.</td></tr>";let totals={};current.drums.forEach(d=>{h+=`<tr><td>${d.material}</td><td>${d.no}${d.photo?" 📷":""}</td><td>${d.total.toLocaleString("de-DE")} m</td><td>${d.rest.toLocaleString("de-DE")} m</td></tr>`;totals[d.material]=(totals[d.material]||0)+d.rest});h+="</table>";Object.entries(totals).forEach(([m,q])=>h+=`<p class="total">${m}: ${q.toLocaleString("de-DE")} m</p>`);h+="<h3>Stückmaterial</h3><table><tr><th>Material</th><th>Bestand</th></tr>";if(!current.pieces.length)h+="<tr><td colspan=2>Kein Stückmaterial erfasst.</td></tr>";current.pieces.forEach(p=>h+=`<tr><td>${p.material}</td><td>${p.qty} ${p.unit}</td></tr>`);h+="</table>";$("summaryBody").innerHTML=h}
+function completeInventory(){let item={id:Date.now(),site:$("site").value,date:$("invDate").value,worker:$("worker").value,drums:current.drums,pieces:current.pieces};history.unshift(item);localStorage.setItem("mm_history",JSON.stringify(history));drums=[...drums,...current.drums];localStorage.setItem("mm_drums",JSON.stringify(drums));show("done")}
+function renderHistory(){let h=history.map(x=>`<div class="history-item"><b>${x.site}</b> <span class="badge">${new Date(x.date+"T00:00").toLocaleDateString("de-DE")}</span><br><span class="muted">${x.worker} · ${x.drums.length} Trommeln · ${x.pieces.length} Stückmaterialien</span></div>`).join("");$("historyList").innerHTML=h||'<div class="empty">Noch keine Aufnahmen gespeichert.</div>'}
+function renderDrums(){let h=drums.map((d,i)=>`<div class="history-item"><b>${d.material}</b><br>Trommel: <b>${d.no}</b> · Rest: <b>${d.rest.toLocaleString("de-DE")} m</b><br><span class="muted">Gesamtlänge: ${d.total.toLocaleString("de-DE")} m ${d.photo?"· Foto vorhanden":""}</span></div>`).join("");$("drumList").innerHTML=h||'<div class="empty">Noch keine Trommeln gespeichert.</div>'}
+async function shareText(){let text="Materialbestandsaufnahme – "+$("site").value+" – "+$("invDate").value;if(navigator.share){try{await navigator.share({title:"Materialbestandsaufnahme",text})}catch(e){}}else alert(text+"\n\nAuf diesem Gerät ist kein Teilen-Menü verfügbar.")}
+$("cables").innerHTML=cables.map(n=>`<button class="tile" onclick="selectCable(${JSON.stringify(n)})">🧵 ${n}</button>`).join("");
+$("pieces").innerHTML=pieces.map(([n,u])=>`<button class="tile" onclick="selectPiece(${JSON.stringify(n)})">📦 ${n}<br><span class="muted">${u}</span></button>`).join("");
+</script>
+</body></html>
