@@ -200,7 +200,7 @@ let pinCode=localStorage.getItem("mm_pin")||"1234", entered="", selected="", dru
 const $=x=>document.getElementById(x);
 function today(){return new Date(Date.now()-new Date().getTimezoneOffset()*60000).toISOString().slice(0,10)}
 $("invDate").value=today();
-function show(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));$(id).classList.add("active");if(id==="history")renderHistory();if(id==="drums")renderDrums();updateStats()}
+function show(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));$(id).classList.add("active");if(id==="history")renderHistory();if(id==="drums")renderDrums();updateStats();window.scrollTo(0,0);document.documentElement.scrollTop=0;document.body.scrollTop=0}
 function pin(x){if(entered.length<4)entered+=x;updateDots();if(entered.length===4)setTimeout(pinOk,120)}
 function pinClear(){entered=entered.slice(0,-1);updateDots()}
 function updateDots(){$("pinDots").textContent=[0,1,2,3].map(i=>i<entered.length?"●":"○").join(" ")}
