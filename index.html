@@ -37,6 +37,18 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px s
 .app-header{background:var(--navy);color:#fff;padding:22px 16px 24px;display:flex;justify-content:center;align-items:center;position:sticky;top:0;z-index:5;box-shadow:0 3px 14px #0003;min-height:116px}.header-logo{display:block;width:min(360px,78vw);height:auto}.pinbox{max-width:430px;margin:8vh auto 24px;padding:24px 20px 22px}.pinbox>div:first-child{margin:0 auto 26px!important;padding:10px 14px!important;display:block!important;width:fit-content;max-width:100%}.pinbox .logo-img{width:260px;max-width:68vw}.pin-dots{font-size:34px;letter-spacing:12px;margin:16px 0 26px}.numpad{gap:10px}.numpad button{background:#edf3f8;color:var(--text);font-size:22px;padding:18px 16px;min-height:68px}.numpad button.primary{background:var(--orange);color:#fff}.numpad button.ghost{color:var(--text)}
 @media(max-width:650px){.app-header{min-height:160px;padding:18px 12px 20px}.header-logo{width:min(640px,78vw)}.pinbox{margin:5vh auto 20px;padding:30px 14px 24px}.pin-title{font-size:28px;margin-bottom:28px}.pin-dots{font-size:34px;margin-bottom:30px}.numpad{gap:10px}.numpad button{min-height:68px;padding:18px 16px}}
 
+/* V14 summary refinement */
+.summary-meta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0 22px}
+.summary-meta-item{background:#f7f9fa;border:1px solid #e1e6ea;border-radius:12px;padding:11px 13px;min-width:0}
+.summary-meta-item.full{grid-column:1/-1}
+.summary-meta-item b{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.7px;color:#697680;margin-bottom:3px}
+.summary-meta-item span{display:block;font-size:16px;line-height:1.3;overflow-wrap:anywhere}
+.summary-section-title{font-size:20px;margin:22px 0 9px}
+.summary-total{margin:9px 0 18px;padding:8px 11px;border-left:3px solid var(--orange);background:#f7f9fa;color:#394752;font-weight:700;font-size:15px;text-align:left}
+.summary-actions{position:sticky;bottom:calc(10px + env(safe-area-inset-bottom));z-index:20;background:rgba(255,255,255,.96);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);padding:10px 0 calc(10px + env(safe-area-inset-bottom));margin:18px -2px -10px;border-top:1px solid #e5e9ec}
+.summary-actions button{min-height:54px}
+@media(max-width:650px){.summary-meta{grid-template-columns:1fr;gap:8px}.summary-meta-item.full{grid-column:auto}.summary-actions{margin-left:-4px;margin-right:-4px}.summary-actions .ghost{flex:0 0 auto}.summary-actions .green{flex:1;min-width:0}}
+
 /* V11 exact-login refinement */
 body{background:#f3f5f7}
 .app-header{background:#101820!important;min-height:205px!important;height:205px!important;padding:24px 18px 18px!important;display:flex!important;justify-content:center!important;align-items:center!important;border-bottom:4px solid #ff6b00!important;box-shadow:none!important}
@@ -174,7 +186,7 @@ if ('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.s
 
 <section id="summary" class="screen"><div class="card">
 <h2>Aufnahme kontrollieren</h2><p id="summaryMeta"></p><div id="summaryBody"></div>
-<div class="actions no-print"><button class="ghost" onclick="show('materials')">← Einträge ändern</button><button class="green" onclick="completeInventory()">✓ Aufnahme bestätigen</button></div>
+<div class="actions no-print summary-actions"><button type="button" class="ghost" onclick="show('materials')">← Einträge ändern</button><button type="button" class="green" onclick="completeInventory()">✓ Aufnahme bestätigen</button></div>
 </div></section>
 
 <section id="done" class="screen"><div class="card"><h1>✓ Aufnahme gespeichert</h1><p>Die Aufnahme liegt jetzt lokal auf diesem Gerät.</p>
@@ -217,7 +229,30 @@ function updateStats(){if($("statDrums"))$("statDrums").textContent=drums.length
 function photoChosen(){let f=$("photo").files[0];if(!f)return;$("preview").src=URL.createObjectURL(f);$("preview").style.display="block";$("photoMsg").textContent="Foto gespeichert. Die automatische OCR-Erkennung der Nummer kommt in einer späteren Entwicklungsstufe."}
 function saveDrum(){let no=$("drumNo").value.trim(),total=Number($("totalLen").value),rest=Number($("restLen").value);if(!no||!Number.isFinite(total)||!Number.isFinite(rest)||total<=0||rest<0||rest>total){alert("Bitte Trommelnummer sowie gültige Gesamtlänge und Restbestand eingeben.");return}current.drums.push({material:selected,no,total,rest,photo:!!$("photo").files.length});show("materials")}
 function savePiece(){let q=+$("pieceQty").value;if(q<0){alert("Ungültige Menge.");return}let p=current.pieces.find(x=>x.material===selected);if(p)p.qty=q;else current.pieces.push({material:selected,qty:q,unit:pieces.find(x=>x[0]===selected)[1]});show("materials")}
-function renderSummary(){let meta=`<b>Baustelle:</b> ${esc($("site").value)} &nbsp; <b>Lagerplatz:</b> ${esc($("place").value)}, ${esc($("postalCode").value)} ${esc($("street").value)} &nbsp; <b>Datum:</b> ${new Date($("invDate").value+"T00:00").toLocaleDateString("de-DE")} &nbsp; <b>Mitarbeiter:</b> ${esc($("worker").value)}`;$("summaryMeta").innerHTML=meta;let h="<h3>Kabel / Trommeln</h3><table><tr><th>Material</th><th>Trommel</th><th>Gesamt</th><th>Rest</th></tr>";if(!current.drums.length)h+="<tr><td colspan=4>Keine Trommeln erfasst.</td></tr>";let totals={};current.drums.forEach(d=>{h+=`<tr><td>${d.material}</td><td>${d.no}${d.photo?" 📷":""}</td><td>${d.total.toLocaleString("de-DE")} m</td><td>${d.rest.toLocaleString("de-DE")} m</td></tr>`;totals[d.material]=(totals[d.material]||0)+d.rest});h+="</table>";Object.entries(totals).forEach(([m,q])=>h+=`<p class="total">${m}: ${q.toLocaleString("de-DE")} m</p>`);h+="<h3>Stückmaterial</h3><table><tr><th>Material</th><th>Bestand</th></tr>";if(!current.pieces.length)h+="<tr><td colspan=2>Kein Stückmaterial erfasst.</td></tr>";current.pieces.forEach(p=>h+=`<tr><td>${p.material}</td><td>${p.qty} ${p.unit}</td></tr>`);h+="</table>";$("summaryBody").innerHTML=h}
+function renderSummary(){
+  const date=new Date($("invDate").value+"T00:00").toLocaleDateString("de-DE");
+  const meta=`<div class="summary-meta">
+    <div class="summary-meta-item full"><b>Baustelle</b><span>${esc($("site").value)}</span></div>
+    <div class="summary-meta-item full"><b>Lagerplatz</b><span>Lagerplatz</span></div>
+    <div class="summary-meta-item"><b>Ort</b><span>${esc($("place").value)}</span></div>
+    <div class="summary-meta-item"><b>PLZ</b><span>${esc($("postalCode").value)}</span></div>
+    <div class="summary-meta-item full"><b>Straße und Hausnummer</b><span>${esc($("street").value)}</span></div>
+    <div class="summary-meta-item"><b>Datum</b><span>${date}</span></div>
+    <div class="summary-meta-item"><b>Mitarbeiter</b><span>${esc($("worker").value)}</span></div>
+  </div>`;
+  $("summaryMeta").innerHTML=meta;
+  let h='<h3 class="summary-section-title">Kabel / Trommeln</h3><table><tr><th>Material</th><th>Trommel</th><th>Gesamt</th><th>Rest</th></tr>';
+  if(!current.drums.length)h+='<tr><td colspan="4">Keine Trommeln erfasst.</td></tr>';
+  let totals={};
+  current.drums.forEach(d=>{h+=`<tr><td>${esc(d.material)}</td><td>${esc(d.no)}${d.photo?" 📷":""}</td><td>${d.total.toLocaleString("de-DE")} m</td><td><b>${d.rest.toLocaleString("de-DE")} m</b></td></tr>`;totals[d.material]=(totals[d.material]||0)+d.rest});
+  h+='</table>';
+  Object.entries(totals).forEach(([m,q])=>h+=`<div class="summary-total">Gesamtbestand ${esc(m)}: ${q.toLocaleString("de-DE")} m</div>`);
+  h+='<h3 class="summary-section-title">Stückmaterial</h3><table><tr><th>Material</th><th>Bestand</th></tr>';
+  if(!current.pieces.length)h+='<tr><td colspan="2">Kein Stückmaterial erfasst.</td></tr>';
+  current.pieces.forEach(p=>h+=`<tr><td>${esc(p.material)}</td><td><b>${p.qty} ${esc(p.unit)}</b></td></tr>`);
+  h+='</table>';
+  $("summaryBody").innerHTML=h;
+}
 function esc(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]))}
 function renderPrintReport(item){let date=new Date(item.date+"T00:00").toLocaleDateString("de-DE");let location=[item.place,item.postalCode,item.street].filter(Boolean).join(", ");let rows=item.drums.map(d=>`<tr><td>${esc(d.material)}</td><td>${esc(d.no)}</td><td>${d.total.toLocaleString("de-DE")} m</td><td>${d.rest.toLocaleString("de-DE")} m</td></tr>`).join("")||'<tr><td colspan="4">Keine Trommeln erfasst.</td></tr>';let prow=item.pieces.map(p=>`<tr><td>${esc(p.material)}</td><td>${p.qty.toLocaleString("de-DE")} ${esc(p.unit)}</td></tr>`).join("")||'<tr><td colspan="2">Kein Stückmaterial erfasst.</td></tr>';let totals={};item.drums.forEach(d=>totals[d.material]=(totals[d.material]||0)+d.rest);let totalHtml=Object.entries(totals).map(([m,q])=>`<div class="print-total">${esc(m)}: ${q.toLocaleString("de-DE")} m Restbestand</div>`).join("");$("printReport").innerHTML=`<section class="print-page"><div class="print-head"><div><div class="print-kicker">THADEN MATERIAL · Dokumentation</div><div class="print-title">Materialbestandsaufnahme</div></div><img src="data:image/png;base64,${logo}" alt="THADEN MATERIAL"></div><div class="print-meta"><div><b>Baustelle</b>${esc(item.site)}</div><div><b>Lagerplatz</b>${esc(item.warehouse||"Lagerplatz")}</div><div><b>Ort</b>${esc(location)}</div><div><b>Datum</b>${date}</div><div><b>Mitarbeiter</b>${esc(item.worker)}</div></div><h2>Kabel / Trommeln</h2><table class="print-table"><tr><th>Material</th><th>Trommel</th><th>Gesamtlänge</th><th>Restbestand</th></tr>${rows}</table>${totalHtml||'<p>Keine Kabel/Trommeln erfasst.</p>'}<div style="margin-top:26px;color:#6d7a86;font-size:10px">Erstellt mit THADEN MATERIAL · SMART MATERIAL LOGISTICS</div></section><section class="print-page"><div class="print-alt-head"><img src="data:image/png;base64,${logo}" alt="THADEN MATERIAL"><div class="page-label"><strong>BESTANDSDETAILS</strong><span>SEITE 2 · MATERIALÜBERSICHT</span></div></div><h2>Stückmaterial</h2><table class="print-table"><tr><th>Material</th><th>Bestand</th></tr>${prow}</table><h2 style="margin-top:24px">Zusammenfassung</h2><div class="print-meta"><div><b>Trommeln</b>${item.drums.length}</div><div><b>Stückmaterialien</b>${item.pieces.length}</div><div><b>Baustelle</b>${esc(item.site)}</div><div><b>Lagerplatz</b>${esc(item.warehouse||"Lagerplatz")}</div><div><b>Ort</b>${esc(location)}</div></div><div style="margin-top:34px;padding-top:12px;border-top:1px solid #d8dee3;font-size:10px;color:#6d7a86">THADEN MATERIAL · Smart Material Logistics</div></section>`}
 function completeInventory(){let site=$("site").value.trim(),place=$("place").value.trim(),postalCode=$("postalCode").value.trim(),street=$("street").value.trim(),worker=$("worker").value.trim();if(!site||!place||!postalCode||!street||!worker){alert("Bitte Baustelle, Ort, PLZ, Straße und Hausnummer sowie Mitarbeiter ausfüllen.");return}let item={id:Date.now(),site,warehouse:"Lagerplatz",place,postalCode,street,date:$("invDate").value,worker,drums:current.drums,pieces:current.pieces};history.unshift(item);localStorage.setItem("mm_history",JSON.stringify(history));drums=[...drums,...current.drums];localStorage.setItem("mm_drums",JSON.stringify(drums));renderPrintReport(item);show("done")}
