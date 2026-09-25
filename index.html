@@ -24,12 +24,14 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px s
 .preview{max-width:100%;max-height:190px;border-radius:12px;margin-top:8px;display:none}.total{text-align:right;font-weight:800;font-size:20px}
 .history-item{padding:13px;border:1px solid var(--border);border-radius:12px;margin:9px 0;background:#fbfcfe}
 .empty{padding:20px;text-align:center;color:var(--muted)}
+
+.dashboard{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:14px}.dash-tile{min-height:112px;border:0;border-radius:18px;padding:16px;color:#fff;text-align:left;box-shadow:0 5px 16px #10203022;position:relative;overflow:hidden}.dash-tile .ico{font-size:30px;display:block;margin-bottom:8px}.dash-tile b{font-size:18px}.dash-tile small{display:block;margin-top:4px;opacity:.88;font-size:12px}.dash-orange{background:linear-gradient(135deg,#ff6b00,#ff8a21)}.dash-dark{background:linear-gradient(135deg,#18232d,#2a3742)}.dash-green{background:linear-gradient(135deg,#149c62,#25b879)}.dash-purple{background:linear-gradient(135deg,#6636d8,#8058e8)}.dash-blue{background:linear-gradient(135deg,#2366c7,#3c83e8)}.dash-gray{background:linear-gradient(135deg,#52606b,#697782)}.quick{display:flex;gap:10px;overflow:auto;padding:4px 1px 6px}.quick button{min-width:145px;text-align:left;background:#fff;border:1px solid #e2e7eb}.home-hero{background:linear-gradient(135deg,#101820,#1d2a35);color:#fff;border-radius:22px;padding:20px;box-shadow:0 7px 22px #10203022}.home-hero h1{font-size:27px;margin:0}.home-hero p{margin:7px 0 0;color:#d5dde3}.section-title{display:flex;justify-content:space-between;align-items:center;margin:18px 2px 9px}.section-title h3{margin:0}.activity{background:#fff;border-radius:16px;padding:4px 15px;box-shadow:0 3px 14px #0000000b}.activity-row{display:flex;gap:11px;align-items:center;padding:13px 0;border-bottom:1px solid #edf0f2}.activity-row:last-child{border-bottom:0}.activity-dot{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:#eef3f6}.bottom-nav{position:sticky;bottom:0;z-index:10;background:#101820;color:#fff;margin:18px -11px -11px;padding:8px 6px calc(8px + env(safe-area-inset-bottom));display:grid;grid-template-columns:repeat(5,1fr);box-shadow:0 -4px 15px #0003}.bottom-nav button{background:transparent;color:#dbe2e7;padding:7px 2px;font-size:11px;border-radius:10px}.bottom-nav button.active{background:#202e39;color:#ff7a00}.bottom-nav span{display:block;font-size:20px;line-height:22px;margin-bottom:3px}.feature-list{display:grid;gap:9px}.feature-item{display:flex;justify-content:space-between;align-items:center;background:#fff;border:1px solid #e2e7eb;border-radius:14px;padding:13px}.feature-item .left{display:flex;gap:10px;align-items:center}.feature-icon{width:38px;height:38px;border-radius:10px;background:#eef2f5;display:grid;place-items:center;font-size:20px}.back{margin-bottom:12px}.stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.stat{background:#fff;border-radius:15px;padding:15px;border:1px solid #e2e7eb}.stat b{font-size:24px;display:block}@media(min-width:700px){.dashboard{grid-template-columns:repeat(3,1fr)}.bottom-nav{max-width:980px;margin-left:auto;margin-right:auto;border-radius:18px 18px 0 0}}
 @media(max-width:650px){.wrap{padding:11px}.row{grid-template-columns:1fr}header{padding:13px}.card{padding:16px}}
 @media print{header,.no-print{display:none!important}body{background:#fff}.card{box-shadow:none;border:0}.wrap{max-width:none}}
 </style>
 </head>
 <body>
-<header><div class="brand"><div class="tm">T<span>M</span></div><div><strong>THADEN MATERIAL</strong><small>SMART MATERIAL LOGISTICS</small></div></div><span id="headerSite">V5</span></header>
+<header><div class="brand"><div class="tm">T<span>M</span></div><div><strong>THADEN MATERIAL</strong><small>SMART MATERIAL LOGISTICS</small></div></div><span id="headerSite">V6</span></header>
 <script>
 if ('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js'));
 </script>
@@ -38,7 +40,7 @@ if ('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.s
 <div class="wrap">
 <section id="lock" class="screen active">
 <div class="card pinbox">
-<h1>THADEN MATERIAL</h1><p class="muted">Smart Material Logistics · lokaler PWA-Prototyp</p>
+<h1>THADEN MATERIAL</h1><p class="muted">Smart Material Logistics · V6</p>
 <div id="pinDots" class="pin-dots">○ ○ ○ ○</div><div id="pinError" class="error"></div>
 <div class="numpad">
 <button onclick="pin('1')">1</button><button onclick="pin('2')">2</button><button onclick="pin('3')">3</button>
@@ -50,18 +52,45 @@ if ('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.s
 </section>
 
 <section id="home" class="screen">
-<div class="card"><h1>THADEN MATERIAL</h1><p class="muted">Smart Material Logistics</p><p>Material bestellen, Lagerbestand erfassen und Baustellen dokumentieren – schnell und praxisnah.</p></div>
-<div class="nav">
-<button onclick="newInventory()">🛒<br><b>Bestellungen</b><br><span class="muted">Bestandsbedarf vormerken</span></button>
-<button onclick="newInventory()">🏭<br><b>Lagerbestand</b><br><span class="muted">Neue Bestandsaufnahme</span></button>
-<button onclick="newInventory()">⌗<br><b>Scannen</b><br><span class="muted">Trommeletikett erfassen</span></button>
-<button onclick="showHistory()">🚚<br><b>Transport</b><br><span class="muted">Historie & Übergaben</span></button>
-<button onclick="newInventory()">👷<br><b>Baustellen</b><br><span class="muted">Baustellenbestände</span></button>
-<button onclick="showHistory()">▥<br><b>Dokumentation</b><br><span class="muted">Aufnahmen & PDFs</span></button>
-<button onclick="showDrums()">🧵<br><b>Trommelverwaltung</b><br><span class="muted">Alle erfassten Trommeln</span></button>
-<button onclick="showSettings()">⚙️<br><b>Einstellungen</b><br><span class="muted">PIN & lokale Daten</span></button>
+<div class="home-hero"><h1>Hallo 👋</h1><p>Material einfach bewegen. Alles im Blick.</p><div class="actions"><button class="primary" onclick="newInventory()">＋ Neue Bestandsaufnahme</button></div></div>
+<div class="section-title"><h3>Schnellzugriff</h3></div>
+<div class="dashboard">
+<button class="dash-tile dash-orange" onclick="show('orders')"><span class="ico">🛒</span><b>Bestellen</b><small>Material einfach anfordern</small></button>
+<button class="dash-tile dash-dark" onclick="show('warehouse')"><span class="ico">🏭</span><b>Lager</b><small>Bestände immer im Blick</small></button>
+<button class="dash-tile dash-orange" onclick="show('scan')"><span class="ico">⌗</span><b>Scannen</b><small>Material schnell erfassen</small></button>
+<button class="dash-tile dash-green" onclick="show('sites')"><span class="ico">👷</span><b>Baustellen</b><small>Material vor Ort im Griff</small></button>
+<button class="dash-tile dash-purple" onclick="show('documentation')"><span class="ico">▥</span><b>Dokumentation</b><small>Belege, Fotos & Protokolle</small></button>
+</div>
+<div class="section-title"><h3>Aktuelle Vorgänge</h3><button class="ghost" onclick="show('history')">Alle anzeigen →</button></div>
+<div class="activity">
+<div class="activity-row"><div class="activity-dot">✓</div><div><b>Materialbestand erfassen</b><div class="muted">Wöchentliche Aufnahme starten</div></div></div>
+<div class="activity-row"><div class="activity-dot">🧵</div><div><b>Trommelverwaltung</b><div class="muted">Alle erfassten Trommeln anzeigen</div></div><button class="ghost" onclick="show('drums')">→</button></div>
+<div class="activity-row"><div class="activity-dot">📄</div><div><b>Dokumentation</b><div class="muted">Vergangene Aufnahmen & PDFs</div></div><button class="ghost" onclick="show('history')">→</button></div>
+</div>
+<div class="section-title"><h3>Werkzeuge</h3></div>
+<div class="quick"><button onclick="show('drums')">🧵 Trommeln</button><button onclick="show('history')">📚 Historie</button><button onclick="show('settings')">⚙️ Einstellungen</button></div>
+<div class="bottom-nav">
+<button class="active" onclick="show('home')"><span>⌂</span>Start</button>
+<button onclick="show('orders')"><span>🛒</span>Bestellen</button>
+<button onclick="show('warehouse')"><span>🏭</span>Lager</button>
+<button onclick="show('sites')"><span>👷</span>Baustellen</button>
+<button onclick="show('documentation')"><span>•••</span>Mehr</button>
 </div>
 </section>
+
+<section id="orders" class="screen"><div class="card"><button class="ghost back" onclick="show('home')">← Start</button><h2>Bestellen</h2><p class="muted">Materialbedarf schnell vormerken.</p><div class="feature-list">
+<div class="feature-item"><div class="left"><div class="feature-icon">🧵</div><div><b>Kabel / Trommeln</b><div class="muted">Bedarf erfassen</div></div></div><button class="primary" onclick="newInventory()">Erfassen</button></div>
+<div class="feature-item"><div class="left"><div class="feature-icon">📦</div><div><b>Stückmaterial</b><div class="muted">Mengen vormerken</div></div></div><button class="primary" onclick="newInventory()">Erfassen</button></div></div></div></section>
+
+<section id="warehouse" class="screen"><div class="card"><button class="ghost back" onclick="show('home')">← Start</button><h2>Lagerbestand</h2><p class="muted">Bestände auf einen Blick.</p><div class="stat-grid"><div class="stat"><span class="muted">Trommeln</span><b id="statDrums">0</b></div><div class="stat"><span class="muted">Aufnahmen</span><b id="statHistory">0</b></div></div><div class="actions"><button class="primary" onclick="newInventory()">＋ Bestandsaufnahme</button><button class="ghost" onclick="show('drums')">Trommeln anzeigen</button></div></div></section>
+
+<section id="scan" class="screen"><div class="card"><button class="ghost back" onclick="show('home')">← Start</button><h2>Material scannen</h2><p class="muted">Trommeletikett fotografieren und anschließend die Daten erfassen.</p><button class="primary" style="width:100%;padding:18px" onclick="newInventory()">📷 Scan / Aufnahme starten</button><p class="muted" style="margin-top:12px">OCR für die automatische Trommelnummer ist als nächster Ausbauschritt vorgesehen.</p></div></section>
+
+<section id="sites" class="screen"><div class="card"><button class="ghost back" onclick="show('home')">← Start</button><h2>Baustellen</h2><p class="muted">Materialbestände je Baustelle.</p><div class="feature-list"><div class="feature-item"><div class="left"><div class="feature-icon">🏗️</div><div><b>Baustellenbestand</b><div class="muted">Neue Aufnahme für eine Baustelle</div></div></div><button class="primary" onclick="newInventory()">Start</button></div><div class="feature-item"><div class="left"><div class="feature-icon">📚</div><div><b>Vergangene Baustellen</b><div class="muted">Aufnahmen durchsuchen</div></div></div><button class="ghost" onclick="show('history')">Öffnen</button></div></div></div></section>
+
+
+
+<section id="documentation" class="screen"><div class="card"><button class="ghost back" onclick="show('home')">← Start</button><h2>Dokumentation</h2><p class="muted">Belege, Fotos und Protokolle.</p><div class="feature-list"><div class="feature-item"><div class="left"><div class="feature-icon">📄</div><div><b>Aufnahmen</b><div class="muted">Gespeicherte Bestandsaufnahmen</div></div></div><button class="ghost" onclick="show('history')">Öffnen</button></div><div class="feature-item"><div class="left"><div class="feature-icon">🧾</div><div><b>PDF</b><div class="muted">Nach einer Aufnahme als PDF ausgeben</div></div></div></div></div></div></section>
 
 <section id="setup" class="screen">
 <div class="card"><h2>Neue Bestandsaufnahme</h2>
@@ -118,7 +147,7 @@ let pinCode=localStorage.getItem("mm_pin")||"1234", entered="", selected="", dru
 const $=x=>document.getElementById(x);
 function today(){return new Date(Date.now()-new Date().getTimezoneOffset()*60000).toISOString().slice(0,10)}
 $("invDate").value=today();
-function show(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));$(id).classList.add("active");if(id==="history")renderHistory();if(id==="drums")renderDrums()}
+function show(id){document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));$(id).classList.add("active");if(id==="history")renderHistory();if(id==="drums")renderDrums();updateStats()}
 function pin(x){if(entered.length<4)entered+=x;updateDots();if(entered.length===4)setTimeout(pinOk,120)}
 function pinClear(){entered=entered.slice(0,-1);updateDots()}
 function updateDots(){$("pinDots").textContent=[0,1,2,3].map(i=>i<entered.length?"●":"○").join(" ")}
@@ -128,6 +157,10 @@ function newInventory(){current={drums:[],pieces:[]};$("invDate").value=today();
 function startInventory(){show("materials")}
 function selectCable(n){selected=n;$("drumTitle").textContent=n+" – Trommel erfassen";$("drumNo").value="";$("totalLen").value="";$("restLen").value="";$("photo").value="";$("preview").style.display="none";$("photoMsg").textContent="";show("drum")} 
 function selectPiece(n){selected=n;$("pieceTitle").textContent=n;let old=current.pieces.find(x=>x.material===n);$("pieceQty").value=old?old.qty:0;show("piece")}
+function showHistory(){show("history")}
+function showDrums(){show("drums")}
+function showSettings(){show("settings")}
+function updateStats(){if($("statDrums"))$("statDrums").textContent=drums.length;if($("statHistory"))$("statHistory").textContent=history.length}
 function photoChosen(){let f=$("photo").files[0];if(!f)return;$("preview").src=URL.createObjectURL(f);$("preview").style.display="block";$("photoMsg").textContent="Foto gespeichert. Die automatische OCR-Erkennung der Nummer kommt in einer späteren Entwicklungsstufe."}
 function saveDrum(){let no=$("drumNo").value.trim(),total=Number($("totalLen").value),rest=Number($("restLen").value);if(!no||!Number.isFinite(total)||!Number.isFinite(rest)||total<=0||rest<0||rest>total){alert("Bitte Trommelnummer sowie gültige Gesamtlänge und Restbestand eingeben.");return}current.drums.push({material:selected,no,total,rest,photo:!!$("photo").files.length});show("materials")}
 function savePiece(){let q=+$("pieceQty").value;if(q<0){alert("Ungültige Menge.");return}let p=current.pieces.find(x=>x.material===selected);if(p)p.qty=q;else current.pieces.push({material:selected,qty:q,unit:pieces.find(x=>x[0]===selected)[1]});show("materials")}
