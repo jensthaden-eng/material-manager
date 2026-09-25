@@ -1,9 +1,10 @@
 {
-  "name": "Material Manager",
-  "short_name": "Material Manager",
+  "name": "THADEN MATERIAL",
+  "short_name": "THADEN MATERIAL",
   "start_url": "./",
   "display": "standalone",
-  "background_color": "#f4f7fb",
-  "theme_color": "#0b3558",
-  "lang": "de"
+  "background_color": "#f3f5f7",
+  "theme_color": "#101820",
+  "lang": "de",
+  "description": "Smart Material Logistics – Baustellen- und Lagerbestandsaufnahme"
 }

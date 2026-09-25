@@ -3,23 +3,23 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<meta name="theme-color" content="#0b3558">
-<title>Material Manager V4</title>
+<meta name="theme-color" content="#101820">
+<title>THADEN MATERIAL</title>
 <style>
-:root{--navy:#0b3558;--blue:#0878e8;--bg:#f4f7fb;--card:#fff;--text:#17324d;--muted:#6d7f90;--green:#159b60;--border:#dbe4ed}
+:root{--navy:#101820;--orange:#ff6b00;--orange2:#ff7a00;--bg:#f3f5f7;--card:#fff;--text:#16232d;--muted:#697680;--green:#159b60;--border:#d8dee3}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
-header{background:var(--navy);color:#fff;padding:15px max(16px,calc((100vw - 980px)/2));display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:5}
-header strong{font-size:19px}.wrap{max-width:980px;margin:auto;padding:18px}.screen{display:none}.screen.active{display:block}
+header{background:var(--navy);color:#fff;padding:13px max(16px,calc((100vw - 980px)/2));display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:5;box-shadow:0 3px 14px #0003}
+header strong{font-size:20px;letter-spacing:.2px} header .brand{display:flex;align-items:center;gap:10px} header .tm{font-weight:950;font-size:22px;letter-spacing:-2px;color:#fff} header .tm span{color:var(--orange)} header small{color:#d9e0e5;font-size:11px;letter-spacing:2px;text-transform:uppercase;display:block;margin-top:1px}.wrap{max-width:980px;margin:auto;padding:18px}.screen{display:none}.screen.active{display:block}
 .card{background:var(--card);border-radius:18px;padding:20px;margin-bottom:16px;box-shadow:0 4px 18px #18324b12}
 h1{font-size:27px;margin:0 0 6px}h2{margin:0 0 12px}h3{margin:18px 0 8px}.muted{color:var(--muted);font-size:14px}
 input,select{width:100%;padding:13px 14px;border:1px solid var(--border);border-radius:11px;font-size:17px;background:#fff}
 label{display:block;font-weight:700;margin:12px 0 6px}
-button{border:0;border-radius:12px;padding:13px 16px;font-size:16px;font-weight:750;cursor:pointer}.primary{background:var(--blue);color:#fff}.green{background:var(--green);color:#fff}.ghost{background:#eaf1f8;color:var(--text)}.danger{background:#ffecec;color:#a40000}
+button{border:0;border-radius:12px;padding:13px 16px;font-size:16px;font-weight:750;cursor:pointer}.primary{background:var(--orange);color:#fff}.green{background:var(--green);color:#fff}.ghost{background:#e9edf0;color:var(--text)}.danger{background:#ffecec;color:#a40000}
 .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(205px,1fr));gap:10px}
-.tile{text-align:left;background:#f8fafc;border:2px solid #e2e9f0;min-height:72px}.tile:active,.tile.active{border-color:var(--blue);background:#eaf4ff}
+.tile{text-align:left;background:#fff;border:1px solid #e1e5e8;min-height:72px;box-shadow:0 2px 8px #0000000b}.tile:active,.tile.active{border-color:var(--orange);background:#fff7f0}
 .row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 .pinbox{text-align:center;max-width:390px;margin:10vh auto}.pin-dots{font-size:30px;letter-spacing:10px;margin:14px}.numpad{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.numpad button{background:#edf3f8;font-size:21px;padding:16px}.error{color:#b00020;min-height:22px}
-.nav{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}.nav button{padding:20px;text-align:left;background:#fff;box-shadow:0 3px 12px #0000000d}
+.nav{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}.nav button{padding:20px;text-align:left;background:#fff;box-shadow:0 4px 14px #00000012;border:1px solid #e1e5e8}.nav button:first-letter{color:var(--orange)}
 table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px solid #e8edf2;text-align:left;vertical-align:top}.badge{display:inline-block;background:#e8f7ef;color:#087044;border-radius:999px;padding:4px 8px;font-size:12px;font-weight:700}
 .preview{max-width:100%;max-height:190px;border-radius:12px;margin-top:8px;display:none}.total{text-align:right;font-weight:800;font-size:20px}
 .history-item{padding:13px;border:1px solid var(--border);border-radius:12px;margin:9px 0;background:#fbfcfe}
@@ -29,7 +29,7 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px s
 </style>
 </head>
 <body>
-<header><strong>📦 Material Manager</strong><span id="headerSite">V4</span></header>
+<header><div class="brand"><div class="tm">T<span>M</span></div><div><strong>THADEN MATERIAL</strong><small>SMART MATERIAL LOGISTICS</small></div></div><span id="headerSite">V5</span></header>
 <script>
 if ('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js'));
 </script>
@@ -38,7 +38,7 @@ if ('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.s
 <div class="wrap">
 <section id="lock" class="screen active">
 <div class="card pinbox">
-<h1>Material Manager</h1><p class="muted">V3 – lokaler PWA-Prototyp · offline testbar</p>
+<h1>THADEN MATERIAL</h1><p class="muted">Smart Material Logistics · lokaler PWA-Prototyp</p>
 <div id="pinDots" class="pin-dots">○ ○ ○ ○</div><div id="pinError" class="error"></div>
 <div class="numpad">
 <button onclick="pin('1')">1</button><button onclick="pin('2')">2</button><button onclick="pin('3')">3</button>
@@ -50,12 +50,16 @@ if ('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.s
 </section>
 
 <section id="home" class="screen">
-<div class="card"><h1>Startseite</h1><p>Willkommen im lokalen Material Manager.</p></div>
+<div class="card"><h1>THADEN MATERIAL</h1><p class="muted">Smart Material Logistics</p><p>Material bestellen, Lagerbestand erfassen und Baustellen dokumentieren – schnell und praxisnah.</p></div>
 <div class="nav">
-<button onclick="newInventory()">📋<br>Neue Bestandsaufnahme</button>
-<button onclick="showHistory()">📚<br>Vergangene Aufnahmen</button>
-<button onclick="showDrums()">🧵<br>Trommelverwaltung</button>
-<button onclick="showSettings()">⚙️<br>Einstellungen</button>
+<button onclick="newInventory()">🛒<br><b>Bestellungen</b><br><span class="muted">Bestandsbedarf vormerken</span></button>
+<button onclick="newInventory()">🏭<br><b>Lagerbestand</b><br><span class="muted">Neue Bestandsaufnahme</span></button>
+<button onclick="newInventory()">⌗<br><b>Scannen</b><br><span class="muted">Trommeletikett erfassen</span></button>
+<button onclick="showHistory()">🚚<br><b>Transport</b><br><span class="muted">Historie & Übergaben</span></button>
+<button onclick="newInventory()">👷<br><b>Baustellen</b><br><span class="muted">Baustellenbestände</span></button>
+<button onclick="showHistory()">▥<br><b>Dokumentation</b><br><span class="muted">Aufnahmen & PDFs</span></button>
+<button onclick="showDrums()">🧵<br><b>Trommelverwaltung</b><br><span class="muted">Alle erfassten Trommeln</span></button>
+<button onclick="showSettings()">⚙️<br><b>Einstellungen</b><br><span class="muted">PIN & lokale Daten</span></button>
 </div>
 </section>
 
