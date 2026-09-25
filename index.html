@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0b3558">
-<title>Material Manager V2</title>
+<title>Material Manager V4</title>
 <style>
 :root{--navy:#0b3558;--blue:#0878e8;--bg:#f4f7fb;--card:#fff;--text:#17324d;--muted:#6d7f90;--green:#159b60;--border:#dbe4ed}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
@@ -29,7 +29,7 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px s
 </style>
 </head>
 <body>
-<header><strong>📦 Material Manager</strong><span id="headerSite">V2</span></header>
+<header><strong>📦 Material Manager</strong><span id="headerSite">V4</span></header>
 <script>
 if ('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js'));
 </script>
@@ -80,8 +80,8 @@ if ('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.s
 <input id="photo" class="screen" type="file" accept="image/*" capture="environment" onchange="photoChosen()">
 <img id="preview" class="preview"><p id="photoMsg" class="muted"></p>
 </div><div>
-<label>Gesamtlänge</label><input id="totalLen" type="number" min="0" step="1" value="2400"><span class="muted">Meter</span>
-<label>Restbestand</label><input id="restLen" type="number" min="0" step="1" value="2400"><span class="muted">Meter</span>
+<label>Gesamtlänge</label><input id="totalLen" type="number" min="0" step="1" placeholder="z. B. 2400"><span class="muted">Meter</span>
+<label>Restbestand</label><input id="restLen" type="number" min="0" step="1" placeholder="z. B. 1850"><span class="muted">Meter</span>
 </div></div>
 <div class="actions"><button class="ghost" onclick="show('materials')">← Zurück</button><button class="green" onclick="saveDrum()">✓ Trommel speichern</button></div>
 </div></section>
@@ -122,17 +122,24 @@ function pinOk(){if(entered===pinCode){entered="";updateDots();$("pinError").tex
 function changePin(){let p=$("newPin").value.trim();if(!/^\d{4}$/.test(p)){alert("Bitte genau 4 Ziffern eingeben.");return}pinCode=p;localStorage.setItem("mm_pin",p);$("newPin").value="";alert("PIN gespeichert.");show("home")}
 function newInventory(){current={drums:[],pieces:[]};$("invDate").value=today();show("setup")}
 function startInventory(){show("materials")}
-function selectCable(n){selected=n;$("drumTitle").textContent=n+" – Trommel erfassen";$("drumNo").value="";$("totalLen").value=2400;$("restLen").value=2400;$("preview").style.display="none";$("photoMsg").textContent="";show("drum")}
+function selectCable(n){selected=n;$("drumTitle").textContent=n+" – Trommel erfassen";$("drumNo").value="";$("totalLen").value="";$("restLen").value="";$("photo").value="";$("preview").style.display="none";$("photoMsg").textContent="";show("drum")} 
 function selectPiece(n){selected=n;$("pieceTitle").textContent=n;let old=current.pieces.find(x=>x.material===n);$("pieceQty").value=old?old.qty:0;show("piece")}
 function photoChosen(){let f=$("photo").files[0];if(!f)return;$("preview").src=URL.createObjectURL(f);$("preview").style.display="block";$("photoMsg").textContent="Foto gespeichert. Die automatische OCR-Erkennung der Nummer kommt in einer späteren Entwicklungsstufe."}
-function saveDrum(){let no=$("drumNo").value.trim(),total=+$("totalLen").value,rest=+$("restLen").value;if(!no||total<0||rest<0||rest>total){alert("Bitte Nummer und gültige Längen prüfen.");return}current.drums.push({material:selected,no,total,rest,photo:!!$("photo").files.length});show("materials")}
+function saveDrum(){let no=$("drumNo").value.trim(),total=Number($("totalLen").value),rest=Number($("restLen").value);if(!no||!Number.isFinite(total)||!Number.isFinite(rest)||total<=0||rest<0||rest>total){alert("Bitte Trommelnummer sowie gültige Gesamtlänge und Restbestand eingeben.");return}current.drums.push({material:selected,no,total,rest,photo:!!$("photo").files.length});show("materials")}
 function savePiece(){let q=+$("pieceQty").value;if(q<0){alert("Ungültige Menge.");return}let p=current.pieces.find(x=>x.material===selected);if(p)p.qty=q;else current.pieces.push({material:selected,qty:q,unit:pieces.find(x=>x[0]===selected)[1]});show("materials")}
 function renderSummary(){let meta=`<b>Baustelle:</b> ${$("site").value} &nbsp; <b>Datum:</b> ${new Date($("invDate").value+"T00:00").toLocaleDateString("de-DE")} &nbsp; <b>Mitarbeiter:</b> ${$("worker").value}`;$("summaryMeta").innerHTML=meta;let h="<h3>Kabel / Trommeln</h3><table><tr><th>Material</th><th>Trommel</th><th>Gesamt</th><th>Rest</th></tr>";if(!current.drums.length)h+="<tr><td colspan=4>Keine Trommeln erfasst.</td></tr>";let totals={};current.drums.forEach(d=>{h+=`<tr><td>${d.material}</td><td>${d.no}${d.photo?" 📷":""}</td><td>${d.total.toLocaleString("de-DE")} m</td><td>${d.rest.toLocaleString("de-DE")} m</td></tr>`;totals[d.material]=(totals[d.material]||0)+d.rest});h+="</table>";Object.entries(totals).forEach(([m,q])=>h+=`<p class="total">${m}: ${q.toLocaleString("de-DE")} m</p>`);h+="<h3>Stückmaterial</h3><table><tr><th>Material</th><th>Bestand</th></tr>";if(!current.pieces.length)h+="<tr><td colspan=2>Kein Stückmaterial erfasst.</td></tr>";current.pieces.forEach(p=>h+=`<tr><td>${p.material}</td><td>${p.qty} ${p.unit}</td></tr>`);h+="</table>";$("summaryBody").innerHTML=h}
 function completeInventory(){let item={id:Date.now(),site:$("site").value,date:$("invDate").value,worker:$("worker").value,drums:current.drums,pieces:current.pieces};history.unshift(item);localStorage.setItem("mm_history",JSON.stringify(history));drums=[...drums,...current.drums];localStorage.setItem("mm_drums",JSON.stringify(drums));show("done")}
 function renderHistory(){let h=history.map(x=>`<div class="history-item"><b>${x.site}</b> <span class="badge">${new Date(x.date+"T00:00").toLocaleDateString("de-DE")}</span><br><span class="muted">${x.worker} · ${x.drums.length} Trommeln · ${x.pieces.length} Stückmaterialien</span></div>`).join("");$("historyList").innerHTML=h||'<div class="empty">Noch keine Aufnahmen gespeichert.</div>'}
 function renderDrums(){let h=drums.map((d,i)=>`<div class="history-item"><b>${d.material}</b><br>Trommel: <b>${d.no}</b> · Rest: <b>${d.rest.toLocaleString("de-DE")} m</b><br><span class="muted">Gesamtlänge: ${d.total.toLocaleString("de-DE")} m ${d.photo?"· Foto vorhanden":""}</span></div>`).join("");$("drumList").innerHTML=h||'<div class="empty">Noch keine Trommeln gespeichert.</div>'}
 async function shareText(){let text="Materialbestandsaufnahme – "+$("site").value+" – "+$("invDate").value;if(navigator.share){try{await navigator.share({title:"Materialbestandsaufnahme",text})}catch(e){}}else alert(text+"\n\nAuf diesem Gerät ist kein Teilen-Menü verfügbar.")}
-$("cables").innerHTML=cables.map(n=>`<button class="tile" onclick="selectCable(${JSON.stringify(n)})">🧵 ${n}</button>`).join("");
-$("pieces").innerHTML=pieces.map(([n,u])=>`<button class="tile" onclick="selectPiece(${JSON.stringify(n)})">📦 ${n}<br><span class="muted">${u}</span></button>`).join("");
+$("cables").innerHTML=cables.map((n,i)=>`<button type="button" class="tile cable-btn" data-index="${i}">🧵 ${n}</button>`).join("");
+$("pieces").innerHTML=pieces.map(([n,u],i)=>`<button type="button" class="tile piece-btn" data-index="${i}">📦 ${n}<br><span class="muted">${u}</span></button>`).join("");
+
+document.addEventListener("click",function(e){
+  const cable=e.target.closest(".cable-btn");
+  if(cable){ e.preventDefault(); const n=cables[Number(cable.dataset.index)]; selectCable(n); return; }
+  const piece=e.target.closest(".piece-btn");
+  if(piece){ e.preventDefault(); const n=pieces[Number(piece.dataset.index)][0]; selectPiece(n); return; }
+});
 </script>
 </body></html>
