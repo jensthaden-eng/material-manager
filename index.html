@@ -442,6 +442,24 @@ function openPdfFor(id){
   renderPrintReport(item);
   printPdfInSeparateWindow();
 }
+function deleteDocumentation(id){
+  const item=history.find(x=>x.id===id); if(!item)return;
+  const date=new Date(item.date+"T00:00").toLocaleDateString("de-DE");
+  if(!confirm(`Bestandsdokumentation für ${item.site} vom ${date} wirklich löschen?\n\nDie gespeicherte Bestandsaufnahme wird aus der Dokumentation und Historie entfernt.`))return;
+  history=history.filter(x=>x.id!==id);
+  localStorage.setItem("mm_history",JSON.stringify(history));
+  if(Number(localStorage.getItem("mm_last_documentation_id"))===Number(id)){
+    localStorage.removeItem("mm_last_documentation_id");
+    localStorage.removeItem("mm_last_documentation_message");
+  }
+  rebuildDrumStore();
+  renderDocumentation();
+  renderHistory();
+  renderHome();
+  renderSites();
+  updateStats();
+  notifySaved('Dokumentation gelöscht','Die Bestandsaufnahme wurde aus der Dokumentation entfernt.','Gelöscht');
+}
 function renderDocumentation(){
   const el=$("documentationList"); if(!el)return;
   const items=latestProjects();
@@ -449,7 +467,7 @@ function renderDocumentation(){
   el.innerHTML=items.map(item=>{
     const st=projectStats(item);
     const date=new Date(item.date+"T00:00").toLocaleDateString("de-DE");
-    return `<div class="workflow-card"><div class="top"><div><b>${esc(item.site)}</b><div class="meta">${esc(item.place||"")} · ${date} · ${st.drums} Trommeln · ${st.pieces} Materialarten</div><span class="status-pill">● gespeichert</span></div></div><div class="workflow-actions"><button class="primary" type="button" onclick="openPdfFor(${item.id})">📄 PDF erstellen</button><button class="ghost" type="button" onclick="shareDocument(${item.id})">📤 Teilen</button></div></div>`;
+    return `<div class="workflow-card"><div class="top"><div><b>${esc(item.site)}</b><div class="meta">${esc(item.place||"")} · ${date} · ${st.drums} Trommeln · ${st.pieces} Materialarten</div><span class="status-pill">● gespeichert</span></div></div><div class="workflow-actions" style="grid-template-columns:1fr 1fr 1fr"><button class="primary" type="button" onclick="openPdfFor(${item.id})">📄 PDF erstellen</button><button class="ghost" type="button" onclick="shareDocument(${item.id})">📤 Teilen</button><button class="danger" type="button" onclick="deleteDocumentation(${item.id})">🗑 Löschen</button></div></div>`;
   }).join("");
 }
 async function shareDocument(id){
