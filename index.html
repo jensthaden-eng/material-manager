@@ -423,10 +423,23 @@ function completeInventory(){
   notifySaved("Material erfolgreich gespeichert","Die Bestandsaufnahme wurde gespeichert.","PDF kann jetzt erstellt werden");
   setTimeout(()=>show("documentation"),2650);
 }
+function printPdfInSeparateWindow(){
+  const report=$('printReport');
+  if(!report)return;
+  const printWin=window.open('', '_blank');
+  if(!printWin){
+    setTimeout(()=>window.print(),50);
+    return;
+  }
+  const styles=[...document.querySelectorAll('style')].map(s=>s.textContent).join('\n');
+  printWin.document.open();
+  printWin.document.write(`<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>THADEN MATERIAL · PDF</title><style>${styles}</style></head><body>${report.innerHTML}<script>window.addEventListener('load',()=>setTimeout(()=>window.print(),120));<\/script></body></html>`);
+  printWin.document.close();
+}
 function openPdfFor(id){
   const item=history.find(x=>x.id===id); if(!item)return;
   renderPrintReport(item);
-  setTimeout(()=>window.print(),50);
+  printPdfInSeparateWindow();
 }
 function renderDocumentation(){
   const el=$("documentationList"); if(!el)return;
@@ -474,7 +487,8 @@ function renderOrderPrintReport(order){
 }
 function printOrderPdf(id){
   const list=JSON.parse(localStorage.getItem('mm_orders')||'[]'); const order=list.find(x=>x.id===id); if(!order)return;
-  renderOrderPrintReport(order); setTimeout(()=>window.print(),50);
+  renderOrderPrintReport(order);
+  printPdfInSeparateWindow();
 }
 async function shareOrder(id){
   const list=JSON.parse(localStorage.getItem('mm_orders')||'[]'); const order=list.find(x=>x.id===id); if(!order)return;
