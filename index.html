@@ -127,7 +127,7 @@ if ('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.s
   <div class="process-grid">
     <button class="process-card orange" onclick="newInventory()"><span class="icon">▣</span><b>1 · Bestand aufnehmen</b><small>Material vor Ort erfassen</small></button>
     <button class="process-card dark" onclick="show('documentation')"><span class="icon">▤</span><b>2 · Bestandsliste</b><small>PDF für das Lager</small></button>
-    <button class="process-card orange" onclick="show('orders')"><span class="icon">＋</span><b>3 · Materialbedarf</b><small>Fehlendes Material melden</small></button>
+    <button class="process-card orange" onclick="show('orders')"><span class="icon">＋</span><b>3 · Materialbestellung</b><small>Fehlendes Material melden</small></button>
     <button class="process-card green" onclick="show('returns')"><span class="icon">↻</span><b>4 · Leere Trommeln</b><small>Rücklieferung ans Lager</small></button>
   </div>
 </div>
@@ -145,19 +145,19 @@ if ('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.s
 </section>
 
 <section id="orders" class="screen">
-<div class="card"><button class="ghost back" onclick="show('home')">← Start</button><h2>Materialbedarf</h2><p class="muted">Fehlendes Material für eine Baustelle an das Lager melden.</p>
+<div class="card"><button class="ghost back" onclick="show('home')">← Start</button><h2>Materialbestellung</h2><p class="muted">Fehlendes Material für eine Baustelle an das Lager melden.</p>
 <div id="orderNotice"></div>
 <div class="form-card"><h3>Bedarf erfassen</h3>
 <label>Baustelle</label><select id="orderSite"></select>
 <label>Material</label><select id="orderMaterial"></select>
 <label>Menge</label><input id="orderQty" type="number" min="1" step="1" placeholder="z. B. 20">
 <label>Bemerkung (optional)</label><input id="orderNote" type="text" placeholder="z. B. Bauabschnitt 2">
-<div class="form-actions"><button class="primary" onclick="saveMaterialOrder()">Materialbedarf speichern</button><button class="ghost" onclick="show('orderList')">Offene Meldungen</button></div>
+<div class="form-actions"><button class="primary" onclick="saveMaterialOrder()">Materialbestellung speichern</button><button class="ghost" onclick="show('orderList')">Offene Meldungen</button></div>
 </div>
 </div>
 </section>
 
-<section id="orderList" class="screen"><div class="card"><button class="ghost back" onclick="show('orders')">← Materialbedarf</button><h2>Offene Materialmeldungen</h2><div id="ordersList"></div></div></section>
+<section id="orderList" class="screen"><div class="card"><button class="ghost back" onclick="show('orders')">← Materialbestellung</button><h2>Offene Materialbestellungen</h2><div id="ordersList"></div></div></section>
 
 <section id="warehouse" class="screen"><div class="card"><button class="ghost back" onclick="show('home')">← Start</button><h2>Lagerbestand</h2><p class="muted">Bestände auf einen Blick.</p><div class="stat-grid"><div class="stat"><span class="muted">Trommeln</span><b id="statDrums">0</b></div><div class="stat"><span class="muted">Aufnahmen</span><b id="statHistory">0</b></div></div><div class="actions"><button class="primary" onclick="newInventory()">＋ Bestandsaufnahme</button><button class="ghost" onclick="show('drums')">Trommeln anzeigen</button></div></div></section>
 
@@ -460,14 +460,14 @@ function saveMaterialOrder(){
   const list=JSON.parse(localStorage.getItem('mm_orders')||'[]'); list.unshift(order); localStorage.setItem('mm_orders',JSON.stringify(list));
   $('orderQty').value=''; $('orderNote').value='';
   renderOrderPrintReport(order);
-  $('orderNotice').innerHTML=`<div class="notice-success">✓ Materialbedarf gespeichert und für das Lager bereit.<div class="notice-actions"><button class="primary" type="button" onclick="printOrderPdf(${order.id})">📄 Bedarf als PDF erstellen</button><button class="ghost" type="button" onclick="shareOrder(${order.id})">📤 Bedarf teilen</button></div></div>`;
-  renderOrders(); notifySaved('Materialbedarf erfolgreich gespeichert','Die Meldung wurde für das Lager gespeichert.','PDF kann jetzt erstellt werden');
+  $('orderNotice').innerHTML=`<div class="notice-success">✓ Materialbestellung gespeichert und für das Lager bereit.<div class="notice-actions"><button class="primary" type="button" onclick="printOrderPdf(${order.id})">📄 Bestellung als PDF erstellen</button><button class="ghost" type="button" onclick="shareOrder(${order.id})">📤 Bestellung teilen</button></div></div>`;
+  renderOrders(); notifySaved('Materialbestellung erfolgreich gespeichert','Die Meldung wurde für das Lager gespeichert.','PDF kann jetzt erstellt werden');
 }
 function renderOrderPrintReport(order){
   const date=new Date(order.date+'T00:00').toLocaleDateString('de-DE');
-  const footer=`<div class="print-footer">THADEN MATERIAL · SMART MATERIAL LOGISTICS · Materialbedarf · ${date}</div>`;
+  const footer=`<div class="print-footer">THADEN MATERIAL · SMART MATERIAL LOGISTICS · Materialbestellung · ${date}</div>`;
   const page=(content)=>`<section class="print-page order-print-page">${content}</section>`;
-  const head=`<div class="print-head"><img src="./thaden-logo.png" alt="THADEN MATERIAL"><div class="print-kicker">Dokumentation<br><span>Materialbedarf</span></div></div>`;
+  const head=`<div class="print-head"><img src="./thaden-logo.png" alt="THADEN MATERIAL"><div class="print-kicker">Dokumentation<br><span>Materialbestellung</span></div></div>`;
   const meta=`<div class="print-meta order-meta"><div><b>Baustelle</b>${esc(order.site)}</div><div><b>Datum</b>${date}</div><div><b>Status</b>Offen</div></div>`;
   const body=`<h2>Bedarfsanforderung</h2><table class="print-table"><thead><tr><th>Material</th><th>Menge</th></tr></thead><tbody><tr><td>${esc(order.material)}</td><td><b>${Number(order.qty).toLocaleString('de-DE')}</b></td></tr></tbody></table>${order.note?`<h2 class="print-section">Bemerkung</h2><div class="print-note">${esc(order.note)}</div>`:''}<div class="print-complete order-open">✓ Bedarf gespeichert · bereit für das Lager</div>${footer}`;
   $('printReport').innerHTML=page(`${head}<div class="print-title">MATERIALBEDARF</div>${meta}${body}`);
@@ -479,17 +479,17 @@ function printOrderPdf(id){
 async function shareOrder(id){
   const list=JSON.parse(localStorage.getItem('mm_orders')||'[]'); const order=list.find(x=>x.id===id); if(!order)return;
   const text=`THADEN MATERIAL · Materialbedarf\nBaustelle: ${order.site}\nMaterial: ${order.material}\nMenge: ${order.qty}\nDatum: ${new Date(order.date+'T00:00').toLocaleDateString('de-DE')}${order.note?`\nBemerkung: ${order.note}`:''}`;
-  if(navigator.share){try{await navigator.share({title:'THADEN MATERIAL · Materialbedarf',text})}catch(e){}} else alert(text);
+  if(navigator.share){try{await navigator.share({title:'THADEN MATERIAL · Materialbestellung',text})}catch(e){}} else alert(text);
 }
 function deleteMaterialOrder(id){
   const list=JSON.parse(localStorage.getItem('mm_orders')||'[]');
   const order=list.find(x=>x.id===id); if(!order)return;
   const date=new Date(order.date+'T00:00').toLocaleDateString('de-DE');
-  if(!confirm(`Materialbedarf für ${order.site}\n${order.material} · ${order.qty}\n\nWird dieser Bedarf nicht mehr benötigt und wirklich gelöscht?`))return;
+  if(!confirm(`Materialbestellung für ${order.site}\n${order.material} · ${order.qty}\n\nWird dieser Bedarf nicht mehr benötigt und wirklich gelöscht?`))return;
   localStorage.setItem('mm_orders',JSON.stringify(list.filter(x=>x.id!==id)));
   renderOrders();
   renderOrderForm();
-  notifySaved('Materialbedarf gelöscht','Die Meldung wurde aus den offenen Meldungen entfernt.','Nicht mehr erforderlich');
+  notifySaved('Materialbestellung gelöscht','Die Meldung wurde aus den offenen Meldungen entfernt.','Nicht mehr erforderlich');
 }
 function renderOrders(){
   const el=$('ordersList'); if(!el)return; const list=JSON.parse(localStorage.getItem('mm_orders')||'[]');
