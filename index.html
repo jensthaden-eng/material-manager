@@ -76,6 +76,19 @@ body{background:#f3f5f7}
  .numpad button{min-height:70px!important;border-radius:16px!important;font-size:26px!important;padding:14px 10px!important}
 }
 @media(min-width:651px){#lock .pinbox{max-width:520px!important}.numpad button{min-height:72px!important}}
+
+/* V23 workflow-first start */
+.workflow-intro{background:#101820;color:#fff;border-radius:24px;padding:24px;margin-bottom:18px;box-shadow:0 8px 24px #18324b18}
+.workflow-intro h1{font-size:34px;margin:0 0 5px}.workflow-intro p{font-size:18px;color:#d9e0e5;margin:0 0 18px}
+.workflow-primary{width:100%;font-size:18px;padding:16px 18px;border-radius:16px}
+.workflow-section{margin:18px 0}.workflow-section h3{font-size:25px;margin:0 0 10px}
+.workflow-card{background:#fff;border:1px solid #e0e5e8;border-radius:18px;padding:16px;margin-bottom:12px;box-shadow:0 4px 16px #18324b0d}
+.workflow-card .top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.workflow-card b{font-size:19px}.workflow-card .meta{color:var(--muted);font-size:14px;margin-top:3px}.status-pill{display:inline-flex;align-items:center;gap:5px;margin-top:8px;padding:5px 9px;border-radius:999px;background:#e7f7ef;color:#13764c;font-size:12px;font-weight:800}.status-pill.warn{background:#fff3d8;color:#9a6500}
+.workflow-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}.workflow-actions button{width:100%;padding:12px 10px;font-size:14px}
+.process-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.process-card{min-height:105px;border-radius:18px;padding:16px;color:#fff;display:flex;flex-direction:column;justify-content:space-between}.process-card.orange{background:var(--orange)}.process-card.dark{background:#24313c}.process-card.green{background:#159b60}.process-card.gray{background:#e9edf0;color:var(--text)}.process-card .icon{font-size:22px}.process-card b{font-size:17px}.process-card small{opacity:.9;font-size:12px;margin-top:2px}
+.notice-success{background:#e7f7ef;border:1px solid #b8e5cf;color:#126f47;border-radius:14px;padding:14px;font-weight:750;margin-bottom:14px}
+.form-card{background:#fff;border:1px solid #e0e5e8;border-radius:18px;padding:18px;margin-bottom:14px}.form-card h3{margin:0 0 6px;font-size:22px}.form-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:14px}
+@media(max-width:650px){.workflow-intro{padding:22px 18px}.workflow-intro h1{font-size:31px}.workflow-intro p{font-size:17px}.process-grid{grid-template-columns:1fr 1fr}.workflow-actions{grid-template-columns:1fr 1fr}}
 </style>
 </head>
 <body>
@@ -100,34 +113,68 @@ if ('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.s
 </section>
 
 <section id="home" class="screen">
-<div class="home-hero"><h1>Moin</h1><p>Material im Blick. Prozesse im Griff.</p><div class="actions"><button class="primary" onclick="newInventory()">＋ Neue Bestandsaufnahme</button></div></div>
-<div class="section-title"><h3>Meine Baustellen</h3><button class="ghost" onclick="show('sites')">Alle →</button></div>
-<div id="homeSites" class="site-overview"></div>
-<div class="section-title"><h3>Schnellzugriff</h3></div>
-<div class="dashboard compact-dashboard">
-<button class="dash-tile dash-dark" onclick="show('warehouse')"><span class="ico">🏭</span><b>Lager</b><small>Gesamtbestand</small></button>
-<button class="dash-tile dash-purple" onclick="show('documentation')"><span class="ico">▥</span><b>Dokumentation</b><small>Bestandslisten & PDF</small></button>
-<button class="dash-tile dash-orange" onclick="show('orders')"><span class="ico">🛒</span><b>Bestellen</b><small>Material anfordern</small></button>
-<button class="dash-tile dash-green" onclick="show('scan')"><span class="ico">⌗</span><b>Scannen</b><small>Material erfassen</small></button>
+<div class="workflow-intro">
+  <h1>Moin</h1>
+  <p>Material im Blick. Prozesse im Griff.</p>
+  <button class="primary workflow-primary" onclick="newInventory()">＋ Neue Bestandsaufnahme</button>
 </div>
-<div class="section-title"><h3>Letzte Aktivitäten</h3><button class="ghost" onclick="show('history')">Historie →</button></div>
-<div id="homeActivity" class="activity"></div>
+<div class="workflow-section">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h3>Meine Baustellen</h3><button class="ghost" onclick="show('sites')">Alle →</button></div>
+  <div id="homeSites"></div>
+</div>
+<div class="workflow-section">
+  <h3>Arbeitsablauf</h3>
+  <div class="process-grid">
+    <button class="process-card orange" onclick="newInventory()"><span class="icon">▣</span><b>1 · Bestand aufnehmen</b><small>Material vor Ort erfassen</small></button>
+    <button class="process-card dark" onclick="show('documentation')"><span class="icon">▤</span><b>2 · Bestandsliste</b><small>PDF für das Lager</small></button>
+    <button class="process-card orange" onclick="show('orders')"><span class="icon">＋</span><b>3 · Materialbedarf</b><small>Fehlendes Material melden</small></button>
+    <button class="process-card green" onclick="show('returns')"><span class="icon">↻</span><b>4 · Leere Trommeln</b><small>Rücklieferung ans Lager</small></button>
+  </div>
+</div>
+<div class="workflow-section">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h3>Letzte Vorgänge</h3><button class="ghost" onclick="show('history')">Historie →</button></div>
+  <div id="homeActivity" class="activity"></div>
+</div>
 <div class="bottom-nav">
 <button class="active" onclick="show('home')"><span>⌂</span>Start</button>
-<button onclick="show('orders')"><span>🛒</span>Bestellen</button>
-<button onclick="show('warehouse')"><span>🏭</span>Lager</button>
-<button onclick="show('sites')"><span>👷</span>Baustellen</button>
-<button onclick="show('documentation')"><span>•••</span>Mehr</button>
+<button onclick="show('sites')"><span>🏗️</span>Baustellen</button>
+<button onclick="show('documentation')"><span>▤</span>Dokumentation</button>
+<button onclick="show('orders')"><span>＋</span>Bedarf</button>
+<button onclick="show('returns')"><span>↻</span>Rücklauf</button>
 </div>
 </section>
 
-<section id="orders" class="screen"><div class="card"><button class="ghost back" onclick="show('home')">← Start</button><h2>Bestellen</h2><p class="muted">Materialbedarf schnell vormerken.</p><div class="feature-list">
-<div class="feature-item"><div class="left"><div class="feature-icon">🧵</div><div><b>Kabel / Trommeln</b><div class="muted">Bedarf erfassen</div></div></div><button class="primary" onclick="newInventory()">Erfassen</button></div>
-<div class="feature-item"><div class="left"><div class="feature-icon">📦</div><div><b>Stückmaterial</b><div class="muted">Mengen vormerken</div></div></div><button class="primary" onclick="newInventory()">Erfassen</button></div></div></div></section>
+<section id="orders" class="screen">
+<div class="card"><button class="ghost back" onclick="show('home')">← Start</button><h2>Materialbedarf</h2><p class="muted">Fehlendes Material für eine Baustelle an das Lager melden.</p>
+<div id="orderNotice"></div>
+<div class="form-card"><h3>Bedarf erfassen</h3>
+<label>Baustelle</label><select id="orderSite"></select>
+<label>Material</label><select id="orderMaterial"></select>
+<label>Menge</label><input id="orderQty" type="number" min="1" step="1" placeholder="z. B. 20">
+<label>Bemerkung (optional)</label><input id="orderNote" type="text" placeholder="z. B. Bauabschnitt 2">
+<div class="form-actions"><button class="primary" onclick="saveMaterialOrder()">Materialbedarf speichern</button><button class="ghost" onclick="show('orderList')">Offene Meldungen</button></div>
+</div>
+<div id="orderList"></div></div>
+</section>
+
+<section id="orderList" class="screen"><div class="card"><button class="ghost back" onclick="show('orders')">← Materialbedarf</button><h2>Offene Materialmeldungen</h2><div id="ordersList"></div></div></section>
 
 <section id="warehouse" class="screen"><div class="card"><button class="ghost back" onclick="show('home')">← Start</button><h2>Lagerbestand</h2><p class="muted">Bestände auf einen Blick.</p><div class="stat-grid"><div class="stat"><span class="muted">Trommeln</span><b id="statDrums">0</b></div><div class="stat"><span class="muted">Aufnahmen</span><b id="statHistory">0</b></div></div><div class="actions"><button class="primary" onclick="newInventory()">＋ Bestandsaufnahme</button><button class="ghost" onclick="show('drums')">Trommeln anzeigen</button></div></div></section>
 
 <section id="scan" class="screen"><div class="card"><button class="ghost back" onclick="show('home')">← Start</button><h2>Material scannen</h2><p class="muted">Trommeletikett fotografieren und anschließend die Daten erfassen.</p><button class="primary" style="width:100%;padding:18px" onclick="newInventory()">📷 Scan / Aufnahme starten</button><p class="muted" style="margin-top:12px">OCR für die automatische Trommelnummer ist als nächster Ausbauschritt vorgesehen.</p></div></section>
+
+<section id="returns" class="screen">
+<div class="card"><button class="ghost back" onclick="show('home')">← Start</button><h2>Leere Trommeln</h2><p class="muted">Leere Trommeln für die Rücklieferung an das Lager melden.</p>
+<div id="returnNotice"></div>
+<div class="form-card"><h3>Rücklieferung erfassen</h3>
+<label>Baustelle</label><select id="returnSite"></select>
+<label>Material</label><select id="returnMaterial"></select>
+<label>Trommelnummer</label><input id="returnDrum" type="text" placeholder="z. B. E2557689057">
+<div class="form-actions"><button class="green" onclick="saveReturnDrum()">Trommel melden</button><button class="ghost" onclick="show('returnList')">Rücklaufliste</button></div>
+</div>
+<div id="returnList"></div></div>
+</section>
+<section id="returnList" class="screen"><div class="card"><button class="ghost back" onclick="show('returns')">← Rücklauf</button><h2>Rücklieferliste</h2><div id="returnsList"></div><div class="actions"><button class="primary" onclick="shareReturnList()">📄 Liste erstellen / teilen</button></div></div></section>
 
 <section id="sites" class="screen"><div class="card"><button class="ghost back" onclick="show('home')">← Start</button><h2>Baustellen</h2><p class="muted">Bereits angelegte Vorhaben fortsetzen oder eine neue Bestandsaufnahme starten.</p><div class="actions"><button class="primary" onclick="newInventory()">＋ Neues Vorhaben</button></div><div id="siteList"></div></div></section>
 
@@ -214,7 +261,7 @@ let pinCode=localStorage.getItem("mm_pin")||"1234", entered="", unlocked=false, 
 const $=x=>document.getElementById(x);
 function today(){return new Date(Date.now()-new Date().getTimezoneOffset()*60000).toISOString().slice(0,10)}
 $("invDate").value=today();
-function show(id){if(id==="home"&&!unlocked)return;document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));$(id).classList.add("active");if(id==="home")renderHome();if(id==="history")renderHistory();if(id==="drums")renderDrums();if(id==="documentation")renderDocumentation();if(id==="sites")renderSites();if(id==="materials")renderCurrentEntries();updateStats();window.scrollTo({top:0,left:0,behavior:"auto"});document.documentElement.scrollTop=0;document.body.scrollTop=0}
+function show(id){if(id==="home"&&!unlocked)return;document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));$(id).classList.add("active");if(id==="home")renderHome();if(id==="history")renderHistory();if(id==="drums")renderDrums();if(id==="documentation")renderDocumentation();if(id==="sites")renderSites();if(id==="materials")renderCurrentEntries();if(id==="orders")renderOrderForm();if(id==="orderList")renderOrders();if(id==="returns")renderReturnForm();if(id==="returnList")renderReturns();updateStats();window.scrollTo({top:0,left:0,behavior:"auto"});document.documentElement.scrollTop=0;document.body.scrollTop=0}
 unlocked=false;
 function pin(x){if(entered.length<4)entered+=x;updateDots();if(entered.length===4)setTimeout(pinOk,120)}
 function pinClear(){entered=entered.slice(0,-1);updateDots()}
@@ -263,11 +310,14 @@ function projectStats(item){
   return {drums:(item.drums||[]).length,pieces:(item.pieces||[]).length,meters,piecesQty:pieces};
 }
 function renderHome(){
-  const sites=$('homeSites'), activity=$('homeActivity');
-  if(!sites||!activity)return;
+  const sites=$('homeSites'), activity=$('homeActivity'); if(!sites||!activity)return;
   const items=latestProjects();
-  sites.innerHTML=items.length?items.slice(0,4).map(item=>{const st=projectStats(item);const date=new Date(item.date+"T00:00").toLocaleDateString("de-DE");return `<div class="site-card"><div class="site-card-main"><div class="site-badge">⌂</div><div><b>${esc(item.site)}</b><div class="muted">${esc(item.place||"")} · letzte Aufnahme ${date}</div><div class="site-stock">${st.drums} Trommeln · ${st.pieces} Stückmaterial · <strong>${st.meters.toLocaleString("de-DE")} m Rest</strong></div></div></div><div class="site-card-actions"><button class="ghost" onclick="openSiteDetail(${item.id})">Bestand</button><button class="primary" onclick="continueProject(${item.id})">Bearbeiten</button></div></div>`}).join(''):'<div class="empty">Noch keine Baustelle angelegt. Starte deine erste Bestandsaufnahme.</div>';
-  activity.innerHTML=history.length?history.slice(0,3).map(item=>{const d=new Date(item.date+"T00:00").toLocaleDateString("de-DE");return `<div class="activity-row"><div class="activity-dot">✓</div><div><b>${esc(item.site)}</b><div class="muted">Bestandsaufnahme · ${d}</div></div><button class="ghost" onclick="openPdfFor(${item.id})">PDF</button></div>`}).join(''):'<div class="empty">Noch keine Aufnahmen gespeichert.</div>';
+  sites.innerHTML=items.length?items.slice(0,5).map(item=>{
+    const st=projectStats(item); const date=new Date(item.date+"T00:00").toLocaleDateString("de-DE");
+    const status=st.drums||st.pieces?'<span class="status-pill">● Bestand vorhanden</span>':'<span class="status-pill warn">● Noch kein Bestand</span>';
+    return `<div class="workflow-card"><div class="top"><div><b>${esc(item.site)}</b><div class="meta">${esc(item.place||"")} · letzte Aufnahme ${date}</div>${status}</div><div style="text-align:right;font-size:13px;color:#697680">${st.drums} Trommeln<br>${st.pieces} Materialarten</div></div><div class="workflow-actions"><button class="ghost" onclick="openSiteDetail(${item.id})">Bestand ansehen</button><button class="primary" onclick="continueProject(${item.id})">Bearbeiten</button></div></div>`;
+  }).join(''):'<div class="workflow-card"><b>Noch keine Baustelle angelegt.</b><div class="meta">Starte mit der ersten Bestandsaufnahme.</div></div>';
+  activity.innerHTML=history.length?history.slice(0,3).map(item=>{const d=new Date(item.date+"T00:00").toLocaleDateString("de-DE");return `<div class="workflow-card" style="padding:13px 15px"><div class="top"><div><b>${esc(item.site)}</b><div class="meta">Bestandsaufnahme · ${d}</div></div><button class="ghost" onclick="openPdfFor(${item.id})">PDF</button></div></div>`}).join(''):'<div class="workflow-card"><div class="meta">Noch keine Aufnahmen gespeichert.</div></div>';
 }
 function renderSites(){
   const el=$("siteList"); if(!el)return; const items=latestProjects();
@@ -315,6 +365,49 @@ function renderPrintReport(item){let date=new Date(item.date+"T00:00").toLocaleD
 function completeInventory(){let site=$("site").value.trim(),place=$("place").value.trim(),postalCode=$("postalCode").value.trim(),street=$("street").value.trim(),worker=$("worker").value.trim();if(!site||!place||!postalCode||!street||!worker){alert("Bitte Baustelle, Ort, PLZ, Straße und Hausnummer sowie Mitarbeiter ausfüllen.");return}let item={id:Date.now(),site,warehouse:"Lagerplatz",place,postalCode,street,date:$("invDate").value,worker,drums:current.drums,pieces:current.pieces};history.unshift(item);localStorage.setItem("mm_history",JSON.stringify(history));drums=[...drums,...current.drums];localStorage.setItem("mm_drums",JSON.stringify(drums));renderPrintReport(item);localStorage.setItem("mm_last_documentation_id",String(item.id));localStorage.setItem("mm_last_documentation_message","Material erfolgreich gespeichert und als PDF bereit.");show("documentation");notifySaved("✓ Material erfolgreich gespeichert · PDF bereit")}
 function renderDocumentation(){let lastId=Number(localStorage.getItem("mm_last_documentation_id")||0);let ordered=[...history].sort((a,b)=>b.id-a.id);let notice=lastId?`<div class="success" style="margin:10px 0 16px;font-size:16px"><div style="font-size:20px;margin-bottom:4px">✓ Material erfolgreich gespeichert</div><div style="font-weight:600">Die Bestandsliste ist gespeichert und kann jetzt als PDF gespeichert oder geteilt werden.</div><button class="primary" type="button" style="margin-top:10px;width:100%" onclick="openPdfFor(${lastId})">📄 PDF erstellen / teilen</button></div>`:"";$("documentationNotice").innerHTML=notice;if(!ordered.length){$("documentationList").innerHTML='<div class="empty">Noch keine Bestandsaufnahmen vorhanden.</div>';return}$("documentationList").innerHTML=ordered.map(item=>{let active=item.id===lastId;let date=new Date(item.date+"T00:00").toLocaleDateString("de-DE");let totalDrums=item.drums.length;let totalPieces=item.pieces.length;return `<div class="feature-item" style="margin-bottom:12px;${active?'border-color:#16a34a;box-shadow:0 0 0 2px rgba(22,163,74,.08)':''}"><div class="left"><div class="feature-icon">📄</div><div><b>Material-Bestandsliste · ${esc(item.site)}</b><div class="muted">${date} · ${esc(item.place)} · ${totalDrums} Trommeln · ${totalPieces} Stückmaterialien</div></div></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="ghost" type="button" onclick="continueProject(${item.id})">↻ Fortsetzen</button><button class="primary" type="button" onclick="openPdfFor(${item.id})">📄 PDF erstellen / teilen</button></div></div>`}).join("")}
 function openPdfFor(id){let item=history.find(x=>x.id===id);if(!item)return;renderPrintReport(item);window.print()}
+
+const pieceMaterials = pieces.map(x=>x[0]);
+const cableMaterials = cables.slice();
+function siteOptions(){
+  const items=latestProjects();
+  return items.map(x=>`<option value="${esc(x.site)}">${esc(x.site)}</option>`).join('');
+}
+function renderOrderForm(){
+  const ss=$('orderSite'), ms=$('orderMaterial'); if(!ss||!ms)return;
+  ss.innerHTML=siteOptions()||'<option value="">Bitte zuerst eine Baustelle anlegen</option>';
+  ms.innerHTML=[...cableMaterials,...pieceMaterials].map(x=>`<option>${esc(x)}</option>`).join('');
+  renderOrders();
+}
+function saveMaterialOrder(){
+  const site=$('orderSite').value, material=$('orderMaterial').value, qty=Number($('orderQty').value), note=$('orderNote').value.trim();
+  if(!site||!material||!qty||qty<1){alert('Bitte Baustelle, Material und Menge ausfüllen.');return}
+  const list=JSON.parse(localStorage.getItem('mm_orders')||'[]'); list.unshift({id:Date.now(),site,material,qty,note,date:today(),status:'offen'}); localStorage.setItem('mm_orders',JSON.stringify(list));
+  $('orderQty').value=''; $('orderNote').value=''; $('orderNotice').innerHTML='<div class="notice-success">✓ Materialbedarf gespeichert und für das Lager bereit.</div>'; renderOrders();
+}
+function renderOrders(){
+  const el=$('ordersList'); if(!el)return; const list=JSON.parse(localStorage.getItem('mm_orders')||'[]');
+  el.innerHTML=list.length?list.map(x=>`<div class="workflow-card"><div class="top"><div><b>${esc(x.site)}</b><div class="meta">${esc(x.material)} · ${x.qty} · ${new Date(x.date+"T00:00").toLocaleDateString('de-DE')}</div>${x.note?`<div class="meta">${esc(x.note)}</div>`:''}</div><span class="status-pill">● offen</span></div></div>`).join(''):'<div class="empty">Keine offenen Materialmeldungen.</div>';
+}
+function renderReturnForm(){
+  const ss=$('returnSite'), ms=$('returnMaterial'); if(!ss||!ms)return;
+  ss.innerHTML=siteOptions()||'<option value="">Bitte zuerst eine Baustelle anlegen</option>';
+  ms.innerHTML=cableMaterials.map(x=>`<option>${esc(x)}</option>`).join(''); renderReturns();
+}
+function saveReturnDrum(){
+  const site=$('returnSite').value, material=$('returnMaterial').value, no=$('returnDrum').value.trim();
+  if(!site||!material||!no){alert('Bitte Baustelle, Material und Trommelnummer ausfüllen.');return}
+  const list=JSON.parse(localStorage.getItem('mm_returns')||'[]'); list.unshift({id:Date.now(),site,material,no,date:today(),status:'offen'}); localStorage.setItem('mm_returns',JSON.stringify(list));
+  $('returnDrum').value=''; $('returnNotice').innerHTML='<div class="notice-success">✓ Leere Trommel gespeichert und für die Rücklieferung bereit.</div>'; renderReturns();
+}
+function renderReturns(){
+  const el=$('returnsList'); if(!el)return; const list=JSON.parse(localStorage.getItem('mm_returns')||'[]');
+  el.innerHTML=list.length?list.map(x=>`<div class="workflow-card"><div class="top"><div><b>${esc(x.site)}</b><div class="meta">${esc(x.material)} · Trommel ${esc(x.no)}</div></div><span class="status-pill">● offen</span></div></div>`).join(''):'<div class="empty">Keine Trommeln zur Rücklieferung gemeldet.</div>';
+}
+function shareReturnList(){
+  const list=JSON.parse(localStorage.getItem('mm_returns')||'[]'); if(!list.length){alert('Noch keine leeren Trommeln gemeldet.');return}
+  const text='Rücklieferliste leere Trommeln\n\n'+list.map(x=>`${x.site} – ${x.material} – ${x.no}`).join('\n');
+  if(navigator.share){navigator.share({title:'Rücklieferliste',text}).catch(()=>{})}else{alert(text)}
+}
 function renderHistory(){let h=history.map((x,i)=>`<div class="history-item"><div class="history-item-row"><div><b>${esc(x.site)}</b> <span class="badge">${new Date(x.date+"T00:00").toLocaleDateString("de-DE")}</span><br><span class="muted">${esc(x.worker)} · ${esc(x.place||"")} · ${x.drums.length} Trommeln · ${x.pieces.length} Stückmaterialien</span></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="primary" onclick="continueProject(${x.id})">Fortsetzen</button><button type="button" class="delete-history" onclick="deleteHistory(${i})">Löschen</button></div></div></div>`).join("");$("historyList").innerHTML=h||'<div class="empty">Noch keine Aufnahmen gespeichert.</div>'}
 
 function deleteHistory(index){const item=history[index];if(!item)return;const date=new Date(item.date+"T00:00").toLocaleDateString("de-DE");if(!confirm(`Aufnahme von ${item.site} vom ${date} wirklich löschen?`))return;history.splice(index,1);localStorage.setItem("mm_history",JSON.stringify(history));renderHistory();updateStats()}
