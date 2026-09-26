@@ -481,9 +481,19 @@ async function shareOrder(id){
   const text=`THADEN MATERIAL · Materialbedarf\nBaustelle: ${order.site}\nMaterial: ${order.material}\nMenge: ${order.qty}\nDatum: ${new Date(order.date+'T00:00').toLocaleDateString('de-DE')}${order.note?`\nBemerkung: ${order.note}`:''}`;
   if(navigator.share){try{await navigator.share({title:'THADEN MATERIAL · Materialbedarf',text})}catch(e){}} else alert(text);
 }
+function deleteMaterialOrder(id){
+  const list=JSON.parse(localStorage.getItem('mm_orders')||'[]');
+  const order=list.find(x=>x.id===id); if(!order)return;
+  const date=new Date(order.date+'T00:00').toLocaleDateString('de-DE');
+  if(!confirm(`Materialbedarf für ${order.site}\n${order.material} · ${order.qty}\n\nWird dieser Bedarf nicht mehr benötigt und wirklich gelöscht?`))return;
+  localStorage.setItem('mm_orders',JSON.stringify(list.filter(x=>x.id!==id)));
+  renderOrders();
+  renderOrderForm();
+  notifySaved('Materialbedarf gelöscht','Die Meldung wurde aus den offenen Meldungen entfernt.','Nicht mehr erforderlich');
+}
 function renderOrders(){
   const el=$('ordersList'); if(!el)return; const list=JSON.parse(localStorage.getItem('mm_orders')||'[]');
-  el.innerHTML=list.length?list.map(x=>`<div class="workflow-card"><div class="top"><div><b>${esc(x.site)}</b><div class="meta">${esc(x.material)} · ${Number(x.qty).toLocaleString('de-DE')} · ${new Date(x.date+"T00:00").toLocaleDateString('de-DE')}</div>${x.note?`<div class="meta">${esc(x.note)}</div>`:''}</div><span class="status-pill">● offen</span></div><div class="workflow-actions"><button class="primary" type="button" onclick="printOrderPdf(${x.id})">📄 PDF erstellen</button><button class="ghost" type="button" onclick="shareOrder(${x.id})">📤 Teilen</button></div></div>`).join(''):'<div class="empty">Keine offenen Materialmeldungen.<br><small>Gespeicherte Bedarfe erscheinen hier automatisch.</small></div>';
+  el.innerHTML=list.length?list.map(x=>`<div class="workflow-card"><div class="top"><div><b>${esc(x.site)}</b><div class="meta">${esc(x.material)} · ${Number(x.qty).toLocaleString('de-DE')} · ${new Date(x.date+"T00:00").toLocaleDateString('de-DE')}</div>${x.note?`<div class="meta">${esc(x.note)}</div>`:''}</div><span class="status-pill">● offen</span></div><div class="workflow-actions" style="grid-template-columns:1fr 1fr 1fr"><button class="primary" type="button" onclick="printOrderPdf(${x.id})">📄 PDF erstellen</button><button class="ghost" type="button" onclick="shareOrder(${x.id})">📤 Teilen</button><button class="danger" type="button" onclick="deleteMaterialOrder(${x.id})">🗑 Löschen</button></div></div>`).join(''):'<div class="empty">Keine offenen Materialmeldungen.<br><small>Gespeicherte Bedarfe erscheinen hier automatisch.</small></div>';
 }
 function renderReturnForm(){
   const ss=$('returnSite'), ms=$('returnMaterial'); if(!ss||!ms)return;
