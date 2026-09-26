@@ -178,7 +178,7 @@ if ('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.s
 </div>
 <div id="returnList"></div></div>
 </section>
-<section id="returnList" class="screen"><div class="card"><button class="ghost back" onclick="show('returns')">← Rücklauf</button><h2>Rücklieferliste</h2><div id="returnsList"></div><div class="actions"><button class="primary" onclick="shareReturnList()">📄 Liste erstellen / teilen</button></div></div></section>
+<section id="returnList" class="screen"><div class="card"><button class="ghost back" onclick="show('returns')">← Rücklauf</button><h2>Rücklieferliste</h2><div id="returnsList"></div><div class="actions"><button class="primary" onclick="shareReturnList()">📄 PDF erstellen / teilen</button></div></div></section>
 
 <section id="sites" class="screen"><div class="card"><button class="ghost back" onclick="show('home')">← Start</button><h2>Baustellen</h2><p class="muted">Bereits angelegte Vorhaben fortsetzen oder eine neue Bestandsaufnahme starten.</p><div class="actions"><button class="primary" onclick="newInventory()">＋ Neues Vorhaben</button></div><div id="siteList"></div></div></section>
 
@@ -574,13 +574,37 @@ async function saveReturnDrum(){
 }
 function renderReturns(){
   const el=$('returnsList'); if(!el)return; const list=JSON.parse(localStorage.getItem('mm_returns')||'[]');
-  el.innerHTML=list.length?list.map(x=>`<div class="workflow-card"><div class="top"><div>${x.photo?`<img class="photo-thumb" src="${x.photo}" alt="Foto der leeren Trommel">`:''}<b>${esc(x.site)}</b><div class="meta">${esc(x.material)} · Trommel ${esc(x.no)}${x.photo?' · Foto vorhanden':''}</div></div><span class="status-pill">● offen</span></div></div>`).join(''):'<div class="empty">Keine Trommeln zur Rücklieferung gemeldet.</div>';
+  el.innerHTML=list.length?list.map(x=>`<div class="workflow-card"><div class="top"><div>${x.photo?`<img class="photo-thumb" src="${x.photo}" alt="Foto der leeren Trommel">`:''}<b>${esc(x.site)}</b><div class="meta">${esc(x.material)} · Trommel ${esc(x.no)}${x.photo?' · Foto vorhanden':''}</div></div><span class="status-pill">● offen</span></div><div class="workflow-actions" style="grid-template-columns:1fr 1fr"><button class="primary" type="button" onclick="printReturnPdf(${x.id})">📄 PDF erstellen</button><button class="danger" type="button" onclick="deleteReturn(${x.id})">🗑 Löschen</button></div></div>`).join(''):'<div class="empty">Keine Trommeln zur Rücklieferung gemeldet.</div>';
+}
+function renderReturnPrintReport(list){
+  const date=new Date().toLocaleDateString('de-DE');
+  const head=`<div class="print-head"><img src="./thaden-logo.png" alt="THADEN MATERIAL"><div class="print-kicker">Dokumentation<br><span>Rücklieferliste · Leere Trommeln</span></div></div>`;
+  const footer=`<div class="print-footer">THADEN MATERIAL · SMART MATERIAL LOGISTICS · Rücklieferliste · ${date}</div>`;
+  const pages=[];
+  const groups={}; list.forEach(x=>(groups[x.site]||(groups[x.site]=[])).push(x));
+  Object.entries(groups).forEach(([site,items])=>{
+    const rows=items.map(x=>`<tr><td>${esc(x.material)}</td><td>${esc(x.no)}</td><td>${x.photo?'<span class="photo-mark">Foto</span>':'—'}</td><td>Offen</td></tr>`).join('');
+    pages.push(`<section class="print-page return-print-page">${head}<div class="print-title">RÜCKLIEFERLISTE</div><div class="print-meta"><div><b>Baustelle</b>${esc(site)}</div><div><b>Datum</b>${date}</div><div><b>Positionen</b>${items.length}</div></div><h2>Leere Trommeln</h2><table class="print-table"><thead><tr><th>Material</th><th>Trommel</th><th>Foto</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table>${footer}</section>`);
+  });
+  const detailItems=list.filter(x=>x.photo).map((x,i)=>`<article class="photo-detail"><div class="photo-number">${String(i+1).padStart(2,'0')}</div><div class="photo-info"><h3>${esc(x.site)} · ${esc(x.material)}</h3><div class="photo-meta">Trommel ${esc(x.no)} · Rücklieferung offen</div><img src="${x.photo}" class="pdf-detail-photo" alt="Foto der leeren Trommel"></div></article>`);
+  for(let i=0;i<detailItems.length;i+=4){pages.push(`<section class="print-page print-detail-page">${head}<div class="print-title">RÜCKLIEFERDETAILS${i?' · FORTSETZUNG':''}</div><h2>Fotos der leeren Trommeln</h2>${detailItems.slice(i,i+4).join('')}${footer}</section>`)}
+  $('printReport').innerHTML=pages.join('');
+}
+function printReturnPdf(id){
+  const list=JSON.parse(localStorage.getItem('mm_returns')||'[]'); const item=list.find(x=>x.id===id); if(!item)return;
+  renderReturnPrintReport([item]); printPdfInSeparateWindow();
 }
 function shareReturnList(){
   const list=JSON.parse(localStorage.getItem('mm_returns')||'[]'); if(!list.length){alert('Noch keine leeren Trommeln gemeldet.');return}
-  const text='Rücklieferliste leere Trommeln\n\n'+list.map(x=>`${x.site} – ${x.material} – ${x.no}`).join('\n');
-  if(navigator.share){navigator.share({title:'Rücklieferliste',text}).catch(()=>{})}else{alert(text)}
+  renderReturnPrintReport(list); printPdfInSeparateWindow();
 }
+function deleteReturn(id){
+  const list=JSON.parse(localStorage.getItem('mm_returns')||'[]'); const item=list.find(x=>x.id===id); if(!item)return;
+  if(!confirm(`Rücklieferung für ${item.site} · ${item.material} · Trommel ${item.no} wirklich löschen?`))return;
+  localStorage.setItem('mm_returns',JSON.stringify(list.filter(x=>x.id!==id))); renderReturns();
+  notifySaved('Rücklieferung gelöscht','Die Trommel wurde aus der Rücklieferliste entfernt.','Nicht mehr erforderlich');
+}
+
 function renderHistory(){let h=history.map((x,i)=>`<div class="history-item"><div class="history-item-row"><div><b>${esc(x.site)}</b> <span class="badge">${new Date(x.date+"T00:00").toLocaleDateString("de-DE")}</span><br><span class="muted">${esc(x.worker)} · ${esc(x.place||"")} · ${x.drums.length} Trommeln · ${x.pieces.length} Stückmaterialien</span></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="primary" onclick="continueProject(${x.id})">Fortsetzen</button><button type="button" class="delete-history" onclick="deleteHistory(${i})">Löschen</button></div></div></div>`).join("");$("historyList").innerHTML=h||'<div class="empty">Noch keine Aufnahmen gespeichert.</div>'}
 
 function deleteHistory(index){const item=history[index];if(!item)return;const date=new Date(item.date+"T00:00").toLocaleDateString("de-DE");if(!confirm(`Aufnahme von ${item.site} vom ${date} wirklich löschen?`))return;history.splice(index,1);localStorage.setItem("mm_history",JSON.stringify(history));rebuildDrumStore();renderHistory();renderHome();updateStats()}
