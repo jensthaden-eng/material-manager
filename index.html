@@ -165,7 +165,7 @@ if ('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.s
 <section id="scan" class="screen"><div class="card"><button class="ghost back" onclick="show('home')">← Start</button><h2>Material scannen</h2><p class="muted">Trommeletikett fotografieren und anschließend die Daten erfassen.</p><button class="primary" style="width:100%;padding:18px" onclick="newInventory()">📷 Scan / Aufnahme starten</button><p class="muted" style="margin-top:12px">OCR für die automatische Trommelnummer ist als nächster Ausbauschritt vorgesehen.</p></div></section>
 
 <section id="returns" class="screen">
-<div class="card"><button class="ghost back" onclick="show('home')">← Start</button><h2>Leere Trommeln</h2><p class="muted">Leere Trommeln für die Rücklieferung an das Lager melden.</p>
+<div class="card"><button class="ghost back" onclick="show('home')">← Start</button><h2>Leere Trommeln</h2><p class="muted">Mehrere leere Trommeln nacheinander erfassen und anschließend gemeinsam an das Lager melden.</p>
 <div id="returnNotice"></div>
 <div class="form-card"><h3>Rücklieferung erfassen</h3>
 <label>Baustelle</label><select id="returnSite"></select>
@@ -174,9 +174,11 @@ if ('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.s
 <label>Foto der leeren Trommel</label>
 <div class="photo-box"><button type="button" class="ghost photo-action" onclick="document.getElementById('returnPhoto').click()">📷 Foto aufnehmen<br><small>oder auswählen</small></button><div><img id="returnPreview" class="preview" alt="Foto der leeren Trommel"><p id="returnPhotoMsg" class="muted"></p></div></div>
 <input id="returnPhoto" class="screen" type="file" accept="image/*" capture="environment" onchange="returnPhotoChosen()">
-<div class="form-actions"><button class="green" onclick="saveReturnDrum()">Trommel melden</button><button class="ghost" onclick="show('returnList')">Rücklaufliste</button></div>
+<div class="form-actions"><button class="ghost" onclick="addReturnDrum()">＋ Weitere Trommel hinzufügen</button><button class="green" onclick="saveReturnBatch()">✓ Rücklieferungen speichern</button></div>
+<div id="returnBatchList"></div>
+<div class="actions" style="margin-top:12px"><button class="ghost" onclick="show('returnList')">Rücklaufliste anzeigen</button></div>
 </div>
-<div id="returnList"></div></div>
+</div>
 </section>
 <section id="returnList" class="screen"><div class="card"><button class="ghost back" onclick="show('returns')">← Rücklauf</button><h2>Rücklieferliste</h2><div id="returnsList"></div><div class="actions"><button class="primary" onclick="shareReturnList()">📄 PDF erstellen / teilen</button></div></div></section>
 
@@ -560,17 +562,55 @@ function renderOrders(){
   const el=$('ordersList'); if(!el)return; const list=JSON.parse(localStorage.getItem('mm_orders')||'[]');
   el.innerHTML=list.length?list.map(x=>{const items=normalizeOrderItems(x); return `<div class="workflow-card"><div class="top"><div><b>${esc(x.site)}</b><div class="meta">${items.length} ${items.length===1?'Materialposition':'Materialpositionen'} · ${new Date(x.date+"T00:00").toLocaleDateString('de-DE')}</div><div class="order-list-items">${items.map(it=>`<div class="order-list-line"><span>${esc(it.material)}</span><b>${Number(it.qty).toLocaleString('de-DE')}</b></div>`).join('')}</div>${x.note?`<div class="meta">${esc(x.note)}</div>`:''}</div><span class="status-pill">● offen</span></div><div class="workflow-actions" style="grid-template-columns:1fr 1fr 1fr"><button class="primary" type="button" onclick="printOrderPdf(${x.id})">📄 PDF erstellen</button><button class="ghost" type="button" onclick="shareOrder(${x.id})">📤 Teilen</button><button class="danger" type="button" onclick="deleteMaterialOrder(${x.id})">🗑 Löschen</button></div></div>`;}).join(''):'<div class="empty">Keine offenen Materialbestellungen.<br><small>Gespeicherte Bestellungen erscheinen hier automatisch.</small></div>';
 }
+let pendingReturnDrums=[];
+
 function renderReturnForm(){
   const ss=$('returnSite'), ms=$('returnMaterial'); if(!ss||!ms)return;
   ss.innerHTML=siteOptions()||'<option value="">Bitte zuerst eine Baustelle anlegen</option>';
-  ms.innerHTML=cableMaterials.map(x=>`<option>${esc(x)}</option>`).join(''); renderReturns();
+  ms.innerHTML=cableMaterials.map(x=>`<option>${esc(x)}</option>`).join('');
+  pendingReturnDrums=[];
+  clearReturnFields();
+  renderPendingReturns();
+  renderReturns();
 }
-async function saveReturnDrum(){
+function clearReturnFields(){
+  if($('returnDrum')) $('returnDrum').value='';
+  if($('returnPhoto')) $('returnPhoto').value='';
+  if($('returnPreview')) { $('returnPreview').style.display='none'; $('returnPreview').removeAttribute('src'); }
+  if($('returnPhotoMsg')) $('returnPhotoMsg').textContent='';
+}
+function renderPendingReturns(){
+  const el=$('returnBatchList'); if(!el)return;
+  el.innerHTML=pendingReturnDrums.length?`<div class="history-item" style="margin-top:14px"><b>Für diese Rücklieferung vorgemerkt: ${pendingReturnDrums.length} Trommel${pendingReturnDrums.length===1?'':'n'}</b>${pendingReturnDrums.map((x,i)=>`<div class="history-item-row" style="margin-top:9px"><div>${x.photo?`<img class="photo-thumb" src="${x.photo}" alt="Foto der leeren Trommel">`:''}<b>${esc(x.material)}</b><br><span class="muted">${esc(x.site)} · Trommel ${esc(x.no)}</span></div><button class="delete-history" type="button" onclick="removePendingReturn(${i})">Löschen</button></div>`).join('')}</div>`:'';
+}
+async function returnPhotoChosen(){
+  const f=$('returnPhoto').files[0]; if(!f)return;
+  $('returnPreview').src=URL.createObjectURL(f); $('returnPreview').style.display='block'; $('returnPhotoMsg').textContent='Foto ausgewählt – wird beim Hinzufügen mit der Trommel gespeichert.';
+}
+async function addReturnDrum(){
   const site=$('returnSite').value, material=$('returnMaterial').value, no=$('returnDrum').value.trim();
   if(!site||!material||!no){alert('Bitte Baustelle, Material und Trommelnummer ausfüllen.');return}
   let photo=''; if($('returnPhoto').files[0]){try{photo=await compressImage($('returnPhoto').files[0])}catch(e){alert('Das Foto konnte nicht verarbeitet werden.');return}}
-  const list=JSON.parse(localStorage.getItem('mm_returns')||'[]'); list.unshift({id:Date.now(),site,material,no,photo,date:today(),status:'offen'}); localStorage.setItem('mm_returns',JSON.stringify(list));
-  $('returnDrum').value=''; $('returnPhoto').value=''; $('returnPreview').style.display='none'; $('returnPreview').removeAttribute('src'); $('returnPhotoMsg').textContent=''; $('returnNotice').innerHTML='<div class="notice-success">✓ Leere Trommel + Foto gespeichert und für die Rücklieferung bereit.</div>'; renderReturns(); notifySaved('Leere Trommel erfolgreich gespeichert','Die Rücklieferung wurde mit der Trommelmeldung gespeichert.');
+  pendingReturnDrums.push({site,material,no,photo});
+  clearReturnFields(); renderPendingReturns();
+  notifySaved('Trommel zur Rücklieferung hinzugefügt',`${pendingReturnDrums.length}. Trommel ist für die gemeinsame Meldung vorgemerkt.`);
+}
+function removePendingReturn(index){ pendingReturnDrums.splice(index,1); renderPendingReturns(); }
+async function saveReturnBatch(){
+  if(!pendingReturnDrums.length){
+    // Wenn nur eine Trommel erfasst wurde, direkt aus den Eingabefeldern übernehmen.
+    const site=$('returnSite').value, material=$('returnMaterial').value, no=$('returnDrum').value.trim();
+    if(site&&material&&no) await addReturnDrum();
+  }
+  if(!pendingReturnDrums.length){alert('Bitte mindestens eine leere Trommel erfassen.');return}
+  const date=today(), list=JSON.parse(localStorage.getItem('mm_returns')||'[]');
+  pendingReturnDrums.forEach(x=>list.unshift({id:Date.now()+Math.random(),site:x.site,material:x.material,no:x.no,photo:x.photo,date,status:'offen'}));
+  localStorage.setItem('mm_returns',JSON.stringify(list));
+  const count=pendingReturnDrums.length;
+  pendingReturnDrums=[]; clearReturnFields(); renderPendingReturns(); renderReturns();
+  const latest=list.slice(0,count);
+  $('returnNotice').innerHTML=`<div class="notice-success">✓ ${count} Rücklieferung${count===1?'':'en'} gespeichert und für das Lager bereit.<div class="notice-actions"><button class="primary" type="button" onclick="shareReturnList()">📄 Rücklieferliste als PDF erstellen</button><button class="ghost" type="button" onclick="shareReturnList()">📤 Rücklieferliste teilen</button></div></div>`;
+  notifySaved(`${count} leere Trommel${count===1?'':'n'} erfolgreich gespeichert`,`Die Rücklieferung wurde gemeinsam gespeichert.`,`PDF kann jetzt erstellt werden`);
 }
 function renderReturns(){
   const el=$('returnsList'); if(!el)return; const list=JSON.parse(localStorage.getItem('mm_returns')||'[]');
@@ -591,7 +631,7 @@ function renderReturnPrintReport(list){
   $('printReport').innerHTML=pages.join('');
 }
 function printReturnPdf(id){
-  const list=JSON.parse(localStorage.getItem('mm_returns')||'[]'); const item=list.find(x=>x.id===id); if(!item)return;
+  const list=JSON.parse(localStorage.getItem('mm_returns')||'[]'); const item=list.find(x=>x.id==id); if(!item)return;
   renderReturnPrintReport([item]); printPdfInSeparateWindow();
 }
 function shareReturnList(){
@@ -599,9 +639,9 @@ function shareReturnList(){
   renderReturnPrintReport(list); printPdfInSeparateWindow();
 }
 function deleteReturn(id){
-  const list=JSON.parse(localStorage.getItem('mm_returns')||'[]'); const item=list.find(x=>x.id===id); if(!item)return;
+  const list=JSON.parse(localStorage.getItem('mm_returns')||'[]'); const item=list.find(x=>x.id==id); if(!item)return;
   if(!confirm(`Rücklieferung für ${item.site} · ${item.material} · Trommel ${item.no} wirklich löschen?`))return;
-  localStorage.setItem('mm_returns',JSON.stringify(list.filter(x=>x.id!==id))); renderReturns();
+  localStorage.setItem('mm_returns',JSON.stringify(list.filter(x=>x.id!=id))); renderReturns();
   notifySaved('Rücklieferung gelöscht','Die Trommel wurde aus der Rücklieferliste entfernt.','Nicht mehr erforderlich');
 }
 
