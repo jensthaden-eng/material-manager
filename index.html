@@ -154,7 +154,7 @@ if ('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.s
 <label>Bemerkung (optional)</label><input id="orderNote" type="text" placeholder="z. B. Bauabschnitt 2">
 <div class="form-actions"><button class="primary" onclick="saveMaterialOrder()">Materialbedarf speichern</button><button class="ghost" onclick="show('orderList')">Offene Meldungen</button></div>
 </div>
-<div id="orderList"></div></div>
+</div>
 </section>
 
 <section id="orderList" class="screen"><div class="card"><button class="ghost back" onclick="show('orders')">← Materialbedarf</button><h2>Offene Materialmeldungen</h2><div id="ordersList"></div></div></section>
@@ -267,7 +267,7 @@ const $=x=>document.getElementById(x);
 function today(){return new Date(Date.now()-new Date().getTimezoneOffset()*60000).toISOString().slice(0,10)}
 $("invDate").value=today();
 function show(id){
-  if(id==="summary"){const inline=$("summarySaveConfirm"), actions=$("summaryActions"), btn=$("confirmSaveBtn"); if(inline) inline.classList.remove("show"); if(actions) actions.classList.remove("is-saved"); if(btn){btn.disabled=false;btn.textContent="✓ Aufnahme bestätigen";}}if(id==="home"&&!unlocked)return;document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));$(id).classList.add("active");if(id==="home")renderHome();if(id==="history")renderHistory();if(id==="drums")renderDrums();if(id==="documentation")renderDocumentation();if(id==="sites")renderSites();if(id==="materials")renderCurrentEntries();if(id==="orders")renderOrderForm();if(id==="orderList")renderOrders();if(id==="returns")renderReturnForm();if(id==="returnList")renderReturns();updateStats();window.scrollTo({top:0,left:0,behavior:"auto"});document.documentElement.scrollTop=0;document.body.scrollTop=0}
+  if(id==="summary"){const inline=$("summarySaveConfirm"), actions=$("summaryActions"), btn=$("confirmSaveBtn"); if(inline) inline.classList.remove("show"); if(actions) actions.classList.remove("is-saved"); if(btn){btn.disabled=false;btn.textContent="✓ Aufnahme bestätigen";}}if(id==="home"&&!unlocked)return;document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));const target=document.querySelector(`.screen#${CSS.escape(id)}`);if(!target)return;target.classList.add("active");if(id==="home")renderHome();if(id==="history")renderHistory();if(id==="drums")renderDrums();if(id==="documentation")renderDocumentation();if(id==="sites")renderSites();if(id==="materials")renderCurrentEntries();if(id==="orders")renderOrderForm();if(id==="orderList")renderOrders();if(id==="returns")renderReturnForm();if(id==="returnList")renderReturns();updateStats();window.scrollTo({top:0,left:0,behavior:"auto"});document.documentElement.scrollTop=0;document.body.scrollTop=0}
 unlocked=false;
 function pin(x){if(entered.length<4)entered+=x;updateDots();if(entered.length===4)setTimeout(pinOk,120)}
 function pinClear(){entered=entered.slice(0,-1);updateDots()}
@@ -487,7 +487,7 @@ async function shareOrder(id){
 }
 function renderOrders(){
   const el=$('ordersList'); if(!el)return; const list=JSON.parse(localStorage.getItem('mm_orders')||'[]');
-  el.innerHTML=list.length?list.map(x=>`<div class="workflow-card"><div class="top"><div><b>${esc(x.site)}</b><div class="meta">${esc(x.material)} · ${x.qty} · ${new Date(x.date+"T00:00").toLocaleDateString('de-DE')}</div>${x.note?`<div class="meta">${esc(x.note)}</div>`:''}</div><span class="status-pill">● offen</span></div></div>`).join(''):'<div class="empty">Keine offenen Materialmeldungen.</div>';
+  el.innerHTML=list.length?list.map(x=>`<div class="workflow-card"><div class="top"><div><b>${esc(x.site)}</b><div class="meta">${esc(x.material)} · ${Number(x.qty).toLocaleString('de-DE')} · ${new Date(x.date+"T00:00").toLocaleDateString('de-DE')}</div>${x.note?`<div class="meta">${esc(x.note)}</div>`:''}</div><span class="status-pill">● offen</span></div><div class="workflow-actions"><button class="primary" type="button" onclick="printOrderPdf(${x.id})">📄 PDF erstellen</button><button class="ghost" type="button" onclick="shareOrder(${x.id})">📤 Teilen</button></div></div>`).join(''):'<div class="empty">Keine offenen Materialmeldungen.<br><small>Gespeicherte Bedarfe erscheinen hier automatisch.</small></div>';
 }
 function renderReturnForm(){
   const ss=$('returnSite'), ms=$('returnMaterial'); if(!ss||!ms)return;
