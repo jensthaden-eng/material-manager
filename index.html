@@ -155,6 +155,7 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px s
 }
 @media print{
   @page{size:A4 portrait;margin:0}
+  body > .app-header, body > header.app-header, .app-header{display:none!important;visibility:hidden!important;height:0!important;min-height:0!important;padding:0!important;margin:0!important;border:0!important;overflow:hidden!important}
   html,body{margin:0!important;padding:0!important;background:#fff!important;width:210mm!important}
   body>*{display:none!important}
   body>#printReport{display:block!important;position:static!important;left:auto!important;top:auto!important;width:210mm!important;margin:0!important;padding:0!important}
