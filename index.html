@@ -78,7 +78,7 @@ body{background:#f3f5f7}
 @media(min-width:651px){#lock .pinbox{max-width:520px!important}.numpad button{min-height:72px!important}}
 
 /* V23 workflow-first start */
-.workflow-intro{background:#101820;color:#fff;border-radius:24px;padding:24px;margin-bottom:18px;box-shadow:0 8px 24px #18324b18}.workflow-intro{position:relative;overflow:visible}.moin-gull{position:absolute;width:32px;height:auto;left:82px;top:24px;transform:rotate(-14deg);z-index:2;pointer-events:none;filter:drop-shadow(0 1px 1px rgba(0,0,0,.18))}
+.workflow-intro{background:#101820;color:#fff;border-radius:24px;padding:24px;margin-bottom:18px;box-shadow:0 8px 24px #18324b18}.workflow-intro{position:relative;overflow:visible}.moin-gull{position:absolute;width:54px;height:auto;left:38%;top:30px;transform:rotate(-14deg);z-index:2;pointer-events:none;filter:drop-shadow(0 1px 1px rgba(0,0,0,.18))}
 .workflow-intro h1{font-size:34px;margin:0 0 5px}.workflow-intro p{font-size:18px;color:#d9e0e5;margin:0 0 18px}
 .workflow-primary{width:100%;font-size:18px;padding:16px 18px;border-radius:16px}
 .workflow-section{margin:18px 0}.workflow-section h3{font-size:25px;margin:0 0 10px}
@@ -88,7 +88,7 @@ body{background:#f3f5f7}
 .process-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.process-card{min-height:105px;border-radius:18px;padding:16px;color:#fff;display:flex;flex-direction:column;justify-content:space-between}.process-card.orange{background:var(--orange)}.process-card.dark{background:#24313c}.process-card.green{background:#159b60}.process-card.gray{background:#e9edf0;color:var(--text)}.process-card .icon{font-size:22px}.process-card b{font-size:17px}.process-card small{opacity:.9;font-size:12px;margin-top:2px}
 .notice-success{background:#e7f7ef;border:1px solid #b8e5cf;color:#126f47;border-radius:14px;padding:14px;font-weight:750;margin-bottom:14px}
 .form-card{background:#fff;border:1px solid #e0e5e8;border-radius:18px;padding:18px;margin-bottom:14px}.form-card h3{margin:0 0 6px;font-size:22px}.form-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:14px}
-@media(max-width:650px){.moin-gull{width:30px;left:82px;top:24px}.workflow-intro{padding:22px 18px}.workflow-intro h1{font-size:31px}.workflow-intro p{font-size:17px}.process-grid{grid-template-columns:1fr 1fr}.workflow-actions{grid-template-columns:1fr 1fr}}
+@media(max-width:650px){.moin-gull{width:48px;left:38%;top:30px}.workflow-intro{padding:22px 18px}.workflow-intro h1{font-size:31px}.workflow-intro p{font-size:17px}.process-grid{grid-template-columns:1fr 1fr}.workflow-actions{grid-template-columns:1fr 1fr}}
 </style>
 </head>
 <body>
@@ -375,32 +375,6 @@ function renderSummary(){
   $("summaryBody").innerHTML=h;
 }
 function esc(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]))}
-function renderDocumentation(){
-  const el=$('documentationList');
-  if(!el)return;
-  const notice=$('documentationNotice');
-  const last=localStorage.getItem('mm_last_documentation_message');
-  if(notice) notice.innerHTML=last?`<div class="notice-success">✓ ${esc(last)}</div>`:'';
-  if(!history.length){
-    el.innerHTML='<div class="empty">Noch keine Bestandsaufnahmen gespeichert.</div>';
-    return;
-  }
-  el.innerHTML=history.map(item=>{
-    const date=new Date(item.date+'T00:00').toLocaleDateString('de-DE');
-    const st=projectStats(item);
-    return `<div class="workflow-card"><div class="top"><div><b>Material-Bestandsliste · ${esc(item.site)}</b><div class="meta">${date} · ${esc(item.worker||'')} · ${st.drums} Trommeln · ${st.pieces} Stückmaterialien</div></div></div><div class="workflow-actions"><button class="ghost" type="button" onclick="continueProject(${item.id})">↻ Fortsetzen</button><button class="primary" type="button" onclick="openPdfFor(${item.id})">📄 PDF erstellen / teilen</button></div></div>`;
-  }).join('');
-}
-function openPdfFor(id){
-  const item=history.find(x=>x.id===id);
-  if(!item){alert('Die Bestandsaufnahme wurde nicht gefunden.');return;}
-  renderPrintReport(item);
-  localStorage.setItem('mm_last_documentation_id',String(item.id));
-  localStorage.setItem('mm_last_documentation_message','Material erfolgreich gespeichert und als PDF bereit.');
-  try{window.scrollTo({top:0,left:0,behavior:'auto'});document.documentElement.scrollTop=0;document.body.scrollTop=0;}catch(e){}
-  setTimeout(()=>window.print(),80);
-}
-
 function renderPrintReport(item){
   const date=new Date(item.date+"T00:00").toLocaleDateString("de-DE");
   const location=[item.place,item.postalCode,item.street].filter(Boolean).join(" · ");
