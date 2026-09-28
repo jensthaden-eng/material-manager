@@ -347,14 +347,81 @@ let ocrWorkerPromise=null;
 async function getOcrWorker(){
   if(ocrWorkerPromise)return ocrWorkerPromise;
   if(!window.Tesseract)throw new Error("OCR-Bibliothek nicht geladen");
-  ocrWorkerPromise=(async()=>{const worker=await Tesseract.createWorker("eng");await worker.setParameters({tessedit_char_whitelist:"ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",preserve_interword_spaces:"1",tessedit_pageseg_mode:"6"});return worker;})();
+  ocrWorkerPromise=(async()=>{
+    const worker=await Tesseract.createWorker("eng");
+    await worker.setParameters({
+      tessedit_char_whitelist:"ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
+      preserve_interword_spaces:"1",
+      user_defined_dpi:"300"
+    });
+    return worker;
+  })();
   try{return await ocrWorkerPromise}catch(e){ocrWorkerPromise=null;throw e}
 }
-function prepareOcrImage(file){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>{const img=new Image();img.onload=()=>{const scale=Math.min(1.8,1800/Math.max(img.naturalWidth,img.naturalHeight));const c=document.createElement("canvas");c.width=Math.max(1,Math.round(img.naturalWidth*scale));c.height=Math.max(1,Math.round(img.naturalHeight*scale));const ctx=c.getContext("2d",{willReadFrequently:true});ctx.drawImage(img,0,0,c.width,c.height);const data=ctx.getImageData(0,0,c.width,c.height);for(let i=0;i<data.data.length;i+=4){const g=data.data[i]*.299+data.data[i+1]*.587+data.data[i+2]*.114;const v=g>145?255:Math.max(0,Math.min(255,(g-70)*2.2));data.data[i]=data.data[i+1]=data.data[i+2]=v}ctx.putImageData(data,0,0);resolve(c.toDataURL("image/jpeg",.9))};img.onerror=reject;img.src=r.result};r.onerror=reject;r.readAsDataURL(file)})}
-function extractDrumNumber(text){const cleaned=text.toUpperCase().replace(/[|IL]/g,"1").replace(/[OQ]/g,"0");const compact=cleaned.replace(/[^A-Z0-9]/g,"");const eMatch=compact.match(/E\d{7,12}/);if(eMatch)return eMatch[0];const spaced=cleaned.match(/E\s*[0-9]{7,12}/);if(spaced)return spaced[0].replace(/\s/g,"");return null}
-async function runDrumOcr(file,inputId,statusId){const status=$(statusId);if(status)status.textContent="🔎 Trommelnummer wird automatisch erkannt …";try{const image=await prepareOcrImage(file);const worker=await getOcrWorker();const result=await worker.recognize(image);const number=extractDrumNumber(result.data.text||"");if(number){$(inputId).value=number;if(status)status.textContent=`✓ Trommelnummer erkannt: ${number}`;return number}if(status)status.textContent="Keine eindeutige Trommelnummer erkannt – bitte Nummer prüfen/eingeben."}catch(e){console.warn("OCR fehlgeschlagen",e);if(status)status.textContent="OCR konnte nicht ausgeführt werden – Nummer bitte manuell eingeben."}return null}
-function photoChosen(){let f=$("photo").files[0];if(!f)return;$("preview").src=URL.createObjectURL(f);$("preview").style.display="block";$("photoMsg").textContent="Foto ausgewählt – wird beim Speichern mit der Trommel abgelegt.";runDrumOcr(f,"drumNo","ocrMsg")}
-function returnPhotoChosen(){let f=$("returnPhoto").files[0];if(!f)return;$("returnPreview").src=URL.createObjectURL(f);$("returnPreview").style.display="block";$("returnPhotoMsg").textContent="Foto ausgewählt – wird mit der Rücklieferung gespeichert.";runDrumOcr(f,"returnDrum","returnOcrMsg")}
+function loadImageFile(file){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>{const img=new Image();img.onload=()=>resolve(img);img.onerror=reject;img.src=r.result};r.onerror=reject;r.readAsDataURL(file)})}
+function makeOcrVariants(img){
+  const variants=[];
+  const base=Math.min(2.2,2200/Math.max(img.naturalWidth,img.naturalHeight));
+  for(const angle of [0,90,270]){
+    const rad=angle*Math.PI/180;
+    const sw=Math.max(1,Math.round(img.naturalWidth*base));
+    const sh=Math.max(1,Math.round(img.naturalHeight*base));
+    const w=(angle===0)?sw:sh, h=(angle===0)?sh:sw;
+    const c=document.createElement("canvas");c.width=w;c.height=h;
+    const ctx=c.getContext("2d",{willReadFrequently:true});
+    ctx.translate(w/2,h/2);ctx.rotate(rad);ctx.drawImage(img,-sw/2,-sh/2,sw,sh);
+    const data=ctx.getImageData(0,0,w,h);
+    for(let i=0;i<data.data.length;i+=4){
+      const g=data.data[i]*.299+data.data[i+1]*.587+data.data[i+2]*.114;
+      const v=g>150?255:Math.max(0,Math.min(255,(g-75)*2.6));
+      data.data[i]=data.data[i+1]=data.data[i+2]=v;
+    }
+    ctx.putImageData(data,0,0);
+    variants.push(c.toDataURL("image/jpeg",.94));
+  }
+  return variants;
+}
+function extractDrumNumber(text){
+  const raw=(text||"").toUpperCase();
+  const normalized=raw.replace(/[|IL]/g,"1").replace(/[OQ]/g,"0");
+  const candidates=[raw,normalized].map(x=>x.replace(/[^A-Z0-9]/g,""));
+  for(const compact of candidates){
+    const eMatch=compact.match(/E\d{7,12}/);
+    if(eMatch)return eMatch[0];
+  }
+  const spaced=normalized.match(/E\s*[0-9]{7,12}/);
+  return spaced?spaced[0].replace(/\s/g,""):null;
+}
+async function runDrumOcr(file,inputId,statusId){
+  const status=$(statusId);
+  if(status)status.textContent="🔎 Trommelnummer wird automatisch erkannt …";
+  try{
+    const img=await loadImageFile(file);
+    const variants=makeOcrVariants(img);
+    const worker=await getOcrWorker();
+    let found=null;
+    for(let i=0;i<variants.length&&!found;i++){
+      for(const psm of [7,6,11]){
+        await worker.setParameters({tessedit_pageseg_mode:String(psm)});
+        const result=await worker.recognize(variants[i]);
+        found=extractDrumNumber(result.data.text||"");
+        if(found)break;
+      }
+    }
+    if(found){
+      $(inputId).value=found;
+      if(status)status.textContent=`✓ Trommelnummer automatisch erkannt: ${found}`;
+      return found;
+    }
+    if(status)status.textContent="Nummer nicht eindeutig erkannt – bitte Foto näher/gerade aufnehmen.";
+  }catch(e){
+    console.warn("OCR fehlgeschlagen",e);
+    if(status)status.textContent="OCR konnte nicht ausgeführt werden – Nummer bitte manuell eingeben.";
+  }
+  return null;
+}
+function photoChosen(){let f=$("photo").files[0];if(!f)return;$("preview").src=URL.createObjectURL(f);$("preview").style.display="block";$("photoMsg").textContent="Foto aufgenommen – Trommelnummer wird automatisch erkannt und beim Speichern mit der Trommel abgelegt.";runDrumOcr(f,"drumNo","ocrMsg")}
+function returnPhotoChosen(){let f=$("returnPhoto").files[0];if(!f)return;$("returnPreview").src=URL.createObjectURL(f);$("returnPreview").style.display="block";$("returnPhotoMsg").textContent="Foto aufgenommen – Trommelnummer wird automatisch erkannt und mit der Rücklieferung gespeichert.";runDrumOcr(f,"returnDrum","returnOcrMsg")}
 let toastTimer=null;function notifySaved(title="Material erfolgreich gespeichert",message="Die Bestandsaufnahme wurde gespeichert.",action=""){
   $("toastTitle").textContent=title;
   $("toastMessage").textContent=message;
@@ -552,7 +619,8 @@ function printPdfInSeparateWindow(){
   }
   const styles=[...document.querySelectorAll('style')].map(s=>s.textContent).join('\n');
   printWin.document.open();
-  printWin.document.write(`<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>THADEN MATERIAL · PDF</title><style>${styles}</style></head><body class="pdf-print-window">${report.innerHTML}<script>window.addEventListener('load',()=>{const imgs=[...document.images];Promise.all(imgs.map(img=>img.complete?Promise.resolve():new Promise(r=>{img.onload=img.onerror=r;}))).then(()=>setTimeout(()=>window.print(),180));});<\/script></body></html>`);
+  printWin.document.write(`<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>THADEN MATERIAL · PDF</title><style>${styles}</style></head><body class="pdf-print-window">${report.innerHTML}<script>window.addEventListener('load',()=>{const imgs=[...document.images];Promise.all(imgs.map(img=>img.complete?Promise.resolve():new Promise(r=>{img.onload=img.onerror=r;}))).then(()=>setTimeout(()=>window.print(),180));});<\/script><script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
+</body></html>`);
   printWin.document.close();
 }
 function openPdfFor(id){
@@ -878,4 +946,5 @@ function addCustomMaterial(){
 }
 refreshMaterialPickers();
 </script>
+<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 </body></html>
