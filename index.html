@@ -395,7 +395,7 @@ function openSiteDetail(id){
 function renderSummary(){
   const date=new Date($("invDate").value+"T00:00").toLocaleDateString("de-DE");
   const meta=`<div class="summary-meta">
-    <div class="summary-meta-item full"><b>Baustelle</b><span>${esc($("site").value)}</span></div>
+    <div class="summary-meta-item full"><b>Lagerplatz</b><span>${esc($("site").value)}</span></div>
     <div class="summary-meta-item"><b>Ort</b><span>${esc($("place").value)}</span></div>
     <div class="summary-meta-item"><b>PLZ</b><span>${esc($("postalCode").value)}</span></div>
     <div class="summary-meta-item full"><b>Straße und Hausnummer</b><span>${esc($("street").value)}</span></div>
