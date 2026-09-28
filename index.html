@@ -122,7 +122,7 @@ if ('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.s
   <button class="primary workflow-primary" onclick="newInventory()">＋ Neue Bestandsaufnahme</button>
 </div>
 <div class="workflow-section">
-  <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h3>Meine Baustellen</h3><button class="ghost" onclick="show('sites')">Alle →</button></div>
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h3>Meine Lagerplätze</h3><button class="ghost" onclick="show('sites')">Alle →</button></div>
   <div id="homeSites"></div>
 </div>
 <div class="workflow-section">
@@ -140,7 +140,7 @@ if ('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.s
 </div>
 <div class="bottom-nav">
 <button class="active" onclick="show('home')"><span>⌂</span>Start</button>
-<button onclick="show('sites')"><span>🏗️</span>Baustellen</button>
+<button onclick="show('sites')"><span>🏗️</span>Lagerplätze</button>
 <button onclick="show('documentation')"><span>▤</span>Dokumentation</button>
 <button onclick="show('orders')"><span>＋</span>Bedarf</button>
 <button onclick="show('returns')"><span>↻</span>Rücklauf</button>
@@ -184,11 +184,11 @@ if ('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.s
 </section>
 <section id="returnList" class="screen"><div class="card"><button class="ghost back" onclick="show('returns')">← Rücklauf</button><h2>Rücklieferliste</h2><div id="returnsList"></div><div class="actions"><button class="primary" onclick="shareReturnList()">📄 PDF erstellen / teilen</button></div></div></section>
 
-<section id="sites" class="screen"><div class="card"><button class="ghost back" onclick="show('home')">← Start</button><h2>Baustellen</h2><p class="muted">Bereits angelegte Vorhaben fortsetzen oder eine neue Bestandsaufnahme starten.</p><div class="actions"><button class="primary" onclick="newInventory()">＋ Neues Vorhaben</button></div><div id="siteList"></div></div></section>
+<section id="sites" class="screen"><div class="card"><button class="ghost back" onclick="show('home')">← Start</button><h2>Lagerplätze</h2><p class="muted">Bereits angelegte Vorhaben fortsetzen oder eine neue Bestandsaufnahme starten.</p><div class="actions"><button class="primary" onclick="newInventory()">＋ Neues Vorhaben</button></div><div id="siteList"></div></div></section>
 
 
 
-<section id="siteDetail" class="screen"><div class="card"><button class="ghost back" onclick="show('sites')">← Baustellen</button><div id="siteDetailContent"></div></div></section>
+<section id="siteDetail" class="screen"><div class="card"><button class="ghost back" onclick="show('sites')">← Lagerplätze</button><div id="siteDetailContent"></div></div></section>
 
 <section id="documentation" class="screen"><div class="card"><button class="ghost back" onclick="show('home')">← Start</button><h2>Dokumentation</h2><p class="muted">Material-Bestandslisten je Baustelle und PDF-Ausgabe.</p><div id="documentationNotice"></div><div id="documentationList"></div><div class="actions"><button class="ghost" onclick="show('history')">Historie öffnen</button></div></div></section>
 
