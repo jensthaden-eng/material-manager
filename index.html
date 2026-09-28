@@ -90,6 +90,8 @@ body{background:#f3f5f7}
 .form-card{background:#fff;border:1px solid #e0e5e8;border-radius:18px;padding:18px;margin-bottom:14px}.form-card h3{margin:0 0 6px;font-size:22px}.form-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:14px}
 @media(max-width:650px){.workflow-intro{padding:22px 18px}.workflow-intro h1{font-size:31px}.workflow-intro p{font-size:17px}.process-grid{grid-template-columns:1fr 1fr}.workflow-actions{grid-template-columns:1fr 1fr}}
 .order-items{display:grid;gap:10px;margin-top:10px}.order-item{border:1px solid #dfe5e9;background:#f8fafb;border-radius:14px;padding:12px}.order-item-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:7px}.order-item-number{font-weight:850;color:#16232d}.order-item-grid{display:grid;grid-template-columns:minmax(0,1fr) 150px;gap:10px}.order-item label{margin:0 0 5px;font-size:13px}.order-item select,.order-item input{background:#fff}.remove-order-item{padding:8px 10px;font-size:13px}.add-order-item{width:100%;margin-top:10px}.order-list-items{margin-top:7px;display:grid;gap:4px}.order-list-line{display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-bottom:1px solid #edf0f2}.order-list-line:last-child{border-bottom:0}.order-list-line b{font-weight:800}@media(max-width:650px){.order-item-grid{grid-template-columns:1fr}}
+
+.material-picker{margin:14px 0 22px;padding:16px;border:1px solid #e2e6eb;border-radius:16px;background:#fafbfc}.material-picker label{display:block;font-weight:750;margin-bottom:7px}.material-select{width:100%;min-height:48px;border:1px solid #d7dce2;border-radius:12px;background:#fff;padding:0 13px;font:inherit;color:#16202a}.material-select-btn{width:100%;margin-top:10px}.add-material-box{margin:24px 0;padding:18px;border-radius:16px;background:#f3f5f7;border:1px solid #e0e4e8}.add-material-box h3{margin-top:0}.add-material-box .row{margin-top:10px}.add-material-box .actions{margin-top:12px}
 </style>
 </head>
 <body>
@@ -120,7 +122,7 @@ if ('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.s
   <button class="primary workflow-primary" onclick="newInventory()">＋ Neue Bestandsaufnahme</button>
 </div>
 <div class="workflow-section">
-  <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h3>Meine Lagerplätze</h3><button class="ghost" onclick="show('sites')">Alle →</button></div>
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h3>Meine Baustellen</h3><button class="ghost" onclick="show('sites')">Alle →</button></div>
   <div id="homeSites"></div>
 </div>
 <div class="workflow-section">
@@ -217,10 +219,32 @@ if ('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.s
 </section>
 
 <section id="materials" class="screen">
-<div class="card"><h2>Material auswählen</h2><p class="muted">Kabel / Trommeln</p><div id="cables" class="grid"></div>
+<div class="card"><h2>Material auswählen</h2>
+<div class="material-picker">
+  <label for="cableSelect">Kabel / Trommeln</label>
+  <select id="cableSelect" class="material-select"><option value="">Material auswählen …</option></select>
+  <button type="button" class="primary material-select-btn" onclick="chooseCableFromDropdown()">Trommel erfassen →</button>
+</div>
 <h3>Erfasste Trommeln</h3><div id="currentDrums"></div>
-<h3>Stückmaterial</h3><div id="pieces" class="grid"></div>
+<div class="material-picker piece-picker">
+  <label for="pieceSelect">Stückmaterial</label>
+  <select id="pieceSelect" class="material-select"><option value="">Material auswählen …</option></select>
+  <button type="button" class="primary material-select-btn" onclick="choosePieceFromDropdown()">Stückmaterial erfassen →</button>
+</div>
 <h3>Erfasste Stückmaterialien</h3><div id="currentPieces"></div>
+
+<div class="add-material-box">
+  <h3>Material erweitern</h3>
+  <p class="muted">Eigenes Material hinzufügen. Es bleibt auf diesem Gerät gespeichert.</p>
+  <label for="newMaterialName">Materialbezeichnung</label>
+  <input id="newMaterialName" type="text" placeholder="z. B. Kabelmuffe 7x12">
+  <div class="row">
+    <div><label for="newMaterialType">Materialart</label><select id="newMaterialType" class="material-select"><option value="cable">Kabel / Trommel</option><option value="piece">Stückmaterial</option></select></div>
+    <div><label for="newMaterialUnit">Einheit</label><select id="newMaterialUnit" class="material-select"><option value="Stück">Stück</option><option value="Rollen">Rollen</option><option value="Meter">Meter</option></select></div>
+  </div>
+  <div class="actions"><button type="button" class="green" onclick="addCustomMaterial()">＋ Material hinzufügen</button></div>
+</div>
+
 <div class="actions"><button class="ghost" onclick="show('home')">← Startseite</button><button class="green" onclick="renderSummary();show('summary')">Aufnahme prüfen →</button></div></div>
 </section>
 
@@ -261,8 +285,10 @@ if ('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.s
 <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true"><div class="toast-card"><div class="toast-check">✓</div><div id="toastTitle" class="toast-title">Material erfolgreich gespeichert</div><div id="toastMessage" class="toast-message">Die Bestandsaufnahme wurde gespeichert.</div><div id="toastAction" class="toast-action"></div></div></div><div id="printReport" class="print-report"></div>
 
 <script>
-const cables=["SNRVe 7x12 M","SNRVe 7x12 O","SNRVe 7x12 O/S","SNRVe 7x12 O/W","SNRVe 22x7 O","SNRVe 22x7 O/W","SNRVe 22x7 O/R","SNRVe 8x7 O","SNRVe 8x7 O/S","SNR 1x7","Gf-1x12","Gf-2x12","Gf-4x12","Gf-8x12","Gf-1x4","Gf-1x6"];
-const pieces=[["DN-50 Rohr","Stück"],["Verbinder 12mm","Stück"],["Verbinder 7mm","Stück"],["Endkappe 12mm","Stück"],["Endkappe 7mm","Stück"],["Trassenwarnband Telekom","Rollen"]];
+const defaultCables=["SNRVe 7x12 M","SNRVe 7x12 O","SNRVe 7x12 O/S","SNRVe 7x12 O/W","SNRVe 22x7 O","SNRVe 22x7 O/W","SNRVe 22x7 O/R","SNRVe 8x7 O","SNRVe 8x7 O/S","SNR 1x7","Gf-1x12","Gf-2x12","Gf-4x12","Gf-8x12","Gf-1x4","Gf-1x6"];
+const defaultPieces=[["DN-50 Rohr","Stück"],["Verbinder 12mm","Stück"],["Verbinder 7mm","Stück"],["Endkappe 12mm","Stück"],["Endkappe 7mm","Stück"],["Trassenwarnband Telekom","Rollen"]];
+let cables=JSON.parse(localStorage.getItem("mm_custom_cables")||"null")||[...defaultCables];
+let pieces=JSON.parse(localStorage.getItem("mm_custom_pieces")||"null")||JSON.parse(JSON.stringify(defaultPieces));
 let pinCode=localStorage.getItem("mm_pin")||"1234", entered="", unlocked=false, selected="", drums=JSON.parse(localStorage.getItem("mm_drums")||"[]"), history=JSON.parse(localStorage.getItem("mm_history")||"[]"), current={drums:[],pieces:[]}, editingDrumIndex=-1, editingPieceIndex=-1, editingHistoryId=null;
 const cableMaterials=cables;
 const pieceMaterials=pieces.map(x=>x[0]);
@@ -654,14 +680,35 @@ function printLastDocument(){
   if(id) openPdfFor(id); else alert("Noch keine gespeicherte Bestandsaufnahme vorhanden.");
 }
 async function shareText(){let text="Materialbestandsaufnahme – "+$("site").value+" – Lagerplatz: "+$("place").value+", "+$("postalCode").value+" "+$("street").value+" – "+$("invDate").value;if(navigator.share){try{await navigator.share({title:"Materialbestandsaufnahme",text})}catch(e){}}else alert(text+"\n\nAuf diesem Gerät ist kein Teilen-Menü verfügbar.")}
-$("cables").innerHTML=cables.map((n,i)=>`<button type="button" class="tile cable-btn" data-index="${i}">🧵 ${n}</button>`).join("");
-$("pieces").innerHTML=pieces.map(([n,u],i)=>`<button type="button" class="tile piece-btn" data-index="${i}">📦 ${n}<br><span class="muted">${u}</span></button>`).join("");
-
-document.addEventListener("click",function(e){
-  const cable=e.target.closest(".cable-btn");
-  if(cable){ e.preventDefault(); const n=cables[Number(cable.dataset.index)]; selectCable(n); return; }
-  const piece=e.target.closest(".piece-btn");
-  if(piece){ e.preventDefault(); const n=pieces[Number(piece.dataset.index)][0]; selectPiece(n); return; }
-});
+function refreshMaterialPickers(){
+  const cs=$("cableSelect"), ps=$("pieceSelect");
+  if(cs){ const old=cs.value; cs.innerHTML='<option value="">Material auswählen …</option>'+cables.map((n,i)=>`<option value="${i}">${esc(n)}</option>`).join(''); if([...cs.options].some(o=>o.value===old))cs.value=old; }
+  if(ps){ const old=ps.value; ps.innerHTML='<option value="">Material auswählen …</option>'+pieces.map(([n,u],i)=>`<option value="${i}">${esc(n)} · ${esc(u)}</option>`).join(''); if([...ps.options].some(o=>o.value===old))ps.value=old; }
+}
+function chooseCableFromDropdown(){
+  const el=$("cableSelect"); if(!el||el.value===''){alert('Bitte zuerst ein Kabelmaterial auswählen.');return;}
+  selectCable(cables[Number(el.value)]); el.value='';
+}
+function choosePieceFromDropdown(){
+  const el=$("pieceSelect"); if(!el||el.value===''){alert('Bitte zuerst ein Stückmaterial auswählen.');return;}
+  selectPiece(pieces[Number(el.value)][0]); el.value='';
+}
+function addCustomMaterial(){
+  const name=$("newMaterialName").value.trim();
+  const type=$("newMaterialType").value;
+  const unit=$("newMaterialUnit").value;
+  if(!name){alert('Bitte eine Materialbezeichnung eingeben.');$("newMaterialName").focus();return;}
+  if(type==='cable'){
+    if(cables.some(x=>x.toLowerCase()===name.toLowerCase())){alert('Dieses Kabelmaterial ist bereits vorhanden.');return;}
+    cables.push(name); localStorage.setItem('mm_custom_cables',JSON.stringify(cables));
+  }else{
+    if(pieces.some(x=>x[0].toLowerCase()===name.toLowerCase())){alert('Dieses Stückmaterial ist bereits vorhanden.');return;}
+    pieces.push([name,unit]); localStorage.setItem('mm_custom_pieces',JSON.stringify(pieces));
+  }
+  refreshMaterialPickers();
+  $("newMaterialName").value='';
+  notifySaved('Material erfolgreich hinzugefügt',`${name} wurde zur Materialauswahl hinzugefügt.`);
+}
+refreshMaterialPickers();
 </script>
 </body></html>
