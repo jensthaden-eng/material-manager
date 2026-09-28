@@ -24,7 +24,7 @@ button{border:0;border-radius:12px;padding:13px 16px;font-size:16px;font-weight:
 .pinbox{text-align:center;max-width:390px;margin:10vh auto}.pin-dots{font-size:30px;letter-spacing:10px;margin:14px}.numpad{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.numpad button{background:#edf3f8;font-size:21px;padding:16px}.error{color:#b00020;min-height:22px}
 .nav{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}.nav button{padding:20px;text-align:left;background:#fff;box-shadow:0 4px 14px #00000012;border:1px solid #e1e5e8}.nav button:first-letter{color:var(--orange)}
 table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px solid #e8edf2;text-align:left;vertical-align:top}.badge{display:inline-block;background:#e8f7ef;color:#087044;border-radius:999px;padding:4px 8px;font-size:12px;font-weight:700}
-.preview{max-width:100%;max-height:190px;border-radius:12px;margin-top:8px;display:none;object-fit:cover}.photo-thumb{width:58px;height:58px;object-fit:cover;border-radius:10px;border:1px solid #d8dee3;vertical-align:middle;margin-right:8px}.photo-box{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:start}.photo-action{min-height:100px;display:flex;align-items:center;justify-content:center;text-align:center;border:1px dashed #c8d1d8;background:#f8fafb}.total{text-align:right;font-weight:800;font-size:20px}
+.preview{width:100%;max-width:100%;height:190px;border-radius:14px;margin-top:8px;display:none;object-fit:cover;box-shadow:0 3px 12px #10203018}.photo-thumb{width:58px;height:58px;object-fit:cover;border-radius:10px;border:1px solid #d8dee3;vertical-align:middle;margin-right:8px}.photo-box{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:start}.photo-action{min-height:100px;display:flex;align-items:center;justify-content:center;text-align:center;border:1px dashed #c8d1d8;background:#f8fafb}.ocr-status{margin:10px 0 0!important;padding:11px 13px;border-radius:13px;font-size:14px!important;line-height:1.35;font-weight:700}.ocr-status.working{background:#f3f6f8;color:#53616c;border:1px solid #e0e6ea}.ocr-status.success{background:#e8f7ef;color:#087044;border:1px solid #b9e4cb}.ocr-status.error{background:#fff5f3;color:#a43a2f;border:1px solid #f0c8c1}.ocr-status.neutral{background:#f7f9fa;color:#697680;border:1px solid #e1e6ea}.ocr-number{display:block;margin-top:4px;font-size:17px;letter-spacing:.3px;color:#0a7548}.ocr-retry{width:100%;margin-top:8px!important;padding:11px 12px!important;background:#eef3f6!important;border:1px solid #d9e0e5!important;color:#16232d!important}.total{text-align:right;font-weight:800;font-size:20px}
 .history-item{padding:13px;border:1px solid var(--border);border-radius:12px;margin:9px 0;background:#fbfcfe}.history-item-row{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.delete-history{border:1px solid #d7dde2;background:#fff;color:#b42318;border-radius:10px;padding:8px 10px;font-weight:700;white-space:nowrap}
 .empty{padding:20px;text-align:center;color:var(--muted)}
 
@@ -174,7 +174,7 @@ if ('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.s
 <label>Material</label><select id="returnMaterial"></select>
 <label>Trommelnummer</label><input id="returnDrum" type="text" placeholder="z. B. E2557689057">
 <label>Foto der leeren Trommel</label>
-<div class="photo-box"><button type="button" class="ghost photo-action" onclick="document.getElementById('returnPhoto').click()">📷 Foto aufnehmen</button><div><img id="returnPreview" class="preview" alt="Foto der leeren Trommel"><p id="returnPhotoMsg" class="muted"></p><p id="returnOcrMsg" class="muted" aria-live="polite"></p><button id="returnOcrRetry" type="button" class="ghost" style="display:none;margin-top:6px" onclick="retryReturnOcr()">↻ Nummer erneut erkennen</button></div></div>
+<div class="photo-box"><button type="button" class="ghost photo-action" onclick="document.getElementById('returnPhoto').click()">📷 Foto aufnehmen</button><div><img id="returnPreview" class="preview" alt="Foto der leeren Trommel"><p id="returnPhotoMsg" class="muted"></p><p id="returnOcrMsg" class="ocr-status neutral" aria-live="polite"></p><button id="returnOcrRetry" type="button" class="ghost ocr-retry" style="display:none" onclick="retryReturnOcr()">↻ Nummer erneut erkennen</button></div></div>
 <input id="returnPhoto" class="screen" type="file" accept="image/*" capture="environment" onchange="returnPhotoChosen()">
 <div class="form-actions"><button class="ghost" onclick="addReturnDrum()">＋ Weitere Trommel hinzufügen</button><button class="green" onclick="saveReturnBatch()">✓ Rücklieferungen speichern</button></div>
 <div id="returnBatchList"></div>
@@ -253,7 +253,7 @@ if ('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.s
 <label>Trommelnummer</label><input id="drumNo" placeholder="z. B. T-2026-00125">
 <button class="ghost photo-action" style="margin-top:8px;width:100%" onclick="document.getElementById('photo').click()">📷 Trommeletikett fotografieren<br><small>oder Foto auswählen</small></button>
 <input id="photo" class="screen" type="file" accept="image/*" capture="environment" onchange="photoChosen()">
-<img id="preview" class="preview"><p id="photoMsg" class="muted"></p><p id="ocrMsg" class="muted" aria-live="polite"></p><button id="ocrRetry" type="button" class="ghost" style="display:none;margin-top:6px" onclick="retryDrumOcr()">↻ Nummer erneut erkennen</button>
+<img id="preview" class="preview"><p id="photoMsg" class="muted"></p><p id="ocrMsg" class="ocr-status neutral" aria-live="polite"></p><button id="ocrRetry" type="button" class="ghost ocr-retry" style="display:none" onclick="retryDrumOcr()">↻ Nummer erneut erkennen</button>
 </div><div>
 <label>Gesamtlänge</label><input id="totalLen" type="number" min="0" step="1" placeholder="z. B. 2400"><span class="muted">Meter</span>
 <label>Restbestand</label><input id="restLen" type="number" min="0" step="1" placeholder="z. B. 1850"><span class="muted">Meter</span>
@@ -445,9 +445,14 @@ function extractDrumNumber(text){
   if(digits.length===1)return "E"+digits[0];
   return null;
 }
+function setOcrStatus(el,type,text,number=''){
+  if(!el)return;
+  el.className='ocr-status '+type;
+  el.innerHTML=number?`${text}<span class="ocr-number">${number}</span>`:text;
+}
 async function runDrumOcr(file,inputId,statusId){
   const status=$(statusId);
-  if(status){status.textContent="🔎 Trommelnummer wird automatisch erkannt …";window.__ocrStatus=status;}
+  if(status){setOcrStatus(status,"working","🔎 Trommelnummer wird automatisch erkannt …");window.__ocrStatus=status;}
   try{
     const img=await loadImageFile(file);
     const variants=makeOcrVariants(img);
@@ -463,22 +468,22 @@ async function runDrumOcr(file,inputId,statusId){
     }
     if(found){
       $(inputId).value=found;
-      if(status)status.textContent=`✓ Trommelnummer automatisch erkannt: ${found}`;
+      if(status)setOcrStatus(status,"success","✓ Trommelnummer automatisch erkannt",found);
       return found;
     }
-    if(status)status.textContent="Nummer nicht eindeutig erkannt – bitte das Etikett näher und möglichst gerade fotografieren.";
+    if(status)setOcrStatus(status,"error","Nummer nicht eindeutig erkannt – bitte das Etikett näher und möglichst gerade fotografieren.");
   }catch(e){
     console.warn("OCR fehlgeschlagen",e);
     const detail=e && e.message ? e.message : "unbekannter Fehler";
-    if(status)status.textContent=`OCR konnte nicht gestartet werden (${detail}). Bitte Internetverbindung prüfen und erneut fotografieren.`;
+    if(status)setOcrStatus(status,"error",`OCR konnte nicht gestartet werden (${detail}). Bitte Internetverbindung prüfen und erneut fotografieren.`);
   }finally{
     window.__ocrStatus=null;
   }
   return null;
 }
-function photoChosen(){let f=$("photo").files[0];if(!f)return;$("preview").src=URL.createObjectURL(f);$("preview").style.display="block";$("photoMsg").textContent="Foto aufgenommen – Trommelnummer wird automatisch erkannt und beim Speichern mit der Trommel abgelegt.";$("ocrRetry").style.display="none";runDrumOcr(f,"drumNo","ocrMsg").then(()=>{if($("ocrMsg").textContent.includes("nicht eindeutig")||$("ocrMsg").textContent.includes("konnte nicht"))$("ocrRetry").style.display="inline-block"})}
+function photoChosen(){let f=$("photo").files[0];if(!f)return;$("preview").src=URL.createObjectURL(f);$("preview").style.display="block";$("photoMsg").textContent="Foto aufgenommen. Die Trommelnummer wird automatisch erkannt.";$("ocrRetry").style.display="none";runDrumOcr(f,"drumNo","ocrMsg").then(()=>{if($("ocrMsg").textContent.includes("nicht eindeutig")||$("ocrMsg").textContent.includes("konnte nicht"))$("ocrRetry").style.display="inline-block"})}
 function retryDrumOcr(){const f=$("photo").files[0];if(f){$("ocrRetry").style.display="none";runDrumOcr(f,"drumNo","ocrMsg").then(()=>{if($("ocrMsg").textContent.includes("nicht eindeutig")||$("ocrMsg").textContent.includes("konnte nicht"))$("ocrRetry").style.display="inline-block"})}}
-function returnPhotoChosen(){let f=$("returnPhoto").files[0];if(!f)return;$("returnPreview").src=URL.createObjectURL(f);$("returnPreview").style.display="block";$("returnPhotoMsg").textContent="Foto aufgenommen – Trommelnummer wird automatisch erkannt und mit der Rücklieferung gespeichert.";runDrumOcr(f,"returnDrum","returnOcrMsg")}
+function returnPhotoChosen(){let f=$("returnPhoto").files[0];if(!f)return;$("returnPreview").src=URL.createObjectURL(f);$("returnPreview").style.display="block";$("returnPhotoMsg").textContent="Foto aufgenommen. Die Trommelnummer wird automatisch erkannt.";runDrumOcr(f,"returnDrum","returnOcrMsg")}
 let toastTimer=null;function notifySaved(title="Material erfolgreich gespeichert",message="Die Bestandsaufnahme wurde gespeichert.",action=""){
   $("toastTitle").textContent=title;
   $("toastMessage").textContent=message;
@@ -901,7 +906,7 @@ function renderPendingReturns(){
 }
 function returnPhotoChosen(){
   const f=$('returnPhoto').files[0]; if(!f)return;
-  $('returnPreview').src=URL.createObjectURL(f); $('returnPreview').style.display='block'; $('returnPhotoMsg').textContent='Foto aufgenommen – Trommelnummer wird automatisch erkannt und mit der Rücklieferung gespeichert.';
+  $('returnPreview').src=URL.createObjectURL(f); $('returnPreview').style.display='block'; $('returnPhotoMsg').textContent='Foto aufgenommen. Die Trommelnummer wird automatisch erkannt.';
   if($('returnOcrRetry'))$('returnOcrRetry').style.display='none';
   runDrumOcr(f,'returnDrum','returnOcrMsg').then(()=>{if($('returnOcrMsg').textContent.includes('nicht eindeutig')||$('returnOcrMsg').textContent.includes('konnte nicht'))$('returnOcrRetry').style.display='inline-block'});
 }
