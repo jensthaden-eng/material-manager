@@ -174,7 +174,7 @@ if ('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.s
 <label>Material</label><select id="returnMaterial"></select>
 <label>Trommelnummer</label><input id="returnDrum" type="text" placeholder="z. B. E2557689057">
 <label>Foto der leeren Trommel</label>
-<div class="photo-box"><button type="button" class="ghost photo-action" onclick="document.getElementById('returnPhoto').click()">📷 Foto aufnehmen</button><div><img id="returnPreview" class="preview" alt="Foto der leeren Trommel"><p id="returnPhotoMsg" class="muted"></p><p id="returnOcrMsg" class="muted" aria-live="polite"></p></div></div>
+<div class="photo-box"><button type="button" class="ghost photo-action" onclick="document.getElementById('returnPhoto').click()">📷 Foto aufnehmen</button><div><img id="returnPreview" class="preview" alt="Foto der leeren Trommel"><p id="returnPhotoMsg" class="muted"></p><p id="returnOcrMsg" class="muted" aria-live="polite"></p><button id="returnOcrRetry" type="button" class="ghost" style="display:none;margin-top:6px" onclick="retryReturnOcr()">↻ Nummer erneut erkennen</button></div></div>
 <input id="returnPhoto" class="screen" type="file" accept="image/*" capture="environment" onchange="returnPhotoChosen()">
 <div class="form-actions"><button class="ghost" onclick="addReturnDrum()">＋ Weitere Trommel hinzufügen</button><button class="green" onclick="saveReturnBatch()">✓ Rücklieferungen speichern</button></div>
 <div id="returnBatchList"></div>
@@ -253,7 +253,7 @@ if ('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.s
 <label>Trommelnummer</label><input id="drumNo" placeholder="z. B. T-2026-00125">
 <button class="ghost photo-action" style="margin-top:8px;width:100%" onclick="document.getElementById('photo').click()">📷 Trommeletikett fotografieren<br><small>oder Foto auswählen</small></button>
 <input id="photo" class="screen" type="file" accept="image/*" capture="environment" onchange="photoChosen()">
-<img id="preview" class="preview"><p id="photoMsg" class="muted"></p><p id="ocrMsg" class="muted" aria-live="polite"></p>
+<img id="preview" class="preview"><p id="photoMsg" class="muted"></p><p id="ocrMsg" class="muted" aria-live="polite"></p><button id="ocrRetry" type="button" class="ghost" style="display:none;margin-top:6px" onclick="retryDrumOcr()">↻ Nummer erneut erkennen</button>
 </div><div>
 <label>Gesamtlänge</label><input id="totalLen" type="number" min="0" step="1" placeholder="z. B. 2400"><span class="muted">Meter</span>
 <label>Restbestand</label><input id="restLen" type="number" min="0" step="1" placeholder="z. B. 1850"><span class="muted">Meter</span>
@@ -344,11 +344,35 @@ function showSettings(){show("settings")}
 function updateStats(){if($("statDrums"))$("statDrums").textContent=drums.length;if($("statHistory"))$("statHistory").textContent=history.length}
 function compressImage(file,maxSide=900,quality=.72){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>{const img=new Image();img.onload=()=>{const scale=Math.min(1,maxSide/Math.max(img.naturalWidth,img.naturalHeight));const c=document.createElement('canvas');c.width=Math.max(1,Math.round(img.naturalWidth*scale));c.height=Math.max(1,Math.round(img.naturalHeight*scale));const ctx=c.getContext('2d');ctx.drawImage(img,0,0,c.width,c.height);resolve(c.toDataURL('image/jpeg',quality))};img.onerror=reject;img.src=r.result};r.onerror=reject;r.readAsDataURL(file)})}
 let ocrWorkerPromise=null;
+let ocrScriptPromise=null;
+async function ensureTesseractLoaded(){
+  if(window.Tesseract)return;
+  if(ocrScriptPromise)return ocrScriptPromise;
+  ocrScriptPromise=new Promise((resolve,reject)=>{
+    const s=document.createElement("script");
+    s.src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js";
+    s.onload=()=>resolve();
+    s.onerror=()=>reject(new Error("OCR-Bibliothek konnte nicht geladen werden"));
+    document.head.appendChild(s);
+  });
+  return ocrScriptPromise;
+}
 async function getOcrWorker(){
   if(ocrWorkerPromise)return ocrWorkerPromise;
-  if(!window.Tesseract)throw new Error("OCR-Bibliothek nicht geladen");
   ocrWorkerPromise=(async()=>{
-    const worker=await Tesseract.createWorker("eng");
+    await ensureTesseractLoaded();
+    const worker=await Tesseract.createWorker("eng",1,{
+      workerPath:"https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/worker.min.js",
+      corePath:"https://cdn.jsdelivr.net/npm/tesseract.js-core@5.1.1",
+      langPath:"https://tessdata.projectnaptha.com/4.0.0",
+      workerBlobURL:false,
+      logger:m=>{
+        if(window.__ocrStatus && m && m.progress!=null){
+          const pct=Math.round(m.progress*100);
+          window.__ocrStatus.textContent=`🔎 Trommelnummer wird erkannt … ${pct}%`;
+        }
+      }
+    });
     await worker.setParameters({
       tessedit_char_whitelist:"ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
       preserve_interword_spaces:"1",
@@ -359,51 +383,79 @@ async function getOcrWorker(){
   try{return await ocrWorkerPromise}catch(e){ocrWorkerPromise=null;throw e}
 }
 function loadImageFile(file){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>{const img=new Image();img.onload=()=>resolve(img);img.onerror=reject;img.src=r.result};r.onerror=reject;r.readAsDataURL(file)})}
+function buildOcrCanvas(img,angle=0,crop=null,mode="soft"){
+  const iw=img.naturalWidth, ih=img.naturalHeight;
+  const sx=crop?Math.round(iw*crop.x):0, sy=crop?Math.round(ih*crop.y):0;
+  const sw=crop?Math.round(iw*crop.w):iw, sh=crop?Math.round(ih*crop.h):ih;
+  const scale=Math.min(2.8,2400/Math.max(sw,sh));
+  const rw=Math.max(1,Math.round(sw*scale)), rh=Math.max(1,Math.round(sh*scale));
+  const rad=angle*Math.PI/180;
+  const w=(angle===0)?rw:rh, h=(angle===0)?rh:rw;
+  const c=document.createElement("canvas"); c.width=w; c.height=h;
+  const ctx=c.getContext("2d",{willReadFrequently:true});
+  ctx.fillStyle="#fff"; ctx.fillRect(0,0,w,h);
+  ctx.translate(w/2,h/2); ctx.rotate(rad); ctx.drawImage(img,sx,sy,sw,sh,-rw/2,-rh/2,rw,rh);
+  const data=ctx.getImageData(0,0,w,h);
+  for(let i=0;i<data.data.length;i+=4){
+    const g=data.data[i]*.299+data.data[i+1]*.587+data.data[i+2]*.114;
+    let v=g;
+    if(mode==="contrast") v=Math.max(0,Math.min(255,(g-105)*2.15+105));
+    if(mode==="binary") v=g>165?255:0;
+    data.data[i]=data.data[i+1]=data.data[i+2]=v;
+  }
+  ctx.putImageData(data,0,0);
+  return c.toDataURL("image/jpeg",.95);
+}
 function makeOcrVariants(img){
+  const crops=[
+    {x:0,y:0,w:1,h:1},
+    {x:.15,y:.10,w:.75,h:.80},
+    {x:.30,y:.10,w:.65,h:.80},
+    {x:.45,y:.05,w:.50,h:.90},
+    {x:.05,y:.20,w:.90,h:.60}
+  ];
   const variants=[];
-  const base=Math.min(2.2,2200/Math.max(img.naturalWidth,img.naturalHeight));
-  for(const angle of [0,90,270]){
-    const rad=angle*Math.PI/180;
-    const sw=Math.max(1,Math.round(img.naturalWidth*base));
-    const sh=Math.max(1,Math.round(img.naturalHeight*base));
-    const w=(angle===0)?sw:sh, h=(angle===0)?sh:sw;
-    const c=document.createElement("canvas");c.width=w;c.height=h;
-    const ctx=c.getContext("2d",{willReadFrequently:true});
-    ctx.translate(w/2,h/2);ctx.rotate(rad);ctx.drawImage(img,-sw/2,-sh/2,sw,sh);
-    const data=ctx.getImageData(0,0,w,h);
-    for(let i=0;i<data.data.length;i+=4){
-      const g=data.data[i]*.299+data.data[i+1]*.587+data.data[i+2]*.114;
-      const v=g>150?255:Math.max(0,Math.min(255,(g-75)*2.6));
-      data.data[i]=data.data[i+1]=data.data[i+2]=v;
+  for(const crop of crops){
+    for(const angle of [0,90,270]){
+      variants.push(buildOcrCanvas(img,angle,crop,"soft"));
+      if(angle!==0)variants.push(buildOcrCanvas(img,angle,crop,"contrast"));
     }
-    ctx.putImageData(data,0,0);
-    variants.push(c.toDataURL("image/jpeg",.94));
   }
   return variants;
 }
 function extractDrumNumber(text){
   const raw=(text||"").toUpperCase();
-  const normalized=raw.replace(/[|IL]/g,"1").replace(/[OQ]/g,"0");
-  const candidates=[raw,normalized].map(x=>x.replace(/[^A-Z0-9]/g,""));
-  for(const compact of candidates){
-    const eMatch=compact.match(/E\d{7,12}/);
-    if(eMatch)return eMatch[0];
+  const normalized=raw
+    .replace(/[|IL]/g,"1")
+    .replace(/[OQ]/g,"0")
+    .replace(/[^A-Z0-9\n ]/g," ");
+  const lines=normalized.split(/\n+/);
+  for(const line of lines){
+    const compact=line.replace(/\s/g,"");
+    const e=compact.match(/E\d{8,12}/);
+    if(e)return e[0];
+    const nearE=compact.match(/[A-Z]\d{8,12}/);
+    if(nearE && /^[E5FBR]/.test(nearE[0]))return "E"+nearE[0].slice(1);
   }
-  const spaced=normalized.match(/E\s*[0-9]{7,12}/);
-  return spaced?spaced[0].replace(/\s/g,""):null;
+  const all=normalized.replace(/\s/g,"");
+  const e=all.match(/E\d{8,12}/);
+  if(e)return e[0];
+  const digits=all.match(/\d{9,12}/g)||[];
+  if(digits.length===1)return "E"+digits[0];
+  return null;
 }
 async function runDrumOcr(file,inputId,statusId){
   const status=$(statusId);
-  if(status)status.textContent="🔎 Trommelnummer wird automatisch erkannt …";
+  if(status){status.textContent="🔎 Trommelnummer wird automatisch erkannt …";window.__ocrStatus=status;}
   try{
     const img=await loadImageFile(file);
     const variants=makeOcrVariants(img);
     const worker=await getOcrWorker();
     let found=null;
     for(let i=0;i<variants.length&&!found;i++){
-      for(const psm of [7,6,11]){
-        await worker.setParameters({tessedit_pageseg_mode:String(psm)});
-        const result=await worker.recognize(variants[i]);
+      for(const psm of [7,8,6,11]){
+        await worker.setParameters({tessedit_pageseg_mode:psm,tessedit_char_whitelist:"ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"});
+        const result=await worker.recognize(variants[i],{rotateAuto:false});
         found=extractDrumNumber(result.data.text||"");
         if(found)break;
       }
@@ -413,14 +465,17 @@ async function runDrumOcr(file,inputId,statusId){
       if(status)status.textContent=`✓ Trommelnummer automatisch erkannt: ${found}`;
       return found;
     }
-    if(status)status.textContent="Nummer nicht eindeutig erkannt – bitte Foto näher/gerade aufnehmen.";
+    if(status)status.textContent="Nummer nicht eindeutig erkannt – bitte das Etikett näher und möglichst gerade fotografieren.";
   }catch(e){
     console.warn("OCR fehlgeschlagen",e);
-    if(status)status.textContent="OCR konnte nicht ausgeführt werden – Nummer bitte manuell eingeben.";
+    if(status)status.textContent="OCR konnte nicht gestartet werden. Bitte Internetverbindung prüfen und erneut fotografieren.";
+  }finally{
+    window.__ocrStatus=null;
   }
   return null;
 }
-function photoChosen(){let f=$("photo").files[0];if(!f)return;$("preview").src=URL.createObjectURL(f);$("preview").style.display="block";$("photoMsg").textContent="Foto aufgenommen – Trommelnummer wird automatisch erkannt und beim Speichern mit der Trommel abgelegt.";runDrumOcr(f,"drumNo","ocrMsg")}
+function photoChosen(){let f=$("photo").files[0];if(!f)return;$("preview").src=URL.createObjectURL(f);$("preview").style.display="block";$("photoMsg").textContent="Foto aufgenommen – Trommelnummer wird automatisch erkannt und beim Speichern mit der Trommel abgelegt.";$("ocrRetry").style.display="none";runDrumOcr(f,"drumNo","ocrMsg").then(()=>{if($("ocrMsg").textContent.includes("nicht eindeutig")||$("ocrMsg").textContent.includes("konnte nicht"))$("ocrRetry").style.display="inline-block"})}
+function retryDrumOcr(){const f=$("photo").files[0];if(f){$("ocrRetry").style.display="none";runDrumOcr(f,"drumNo","ocrMsg").then(()=>{if($("ocrMsg").textContent.includes("nicht eindeutig")||$("ocrMsg").textContent.includes("konnte nicht"))$("ocrRetry").style.display="inline-block"})}}
 function returnPhotoChosen(){let f=$("returnPhoto").files[0];if(!f)return;$("returnPreview").src=URL.createObjectURL(f);$("returnPreview").style.display="block";$("returnPhotoMsg").textContent="Foto aufgenommen – Trommelnummer wird automatisch erkannt und mit der Rücklieferung gespeichert.";runDrumOcr(f,"returnDrum","returnOcrMsg")}
 let toastTimer=null;function notifySaved(title="Material erfolgreich gespeichert",message="Die Bestandsaufnahme wurde gespeichert.",action=""){
   $("toastTitle").textContent=title;
@@ -619,8 +674,7 @@ function printPdfInSeparateWindow(){
   }
   const styles=[...document.querySelectorAll('style')].map(s=>s.textContent).join('\n');
   printWin.document.open();
-  printWin.document.write(`<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>THADEN MATERIAL · PDF</title><style>${styles}</style></head><body class="pdf-print-window">${report.innerHTML}<script>window.addEventListener('load',()=>{const imgs=[...document.images];Promise.all(imgs.map(img=>img.complete?Promise.resolve():new Promise(r=>{img.onload=img.onerror=r;}))).then(()=>setTimeout(()=>window.print(),180));});<\/script><script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
-</body></html>`);
+  printWin.document.write(`<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>THADEN MATERIAL · PDF</title><style>${styles}</style></head><body class="pdf-print-window">${report.innerHTML}<script>window.addEventListener('load',()=>{const imgs=[...document.images];Promise.all(imgs.map(img=>img.complete?Promise.resolve():new Promise(r=>{img.onload=img.onerror=r;}))).then(()=>setTimeout(()=>window.print(),180));});<\/script></body></html>`);
   printWin.document.close();
 }
 function openPdfFor(id){
@@ -837,7 +891,7 @@ function clearReturnFields(){
   if($('returnDrum')) $('returnDrum').value='';
   if($('returnPhoto')) $('returnPhoto').value='';
   if($('returnPreview')) { $('returnPreview').style.display='none'; $('returnPreview').removeAttribute('src'); }
-  if($('returnPhotoMsg')) $('returnPhotoMsg').textContent=''; if($('returnOcrMsg')) $('returnOcrMsg').textContent='';
+  if($('returnPhotoMsg')) $('returnPhotoMsg').textContent=''; if($('returnOcrMsg')) $('returnOcrMsg').textContent=''; if($('returnOcrRetry')) $('returnOcrRetry').style.display='none';
 }
 function renderPendingReturns(){
   const el=$('returnBatchList'); if(!el)return;
@@ -845,9 +899,11 @@ function renderPendingReturns(){
 }
 function returnPhotoChosen(){
   const f=$('returnPhoto').files[0]; if(!f)return;
-  $('returnPreview').src=URL.createObjectURL(f); $('returnPreview').style.display='block'; $('returnPhotoMsg').textContent='Foto ausgewählt – wird beim Hinzufügen mit der Trommel gespeichert.';
-  runDrumOcr(f,'returnDrum','returnOcrMsg');
+  $('returnPreview').src=URL.createObjectURL(f); $('returnPreview').style.display='block'; $('returnPhotoMsg').textContent='Foto aufgenommen – Trommelnummer wird automatisch erkannt und mit der Rücklieferung gespeichert.';
+  if($('returnOcrRetry'))$('returnOcrRetry').style.display='none';
+  runDrumOcr(f,'returnDrum','returnOcrMsg').then(()=>{if($('returnOcrMsg').textContent.includes('nicht eindeutig')||$('returnOcrMsg').textContent.includes('konnte nicht'))$('returnOcrRetry').style.display='inline-block'});
 }
+function retryReturnOcr(){const f=$('returnPhoto').files[0];if(f){$('returnOcrRetry').style.display='none';runDrumOcr(f,'returnDrum','returnOcrMsg').then(()=>{if($('returnOcrMsg').textContent.includes('nicht eindeutig')||$('returnOcrMsg').textContent.includes('konnte nicht'))$('returnOcrRetry').style.display='inline-block'})}}
 async function addReturnDrum(){
   const site=$('returnSite').value, material=$('returnMaterial').value, no=$('returnDrum').value.trim();
   if(!site||!material||!no){alert('Bitte Baustelle, Material und Trommelnummer ausfüllen.');return}
@@ -946,5 +1002,4 @@ function addCustomMaterial(){
 }
 refreshMaterialPickers();
 </script>
-<script src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js"></script>
 </body></html>
