@@ -636,14 +636,31 @@ function normalizeOrderItems(order){
   return [];
 }
 function saveMaterialOrder(){
-  const site=$('orderSite').value, note=$('orderNote').value.trim(), items=getOrderItemsFromForm();
+  const site=$('orderSite').value, note=$('orderNote').value.trim(), items=getOrderItemsFromForm(), date=today();
   if(!site||!items.length){alert('Bitte Lagerplatz sowie mindestens ein Material mit Menge ausfüllen.');return}
-  const order={id:Date.now(),site,items,note,date:today(),status:'offen'};
-  const list=JSON.parse(localStorage.getItem('mm_orders')||'[]'); list.unshift(order); localStorage.setItem('mm_orders',JSON.stringify(list));
+  const list=JSON.parse(localStorage.getItem('mm_orders')||'[]');
+  // Gleicher Lagerplatz + gleicher Tag = eine gemeinsame Tagesbestellung.
+  const existing=list.find(x=>x.site===site && x.date===date && x.status!=='erledigt');
+  let order;
+  if(existing){
+    const merged=new Map(normalizeOrderItems(existing).map(x=>[x.material,Number(x.qty)||0]));
+    items.forEach(x=>merged.set(x.material,(merged.get(x.material)||0)+Number(x.qty)||0));
+    existing.items=[...merged.entries()].map(([material,qty])=>({material,qty}));
+    if(note){
+      const notes=String(existing.note||'').split(' · ').map(x=>x.trim()).filter(Boolean);
+      if(!notes.includes(note)) notes.push(note);
+      existing.note=notes.join(' · ');
+    }
+    order=existing;
+  }else{
+    order={id:Date.now(),site,items,note,date,status:'offen'};
+    list.unshift(order);
+  }
+  localStorage.setItem('mm_orders',JSON.stringify(list));
   $('orderNote').value=''; $('orderItems').innerHTML=''; addOrderItem(); renumberOrderItems();
   renderOrderPrintReport(order);
-  $('orderNotice').innerHTML=`<div class="notice-success">✓ Materialbestellung gespeichert und für das Lager bereit.<div class="notice-actions"><button class="primary" type="button" onclick="printOrderPdf(${order.id})">📄 Bestellung als PDF erstellen</button><button class="ghost" type="button" onclick="shareOrder(${order.id})">📤 Bestellung teilen</button></div></div>`;
-  renderOrders(); notifySaved('Materialbestellung erfolgreich gespeichert','Die Bestellung wurde mit allen Positionen für das Lager gespeichert.','PDF kann jetzt erstellt werden');
+  $('orderNotice').innerHTML=`<div class="notice-success">✓ Tages-Sammelbestellung gespeichert und für das Lager bereit.<div class="notice-actions"><button class="primary" type="button" onclick="printGroupedOrderPdf(${JSON.stringify(site)},${JSON.stringify(date)})">📄 Tages-Sammel-PDF erstellen</button><button class="ghost" type="button" onclick="shareGroupedOrder(${JSON.stringify(site)},${JSON.stringify(date)})">📤 PDF-Versand vorbereiten</button></div></div>`;
+  renderOrders(); notifySaved('Materialbestellung gespeichert','Die Positionen für diesen Lagerplatz werden für heute gesammelt.','Eine gemeinsame PDF kann jetzt erstellt werden');
 }
 function renderOrderPrintReport(order){
   const date=new Date(order.date+'T00:00').toLocaleDateString('de-DE');
@@ -651,14 +668,14 @@ function renderOrderPrintReport(order){
   const footer=`<div class="print-footer">THADEN MATERIAL · SMART MATERIAL LOGISTICS · Materialbestellung · ${date}</div>`;
   const page=(content)=>`<section class="print-page order-print-page">${content}</section>`;
   const head=`<div class="print-head"><img src="./thaden-logo-pdf.png" alt="THADEN MATERIAL"><div class="print-kicker">Dokumentation<br><span>Materialbestellung</span></div></div>`;
-  const meta=`<div class="print-meta order-meta"><div><b>Baustelle</b>${esc(order.site)}</div><div><b>Datum</b>${date}</div><div><b>Positionen</b>${items.length}</div></div>`;
+  const meta=`<div class="print-meta order-meta"><div><b>Lagerplatz</b>${esc(order.site)}</div><div><b>Datum</b>${date}</div><div><b>Positionen</b>${items.length}</div></div>`;
   const rows=items.map(x=>`<tr><td>${esc(x.material)}</td><td><b>${Number(x.qty).toLocaleString('de-DE')}</b></td></tr>`).join('');
-  const body=`<h2>Materialbestellung</h2><table class="print-table"><thead><tr><th>Material</th><th>Menge</th></tr></thead><tbody>${rows}</tbody></table>${order.note?`<h2 class="print-section">Bemerkung</h2><div class="print-note">${esc(order.note)}</div>`:''}<div class="print-complete order-open">✓ Bestellung gespeichert · bereit für das Lager</div>${footer}`;
+  const body=`<h2>Materialbestellung</h2><table class="print-table"><thead><tr><th>Material</th><th>Menge</th></tr></thead><tbody>${rows}</tbody></table>${order.note?`<h2 class="print-section">Bemerkung</h2><div class="print-note">${esc(order.note)}</div>`:''}<div class="print-complete order-open">✓ Tages-Sammelbestellung bereit für das Lager</div>${footer}`;
   $('printReport').innerHTML=page(`${head}<div class="print-title">MATERIALBESTELLUNG</div>${meta}${body}`);
 }
-function getGroupedOrders(site){
+function getGroupedOrders(site,date=''){
   const list=JSON.parse(localStorage.getItem('mm_orders')||'[]');
-  return list.filter(x=>x.site===site);
+  return list.filter(x=>x.site===site && (!date || x.date===date));
 }
 function groupedOrderItems(orders){
   const map=new Map();
@@ -668,56 +685,57 @@ function groupedOrderItems(orders){
   }));
   return [...map.entries()].map(([material,qty])=>({material,qty}));
 }
-function renderGroupedOrderPrintReport(site, orders){
+function renderGroupedOrderPrintReport(site, orders, date=''){
   const items=groupedOrderItems(orders);
   const dates=orders.map(x=>x.date).filter(Boolean).sort();
-  const date=dates.length?new Date(dates[dates.length-1]+'T00:00').toLocaleDateString('de-DE'):today();
+  const printDate=date || (dates.length?dates[dates.length-1]:today());
+  const dateLabel=new Date(printDate+'T00:00').toLocaleDateString('de-DE');
   const head=`<div class="print-head"><img src="./thaden-logo-pdf.png" alt="THADEN MATERIAL"><div class="print-kicker">Dokumentation<br><span>Materialbestellung</span></div></div>`;
-  const footer=`<div class="print-footer">THADEN MATERIAL · SMART MATERIAL LOGISTICS · Materialbestellung · ${date}</div>`;
-  const meta=`<div class="print-meta order-meta"><div><b>Lagerplatz</b>${esc(site)}</div><div><b>Datum</b>${date}</div><div><b>Positionen</b>${items.length}</div></div>`;
+  const footer=`<div class="print-footer">THADEN MATERIAL · SMART MATERIAL LOGISTICS · Materialbestellung · ${dateLabel}</div>`;
+  const meta=`<div class="print-meta order-meta"><div><b>Lagerplatz</b>${esc(site)}</div><div><b>Datum</b>${dateLabel}</div><div><b>Positionen</b>${items.length}</div></div>`;
   const rows=items.map(x=>`<tr><td>${esc(x.material)}</td><td><b>${Number(x.qty).toLocaleString('de-DE')}</b></td></tr>`).join('');
   const notes=[...new Set(orders.map(x=>String(x.note||'').trim()).filter(Boolean))];
-  const body=`<h2>Materialbestellung</h2><table class="print-table"><thead><tr><th>Material</th><th>Menge</th></tr></thead><tbody>${rows}</tbody></table>${notes.length?`<h2 class="print-section">Bemerkungen</h2><div class="print-note">${notes.map(esc).join('<br>')}</div>`:''}<div class="print-complete order-open">✓ Sammelbestellung bereit für das Lager</div>${footer}`;
+  const body=`<h2>Materialbestellung</h2><table class="print-table"><thead><tr><th>Material</th><th>Menge</th></tr></thead><tbody>${rows}</tbody></table>${notes.length?`<h2 class="print-section">Bemerkungen</h2><div class="print-note">${notes.map(esc).join('<br>')}</div>`:''}<div class="print-complete order-open">✓ Tages-Sammelbestellung bereit für das Lager</div>${footer}`;
   $('printReport').innerHTML=`<section class="print-page order-print-page">${head}<div class="print-title">MATERIALBESTELLUNG</div>${meta}${body}</section>`;
 }
 function printOrderPdf(id){
   const list=JSON.parse(localStorage.getItem('mm_orders')||'[]'); const order=list.find(x=>x.id===id); if(!order)return;
-  const orders=getGroupedOrders(order.site); renderGroupedOrderPrintReport(order.site,orders); printPdfInSeparateWindow();
+  const orders=getGroupedOrders(order.site,order.date); renderGroupedOrderPrintReport(order.site,orders,order.date); printPdfInSeparateWindow();
 }
-function printGroupedOrderPdf(site){
-  const orders=getGroupedOrders(site); if(!orders.length)return;
-  renderGroupedOrderPrintReport(site,orders); printPdfInSeparateWindow();
+function printGroupedOrderPdf(site,date=''){
+  const orders=getGroupedOrders(site,date); if(!orders.length)return;
+  renderGroupedOrderPrintReport(site,orders,date); printPdfInSeparateWindow();
 }
 async function shareOrder(id){
   const list=JSON.parse(localStorage.getItem('mm_orders')||'[]'); const order=list.find(x=>x.id===id); if(!order)return;
-  return shareGroupedOrder(order.site);
+  return shareGroupedOrder(order.site,order.date);
 }
-async function shareGroupedOrder(site){
-  const orders=getGroupedOrders(site); if(!orders.length)return;
+async function shareGroupedOrder(site,date=''){
+  const orders=getGroupedOrders(site,date); if(!orders.length)return;
   const items=groupedOrderItems(orders);
-  const lines=items.map(x=>`• ${x.material}: ${Number(x.qty).toLocaleString('de-DE')}`).join('\n');
-  const text=`THADEN MATERIAL · Sammelbestellung\nLagerplatz: ${site}\n${lines}\nDatum: ${new Date(orders.map(x=>x.date).sort().slice(-1)[0]+'T00:00').toLocaleDateString('de-DE')}`;
-  if(navigator.share){
-    try{
-      await navigator.share({title:'THADEN MATERIAL · Sammelbestellung',text});
-      markOrderGroupDone(site,false);
-    }catch(e){ return; }
-  } else {
-    alert(text); markOrderGroupDone(site,false);
-  }
+  const dateValue=date || orders.map(x=>x.date).sort().slice(-1)[0] || today();
+  // Auf iPhone/iPad wird zunächst die gemeinsame PDF-Druckansicht geöffnet.
+  // Von dort kann die PDF über das iOS-Teilen-Symbol verschickt werden.
+  renderGroupedOrderPrintReport(site,orders,dateValue);
+  printPdfInSeparateWindow();
+  setTimeout(()=>{
+    if(confirm(`Die Sammel-PDF für ${site} · ${new Date(dateValue+'T00:00').toLocaleDateString('de-DE')} wurde zur Erstellung geöffnet.\n\nWenn du sie über das Teilen-Symbol verschickt hast, sollen die Bestellungen von dieser Seite entfernt werden?`)){
+      markOrderGroupDone(site,dateValue,false);
+    }
+  },900);
 }
-function markOrderGroupDone(site, ask=true){
+function markOrderGroupDone(site,date='',ask=true){
   const list=JSON.parse(localStorage.getItem('mm_orders')||'[]');
-  const count=list.filter(x=>x.site===site).length; if(!count)return;
-  if(ask && !confirm(`Sammelbestellung für ${site} wurde versendet?\n\n${count} offene Bestellung${count===1?'':'en'} werden anschließend von dieser Seite entfernt.`))return;
-  localStorage.setItem('mm_orders',JSON.stringify(list.filter(x=>x.site!==site)));
+  const count=list.filter(x=>x.site===site && (!date || x.date===date)).length; if(!count)return;
+  if(ask && !confirm(`Tages-Sammelbestellung für ${site} wurde versendet?\n\n${count} offene Meldung${count===1?'':'en'} werden anschließend entfernt.`))return;
+  localStorage.setItem('mm_orders',JSON.stringify(list.filter(x=>!(x.site===site && (!date || x.date===date)))));
   renderOrders(); renderOrderForm();
-  notifySaved('Sammelbestellung erledigt',`${site} wurde aus den offenen Materialbestellungen entfernt.`,'Für den Lagerplatz ist nichts mehr offen');
+  notifySaved('Sammelbestellung erledigt',`${site} · ${date?new Date(date+'T00:00').toLocaleDateString('de-DE'):'alle offenen Bestellungen'} wurde aus den offenen Materialbestellungen entfernt.`,'Für diesen Lagerplatz und Tag ist nichts mehr offen');
 }
 function deleteMaterialOrder(id){
   const list=JSON.parse(localStorage.getItem('mm_orders')||'[]'); const order=list.find(x=>x.id===id); if(!order)return;
   const items=normalizeOrderItems(order); const detail=items.map(x=>`${x.material} · ${Number(x.qty).toLocaleString('de-DE')}`).join('\n');
-  if(!confirm(`Materialbestellung für ${order.site}\n${detail}\n\nWird diese Bestellung nicht mehr benötigt und wirklich gelöscht?`))return;
+  if(!confirm(`Materialbestellung für ${order.site} · ${new Date(order.date+'T00:00').toLocaleDateString('de-DE')}\n${detail}\n\nWird diese Bestellung nicht mehr benötigt und wirklich gelöscht?`))return;
   localStorage.setItem('mm_orders',JSON.stringify(list.filter(x=>x.id!==id))); renderOrders(); renderOrderForm();
   notifySaved('Materialbestellung gelöscht','Die Bestellung wurde aus den offenen Meldungen entfernt.','Nicht mehr erforderlich');
 }
@@ -725,13 +743,14 @@ function renderOrders(){
   const el=$('ordersList'); if(!el)return;
   const list=JSON.parse(localStorage.getItem('mm_orders')||'[]');
   const groups=new Map();
-  list.forEach(order=>{ if(!groups.has(order.site))groups.set(order.site,[]); groups.get(order.site).push(order); });
-  if(!groups.size){el.innerHTML='<div class="empty">Keine offenen Materialbestellungen.<br><small>Bestellungen werden je Lagerplatz automatisch zusammengefasst.</small></div>';return;}
-  el.innerHTML=[...groups.entries()].map(([site,orders])=>{
+  list.forEach(order=>{ const key=`${order.site}||${order.date||''}`; if(!groups.has(key))groups.set(key,[]); groups.get(key).push(order); });
+  if(!groups.size){el.innerHTML='<div class="empty">Keine offenen Materialbestellungen.<br><small>Bestellungen werden je Lagerplatz und Tag zu einer Sammelbestellung zusammengefasst.</small></div>';return;}
+  el.innerHTML=[...groups.entries()].map(([key,orders])=>{
+    const site=orders[0].site, date=orders[0].date||today();
     const items=groupedOrderItems(orders);
-    const latest=orders.map(x=>x.date).filter(Boolean).sort().slice(-1)[0]||today();
+    const latest=date;
     const notes=[...new Set(orders.map(x=>String(x.note||'').trim()).filter(Boolean))];
-    return `<div class="workflow-card"><div class="top"><div><b>${esc(site)}</b><div class="meta">${items.length} ${items.length===1?'Materialposition':'Materialpositionen'} · ${orders.length} Meldung${orders.length===1?'':'en'} · ${new Date(latest+"T00:00").toLocaleDateString('de-DE')}</div><div class="order-list-items">${items.map(it=>`<div class="order-list-line"><span>${esc(it.material)}</span><b>${Number(it.qty).toLocaleString('de-DE')}</b></div>`).join('')}</div>${notes.length?`<div class="meta">${notes.map(esc).join(' · ')}</div>`:''}</div><span class="status-pill">● offen</span></div><div class="workflow-actions" style="grid-template-columns:1fr 1fr 1fr"><button class="primary" type="button" onclick='printGroupedOrderPdf(${JSON.stringify(site)})'>📄 Sammel-PDF</button><button class="ghost" type="button" onclick='shareGroupedOrder(${JSON.stringify(site)})'>📤 Versenden & entfernen</button><button class="danger" type="button" onclick='markOrderGroupDone(${JSON.stringify(site)},true)'>🗑 Erledigt / entfernen</button></div></div>`;
+    return `<div class="workflow-card"><div class="top"><div><b>${esc(site)}</b><div class="meta">Tages-Sammelbestellung · ${new Date(latest+"T00:00").toLocaleDateString('de-DE')} · ${items.length} ${items.length===1?'Materialposition':'Materialpositionen'}</div><div class="order-list-items">${items.map(it=>`<div class="order-list-line"><span>${esc(it.material)}</span><b>${Number(it.qty).toLocaleString('de-DE')}</b></div>`).join('')}</div>${notes.length?`<div class="meta">${notes.map(esc).join(' · ')}</div>`:''}</div><span class="status-pill">● offen</span></div><div class="workflow-actions" style="grid-template-columns:1fr 1fr 1fr"><button class="primary" type="button" onclick='printGroupedOrderPdf(${JSON.stringify(site)},${JSON.stringify(date)})'>📄 Sammel-PDF</button><button class="ghost" type="button" onclick='shareGroupedOrder(${JSON.stringify(site)},${JSON.stringify(date)})'>📤 PDF erstellen & versenden</button><button class="danger" type="button" onclick='markOrderGroupDone(${JSON.stringify(site)},${JSON.stringify(date)},true)'>🗑 Erledigt / entfernen</button></div></div>`;
   }).join('');
 }
 
