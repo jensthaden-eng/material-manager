@@ -164,7 +164,7 @@ if ('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.s
 
 <section id="warehouse" class="screen"><div class="card"><button class="ghost back" onclick="show('home')">← Start</button><h2>Lagerbestand</h2><p class="muted">Bestände auf einen Blick.</p><div class="stat-grid"><div class="stat"><span class="muted">Trommeln</span><b id="statDrums">0</b></div><div class="stat"><span class="muted">Aufnahmen</span><b id="statHistory">0</b></div></div><div class="actions"><button class="primary" onclick="newInventory()">＋ Bestandsaufnahme</button><button class="ghost" onclick="show('drums')">Trommeln anzeigen</button></div></div></section>
 
-<section id="scan" class="screen"><div class="card"><button class="ghost back" onclick="show('home')">← Start</button><h2>Material scannen</h2><p class="muted">Trommeletikett fotografieren und anschließend die Daten erfassen.</p><button class="primary" style="width:100%;padding:18px" onclick="newInventory()">📷 Scan / Aufnahme starten</button><p class="muted" style="margin-top:12px">OCR für die automatische Trommelnummer ist als nächster Ausbauschritt vorgesehen.</p></div></section>
+<section id="scan" class="screen"><div class="card"><button class="ghost back" onclick="show('home')">← Start</button><h2>Material scannen</h2><p class="muted">Trommeletikett fotografieren und anschließend die Daten erfassen.</p><button class="primary" style="width:100%;padding:18px" onclick="newInventory()">📷 Scan / Aufnahme starten</button><p class="muted" style="margin-top:12px">Beim Fotografieren des Trommeletiketts wird die Trommelnummer automatisch erkannt und eingetragen.</p></div></section>
 
 <section id="returns" class="screen">
 <div class="card"><button class="ghost back" onclick="show('home')">← Start</button><h2>Leere Trommeln</h2><p class="muted">Mehrere leere Trommeln nacheinander erfassen und anschließend gemeinsam an das Lager melden.</p>
@@ -174,7 +174,7 @@ if ('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.s
 <label>Material</label><select id="returnMaterial"></select>
 <label>Trommelnummer</label><input id="returnDrum" type="text" placeholder="z. B. E2557689057">
 <label>Foto der leeren Trommel</label>
-<div class="photo-box"><button type="button" class="ghost photo-action" onclick="document.getElementById('returnPhoto').click()">📷 Foto aufnehmen<br><small>oder auswählen</small></button><div><img id="returnPreview" class="preview" alt="Foto der leeren Trommel"><p id="returnPhotoMsg" class="muted"></p></div></div>
+<div class="photo-box"><button type="button" class="ghost photo-action" onclick="document.getElementById('returnPhoto').click()">📷 Foto aufnehmen<br><small>oder auswählen</small></button><div><img id="returnPreview" class="preview" alt="Foto der leeren Trommel"><p id="returnPhotoMsg" class="muted"></p><p id="returnOcrMsg" class="muted" aria-live="polite"></p></div></div>
 <input id="returnPhoto" class="screen" type="file" accept="image/*" capture="environment" onchange="returnPhotoChosen()">
 <div class="form-actions"><button class="ghost" onclick="addReturnDrum()">＋ Weitere Trommel hinzufügen</button><button class="green" onclick="saveReturnBatch()">✓ Rücklieferungen speichern</button></div>
 <div id="returnBatchList"></div>
@@ -253,7 +253,7 @@ if ('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.s
 <label>Trommelnummer</label><input id="drumNo" placeholder="z. B. T-2026-00125">
 <button class="ghost photo-action" style="margin-top:8px;width:100%" onclick="document.getElementById('photo').click()">📷 Trommeletikett fotografieren<br><small>oder Foto auswählen</small></button>
 <input id="photo" class="screen" type="file" accept="image/*" capture="environment" onchange="photoChosen()">
-<img id="preview" class="preview"><p id="photoMsg" class="muted"></p>
+<img id="preview" class="preview"><p id="photoMsg" class="muted"></p><p id="ocrMsg" class="muted" aria-live="polite"></p>
 </div><div>
 <label>Gesamtlänge</label><input id="totalLen" type="number" min="0" step="1" placeholder="z. B. 2400"><span class="muted">Meter</span>
 <label>Restbestand</label><input id="restLen" type="number" min="0" step="1" placeholder="z. B. 1850"><span class="muted">Meter</span>
@@ -323,8 +323,18 @@ function showDrums(){show("drums")}
 function showSettings(){show("settings")}
 function updateStats(){if($("statDrums"))$("statDrums").textContent=drums.length;if($("statHistory"))$("statHistory").textContent=history.length}
 function compressImage(file,maxSide=900,quality=.72){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>{const img=new Image();img.onload=()=>{const scale=Math.min(1,maxSide/Math.max(img.naturalWidth,img.naturalHeight));const c=document.createElement('canvas');c.width=Math.max(1,Math.round(img.naturalWidth*scale));c.height=Math.max(1,Math.round(img.naturalHeight*scale));const ctx=c.getContext('2d');ctx.drawImage(img,0,0,c.width,c.height);resolve(c.toDataURL('image/jpeg',quality))};img.onerror=reject;img.src=r.result};r.onerror=reject;r.readAsDataURL(file)})}
-function photoChosen(){let f=$("photo").files[0];if(!f)return;$("preview").src=URL.createObjectURL(f);$("preview").style.display="block";$("photoMsg").textContent="Foto ausgewählt – wird beim Speichern mit der Trommel abgelegt."}
-function returnPhotoChosen(){let f=$("returnPhoto").files[0];if(!f)return;$("returnPreview").src=URL.createObjectURL(f);$("returnPreview").style.display="block";$("returnPhotoMsg").textContent="Foto ausgewählt – wird mit der Rücklieferung gespeichert."}
+let ocrWorkerPromise=null;
+async function getOcrWorker(){
+  if(ocrWorkerPromise)return ocrWorkerPromise;
+  if(!window.Tesseract)throw new Error("OCR-Bibliothek nicht geladen");
+  ocrWorkerPromise=(async()=>{const worker=await Tesseract.createWorker("eng");await worker.setParameters({tessedit_char_whitelist:"ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",preserve_interword_spaces:"1",tessedit_pageseg_mode:"6"});return worker;})();
+  try{return await ocrWorkerPromise}catch(e){ocrWorkerPromise=null;throw e}
+}
+function prepareOcrImage(file){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>{const img=new Image();img.onload=()=>{const scale=Math.min(1.8,1800/Math.max(img.naturalWidth,img.naturalHeight));const c=document.createElement("canvas");c.width=Math.max(1,Math.round(img.naturalWidth*scale));c.height=Math.max(1,Math.round(img.naturalHeight*scale));const ctx=c.getContext("2d",{willReadFrequently:true});ctx.drawImage(img,0,0,c.width,c.height);const data=ctx.getImageData(0,0,c.width,c.height);for(let i=0;i<data.data.length;i+=4){const g=data.data[i]*.299+data.data[i+1]*.587+data.data[i+2]*.114;const v=g>145?255:Math.max(0,Math.min(255,(g-70)*2.2));data.data[i]=data.data[i+1]=data.data[i+2]=v}ctx.putImageData(data,0,0);resolve(c.toDataURL("image/jpeg",.9))};img.onerror=reject;img.src=r.result};r.onerror=reject;r.readAsDataURL(file)})}
+function extractDrumNumber(text){const cleaned=text.toUpperCase().replace(/[|IL]/g,"1").replace(/[OQ]/g,"0");const compact=cleaned.replace(/[^A-Z0-9]/g,"");const eMatch=compact.match(/E\d{7,12}/);if(eMatch)return eMatch[0];const spaced=cleaned.match(/E\s*[0-9]{7,12}/);if(spaced)return spaced[0].replace(/\s/g,"");return null}
+async function runDrumOcr(file,inputId,statusId){const status=$(statusId);if(status)status.textContent="🔎 Trommelnummer wird automatisch erkannt …";try{const image=await prepareOcrImage(file);const worker=await getOcrWorker();const result=await worker.recognize(image);const number=extractDrumNumber(result.data.text||"");if(number){$(inputId).value=number;if(status)status.textContent=`✓ Trommelnummer erkannt: ${number}`;return number}if(status)status.textContent="Keine eindeutige Trommelnummer erkannt – bitte Nummer prüfen/eingeben."}catch(e){console.warn("OCR fehlgeschlagen",e);if(status)status.textContent="OCR konnte nicht ausgeführt werden – Nummer bitte manuell eingeben."}return null}
+function photoChosen(){let f=$("photo").files[0];if(!f)return;$("preview").src=URL.createObjectURL(f);$("preview").style.display="block";$("photoMsg").textContent="Foto ausgewählt – wird beim Speichern mit der Trommel abgelegt.";runDrumOcr(f,"drumNo","ocrMsg")}
+function returnPhotoChosen(){let f=$("returnPhoto").files[0];if(!f)return;$("returnPreview").src=URL.createObjectURL(f);$("returnPreview").style.display="block";$("returnPhotoMsg").textContent="Foto ausgewählt – wird mit der Rücklieferung gespeichert.";runDrumOcr(f,"returnDrum","returnOcrMsg")}
 let toastTimer=null;function notifySaved(title="Material erfolgreich gespeichert",message="Die Bestandsaufnahme wurde gespeichert.",action=""){
   $("toastTitle").textContent=title;
   $("toastMessage").textContent=message;
@@ -603,15 +613,16 @@ function clearReturnFields(){
   if($('returnDrum')) $('returnDrum').value='';
   if($('returnPhoto')) $('returnPhoto').value='';
   if($('returnPreview')) { $('returnPreview').style.display='none'; $('returnPreview').removeAttribute('src'); }
-  if($('returnPhotoMsg')) $('returnPhotoMsg').textContent='';
+  if($('returnPhotoMsg')) $('returnPhotoMsg').textContent=''; if($('returnOcrMsg')) $('returnOcrMsg').textContent='';
 }
 function renderPendingReturns(){
   const el=$('returnBatchList'); if(!el)return;
   el.innerHTML=pendingReturnDrums.length?`<div class="history-item" style="margin-top:14px"><b>Für diese Rücklieferung vorgemerkt: ${pendingReturnDrums.length} Trommel${pendingReturnDrums.length===1?'':'n'}</b>${pendingReturnDrums.map((x,i)=>`<div class="history-item-row" style="margin-top:9px"><div>${x.photo?`<img class="photo-thumb" src="${x.photo}" alt="Foto der leeren Trommel">`:''}<b>${esc(x.material)}</b><br><span class="muted">${esc(x.site)} · Trommel ${esc(x.no)}</span></div><button class="delete-history" type="button" onclick="removePendingReturn(${i})">Löschen</button></div>`).join('')}</div>`:'';
 }
-async function returnPhotoChosen(){
+function returnPhotoChosen(){
   const f=$('returnPhoto').files[0]; if(!f)return;
   $('returnPreview').src=URL.createObjectURL(f); $('returnPreview').style.display='block'; $('returnPhotoMsg').textContent='Foto ausgewählt – wird beim Hinzufügen mit der Trommel gespeichert.';
+  runDrumOcr(f,'returnDrum','returnOcrMsg');
 }
 async function addReturnDrum(){
   const site=$('returnSite').value, material=$('returnMaterial').value, no=$('returnDrum').value.trim();
