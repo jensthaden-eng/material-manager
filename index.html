@@ -282,7 +282,27 @@ if ('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.s
 </div></section>
 </div>
 
-<div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true"><div class="toast-card"><div class="toast-check">✓</div><div id="toastTitle" class="toast-title">Material erfolgreich gespeichert</div><div id="toastMessage" class="toast-message">Die Bestandsaufnahme wurde gespeichert.</div><div id="toastAction" class="toast-action"></div></div></div><div id="printReport" class="print-report"></div>
+<style>
+.lowstock-overlay{position:fixed;inset:0;z-index:260;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(16,24,32,.55);backdrop-filter:blur(4px)}
+.lowstock-overlay.show{display:flex}
+.lowstock-card{width:min(92vw,430px);background:#fff;border-radius:24px;padding:26px 22px 22px;box-shadow:0 20px 70px rgba(16,24,32,.3);text-align:center}
+.lowstock-icon{width:64px;height:64px;margin:0 auto 12px;border-radius:50%;background:#fff3e8;color:#ff6b00;display:grid;place-items:center;font-size:32px;font-weight:900}
+.lowstock-title{font-size:22px;font-weight:900;color:#16232d;line-height:1.15}
+.lowstock-text{margin-top:9px;color:#697680;font-size:16px;line-height:1.4}
+.lowstock-actions{display:flex;gap:10px;margin-top:20px}
+.lowstock-actions button{flex:1;min-height:50px}
+</style>
+<div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true"><div class="toast-card"><div class="toast-check">✓</div><div id="toastTitle" class="toast-title">Material erfolgreich gespeichert</div><div id="toastMessage" class="toast-message">Die Bestandsaufnahme wurde gespeichert.</div><div id="toastAction" class="toast-action"></div></div></div><div id="lowStockPrompt" class="lowstock-overlay" role="dialog" aria-modal="true" aria-labelledby="lowStockTitle">
+  <div class="lowstock-card">
+    <div class="lowstock-icon">!</div>
+    <div id="lowStockTitle" class="lowstock-title">Material ist fast leer</div>
+    <div id="lowStockText" class="lowstock-text"></div>
+    <div class="lowstock-actions">
+      <button type="button" class="ghost" onclick="closeLowStockPrompt(false)">Nein</button>
+      <button type="button" class="green" onclick="closeLowStockPrompt(true)">Ja, auf Bedarfsliste</button>
+    </div>
+  </div>
+</div><div id="printReport" class="print-report"></div>
 
 <script>
 const defaultCables=["SNRVe 7x12 M","SNRVe 7x12 O","SNRVe 7x12 O/S","SNRVe 7x12 O/W","SNRVe 22x7 O","SNRVe 22x7 O/W","SNRVe 22x7 O/R","SNRVe 8x7 O","SNRVe 8x7 O/S","SNR 1x7","Gf-1x12","Gf-2x12","Gf-4x12","Gf-8x12","Gf-1x4","Gf-1x6"];
@@ -345,8 +365,68 @@ let toastTimer=null;function notifySaved(title="Material erfolgreich gespeichert
   try{navigator.vibrate?.(35)}catch(e){}
   toastTimer=setTimeout(()=>t.classList.remove("show"),2600);
 }
-async function saveDrum(){let no=$("drumNo").value.trim(),total=Number($("totalLen").value),rest=Number($("restLen").value);if(!no||!Number.isFinite(total)||!Number.isFinite(rest)||total<=0||rest<0||rest>total){alert("Bitte Trommelnummer sowie gültige Gesamtlänge und Restbestand eingeben.");return}let old=editingDrumIndex>=0?current.drums[editingDrumIndex]:null;let photo=old?.photo||"";if($("photo").files[0]){try{photo=await compressImage($("photo").files[0])}catch(e){alert("Das Foto konnte nicht verarbeitet werden.");return}}const data={material:selected,no,total,rest,photo};if(editingDrumIndex>=0)current.drums[editingDrumIndex]=data;else current.drums.push(data);editingDrumIndex=-1;$("photo").value="";show("materials");notifySaved(photo?"Trommel + Foto erfolgreich gespeichert":"Trommel erfolgreich gespeichert","Die Trommel wurde in der aktuellen Bestandsaufnahme gespeichert.")}
-function savePiece(){let q=+$("pieceQty").value;if(q<0){alert("Ungültige Menge.");return}let p=current.pieces.find(x=>x.material===selected);if(editingPieceIndex>=0){current.pieces[editingPieceIndex].qty=q;editingPieceIndex=-1}else if(p)p.qty=q;else current.pieces.push({material:selected,qty:q,unit:pieces.find(x=>x[0]===selected)[1]});show("materials");notifySaved("Material erfolgreich gespeichert","Das Stückmaterial wurde in der aktuellen Bestandsaufnahme gespeichert.")}
+let pendingLowStock=null, lowStockQueue=[];
+function lowStockKey(item, material, type, id=''){return `${item.site||''}|${item.street||''}|${type}|${material}|${id}`.toLowerCase()}
+function latestSavedItemFor(site, street, excludeId=null){
+  return [...history].sort((a,b)=>b.id-a.id).find(x=>Number(x.id)!==Number(excludeId) && (x.site||'').trim().toLowerCase()===(site||'').trim().toLowerCase() && (x.street||'').trim().toLowerCase()===(street||'').trim().toLowerCase());
+}
+function shouldWarnLowStock(item, material, type, currentValue, baselineValue, id=''){
+  const baseline=Number(baselineValue)||0, current=Number(currentValue)||0;
+  const key=lowStockKey(item,material,type,id);
+  const alerts=JSON.parse(localStorage.getItem('mm_lowstock_alerts')||'{}');
+  if(baseline<=0) return false;
+  if(current>baseline/2){ if(alerts[key]){delete alerts[key];localStorage.setItem('mm_lowstock_alerts',JSON.stringify(alerts));} return false; }
+  if(alerts[key]) return false;
+  alerts[key]=true; localStorage.setItem('mm_lowstock_alerts',JSON.stringify(alerts));
+  return true;
+}
+function openLowStockPayload(payload){
+  pendingLowStock=payload;
+  const text=`${payload.material} · nur noch ${Number(payload.currentValue).toLocaleString('de-DE')} ${payload.unit} vorhanden.\n\nDas Material ist fast leer. Soll es auf die Bedarfsliste gesetzt werden?`;
+  $('lowStockText').textContent=text;
+  $('lowStockPrompt').classList.add('show');
+}
+function requestLowStockPrompt(material, type, currentValue, unit, contextItem){
+  const payload={material,type,currentValue,unit,contextItem};
+  if(pendingLowStock || $('lowStockPrompt').classList.contains('show')){lowStockQueue.push(payload);return;}
+  openLowStockPayload(payload);
+}
+function closeLowStockPrompt(addToNeed){
+  const pending=pendingLowStock; pendingLowStock=null; $('lowStockPrompt').classList.remove('show');
+  if(addToNeed && pending){
+    const answer=prompt(`Welche Menge soll für „${pending.material}“ auf die Bedarfsliste?`,'1');
+    if(answer!==null){
+      const qty=Number(answer.replace(',','.'));
+      if(Number.isFinite(qty)&&qty>0){
+        const list=JSON.parse(localStorage.getItem('mm_orders')||'[]');
+        const existing=list.find(o=>o.site===pending.contextItem.site && o.status==='offen' && normalizeOrderItems(o).some(i=>i.material===pending.material));
+        if(existing){
+          const items=normalizeOrderItems(existing); const item=items.find(i=>i.material===pending.material); if(item)item.qty=Math.max(Number(item.qty)||0,qty); existing.items=items; existing.note=existing.note||'Automatisch wegen niedrigem Bestand';
+        }else{
+          list.unshift({id:Date.now(),site:pending.contextItem.site,items:[{material:pending.material,qty}],note:'Automatisch wegen niedrigem Bestand',date:today(),status:'offen'});
+        }
+        localStorage.setItem('mm_orders',JSON.stringify(list));
+        notifySaved('Auf Bedarfsliste gesetzt',`${pending.material} wurde zur Bedarfsliste hinzugefügt.`,'Bedarfsliste öffnen');
+      }else alert('Bitte eine gültige Bedarfsmenge eingeben.');
+    }
+  }
+  const next=lowStockQueue.shift();
+  if(next)setTimeout(()=>openLowStockPayload(next),180);
+}
+function checkLowStockForSavedItem(item){
+  const prev=latestSavedItemFor(item.site,item.street,item.id);
+  (item.drums||[]).forEach(d=>{
+    if(Number(d.total)>0 && Number(d.rest)<=Number(d.total)/2 && shouldWarnLowStock(item,d.material,'drum',d.rest,d.total,d.no)) requestLowStockPrompt(d.material,'drum',d.rest,'m',item);
+  });
+  (item.pieces||[]).forEach(p=>{
+    let baseline=Number(p.baselineQty)||0;
+    if(!baseline && prev){ const old=(prev.pieces||[]).find(x=>x.material===p.material); if(old) baseline=Number(old.baselineQty)||Number(old.qty)||0; }
+    if(!baseline) baseline=Number(p.qty)||0;
+    if(Number(p.qty)<=baseline/2 && shouldWarnLowStock(item,p.material,'piece',p.qty,baseline,p.unit)) requestLowStockPrompt(p.material,'piece',p.qty,p.unit,item);
+  });
+}
+async function saveDrum(){let no=$("drumNo").value.trim(),total=Number($("totalLen").value),rest=Number($("restLen").value);if(!no||!Number.isFinite(total)||!Number.isFinite(rest)||total<=0||rest<0||rest>total){alert("Bitte Trommelnummer sowie gültige Gesamtlänge und Restbestand eingeben.");return}let old=editingDrumIndex>=0?current.drums[editingDrumIndex]:null;let photo=old?.photo||"";if($("photo").files[0]){try{photo=await compressImage($("photo").files[0])}catch(e){alert("Das Foto konnte nicht verarbeitet werden.");return}}const data={material:selected,no,total,rest,photo};if(editingDrumIndex>=0)current.drums[editingDrumIndex]=data;else current.drums.push(data);editingDrumIndex=-1;$("photo").value="";show("materials");notifySaved(photo?"Trommel + Foto erfolgreich gespeichert":"Trommel erfolgreich gespeichert","Die Trommel wurde in der aktuellen Bestandsaufnahme gespeichert.");}
+function savePiece(){let q=+$('pieceQty').value;if(q<0){alert("Ungültige Menge.");return}let p=current.pieces.find(x=>x.material===selected);let baseline=p?Number(p.baselineQty)||Number(p.qty)||0:0;if(editingPieceIndex>=0){const target=current.pieces[editingPieceIndex];baseline=Number(target.baselineQty)||Number(target.qty)||0;target.qty=q;target.baselineQty=baseline;editingPieceIndex=-1}else if(p){p.qty=q;p.baselineQty=baseline||q}else{const previous=latestSavedItemFor($('site').value.trim(),$('street').value.trim());const old=previous?.pieces?.find(x=>x.material===selected);baseline=Number(old?.baselineQty)||Number(old?.qty)||q;current.pieces.push({material:selected,qty:q,unit:pieces.find(x=>x[0]===selected)[1],baselineQty:baseline})}show("materials");notifySaved("Material erfolgreich gespeichert","Das Stückmaterial wurde in der aktuellen Bestandsaufnahme gespeichert.")}
 function renderCurrentEntries(){
   const d=$("currentDrums"), p=$("currentPieces");
   if(d)d.innerHTML=current.drums.length?current.drums.map((x,i)=>`<div class="history-item" style="margin-bottom:10px"><div class="history-item-row"><div>${x.photo?`<img class="photo-thumb" src="${x.photo}" alt="Trommelfoto">`:''}<b>${esc(x.material)}</b><br><span class="muted">Trommel ${esc(x.no)} · ${x.total.toLocaleString("de-DE")} m gesamt · <b>${x.rest.toLocaleString("de-DE")} m Rest</b></span></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="ghost" type="button" onclick="editDrum(${i})">Bearbeiten</button><button class="delete-history" type="button" onclick="deleteCurrentDrum(${i})">Löschen</button></div></div></div>`).join(""): '<div class="empty">Noch keine Trommeln erfasst.</div>';
@@ -451,7 +531,7 @@ function completeInventory(){
   let item={id:editingHistoryId||Date.now(),site,warehouse:"Lagerplatz",place,postalCode,street,date:$("invDate").value||today(),worker,drums:JSON.parse(JSON.stringify(current.drums)),pieces:JSON.parse(JSON.stringify(current.pieces))};
   const existingIndex=history.findIndex(x=>x.id===item.id);
   if(existingIndex>=0) history[existingIndex]=item; else history.unshift(item);
-  localStorage.setItem("mm_history",JSON.stringify(history)); rebuildDrumStore();
+  localStorage.setItem("mm_history",JSON.stringify(history)); rebuildDrumStore(); checkLowStockForSavedItem(item);
   renderPrintReport(item);
   localStorage.setItem("mm_last_documentation_id",String(item.id));
   localStorage.setItem("mm_last_documentation_message","Material erfolgreich gespeichert und als PDF bereit.");
