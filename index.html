@@ -350,8 +350,9 @@ async function ensureTesseractLoaded(){
   if(ocrScriptPromise)return ocrScriptPromise;
   ocrScriptPromise=new Promise((resolve,reject)=>{
     const s=document.createElement("script");
-    s.src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js";
-    s.onload=()=>resolve();
+    s.src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js";
+    s.async=true;
+    s.onload=()=>{if(window.Tesseract)resolve();else reject(new Error("OCR-Bibliothek geladen, aber Tesseract fehlt"));};
     s.onerror=()=>reject(new Error("OCR-Bibliothek konnte nicht geladen werden"));
     document.head.appendChild(s);
   });
@@ -361,11 +362,11 @@ async function getOcrWorker(){
   if(ocrWorkerPromise)return ocrWorkerPromise;
   ocrWorkerPromise=(async()=>{
     await ensureTesseractLoaded();
+    if(!window.Tesseract || typeof Tesseract.createWorker!=="function") throw new Error("Tesseract createWorker fehlt");
+    // Wichtig: keine eigenen worker/core/lang-Pfade erzwingen.
+    // Tesseract.js ermittelt die passenden Browser-Dateien selbst.
+    // Das ist auf iPhone/Safari robuster als gemischte CDN-Versionen.
     const worker=await Tesseract.createWorker("eng",1,{
-      workerPath:"https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/worker.min.js",
-      corePath:"https://cdn.jsdelivr.net/npm/tesseract.js-core@5.1.1",
-      langPath:"https://tessdata.projectnaptha.com/4.0.0",
-      workerBlobURL:false,
       logger:m=>{
         if(window.__ocrStatus && m && m.progress!=null){
           const pct=Math.round(m.progress*100);
@@ -468,7 +469,8 @@ async function runDrumOcr(file,inputId,statusId){
     if(status)status.textContent="Nummer nicht eindeutig erkannt – bitte das Etikett näher und möglichst gerade fotografieren.";
   }catch(e){
     console.warn("OCR fehlgeschlagen",e);
-    if(status)status.textContent="OCR konnte nicht gestartet werden. Bitte Internetverbindung prüfen und erneut fotografieren.";
+    const detail=e && e.message ? e.message : "unbekannter Fehler";
+    if(status)status.textContent=`OCR konnte nicht gestartet werden (${detail}). Bitte Internetverbindung prüfen und erneut fotografieren.`;
   }finally{
     window.__ocrStatus=null;
   }
