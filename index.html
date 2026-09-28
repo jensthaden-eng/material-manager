@@ -422,7 +422,7 @@ function renderPrintReport(item){
   // Restmeter werden bewusst nur je Trommel ausgewiesen, nicht als zusammengefasster Gesamtwert.
   const page=(content,extra="")=>`<section class="print-page ${extra}">${content}</section>`;
   const head=`<div class="print-head"><img src="./thaden-logo-pdf.png" alt="THADEN MATERIAL"><div class="print-kicker">Dokumentation<br><span>Material-Bestandsaufnahme</span></div></div>`;
-  const meta=`<div class="print-meta"><div><b>Baustelle</b>${esc(item.site)}</div><div class="print-meta-location"><b>Ort / Lagerplatz</b><span>Lagerplatz</span><small>${esc(address)}</small></div><div><b>Datum</b>${date}</div><div><b>Mitarbeiter</b>${esc(item.worker)}</div></div>`;
+  const meta=`<div class="print-meta"><div><b>Baustelle</b>${esc(item.site)}</div><div class="print-meta-location"><b>Ort / Lagerplatz</b><small>${esc(address)}</small></div><div><b>Datum</b>${date}</div><div><b>Mitarbeiter</b>${esc(item.worker)}</div></div>`;
   const footer=`<div class="print-footer">THADEN MATERIAL · SMART MATERIAL LOGISTICS · ${esc(item.site)} · ${date}</div>`;
   const pages=[];
   const drumChunks=chunk(drums,12);
