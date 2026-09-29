@@ -693,7 +693,7 @@ function renderPrintReport(item){
   const page=(content,extra="")=>`<section class="print-page ${extra}">${content}</section>`;
   const head=`<div class="print-head"><div class="print-kicker">Dokumentation<br><span>Material-Bestandsaufnahme</span></div></div>`;
   const meta=`<div class="print-meta"><div><b>Baustelle</b>${esc(item.site)}</div><div class="print-meta-location"><b>Ort / Lagerplatz</b><small>${esc(address)}</small></div><div><b>Datum</b>${date}</div><div><b>Mitarbeiter</b>${esc(item.worker)}</div></div>`;
-  const footer=`<div class="print-footer">THADEN MATERIAL · SMART MATERIAL LOGISTICS · ${esc(item.site)} · ${date}</div>`;
+  const footer=`<div class="print-footer">TM · SMART MATERIAL LOGISTICS · ${esc(item.site)} · ${date}</div>`;
   const pages=[];
   const drumChunks=chunk(drums,12);
   if(!drumChunks.length) pages.push(page(`${head}<div class="print-title">BESTANDSLISTE</div>${meta}<h2>Kabel / Trommeln</h2><p class="print-muted">Keine Trommeln erfasst.</p>${footer}`));
@@ -742,8 +742,8 @@ function printPdfInSeparateWindow(){
   }
   const styles=[...document.querySelectorAll('style')].map(s=>s.textContent).join('\n');
   printWin.document.open();
-  printWin.document.write(`<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>THADEN MATERIAL · PDF</title><style>${styles}
-/* V82: Materialbestellung sauber umbrechen */
+  printWin.document.write(`<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>TM · PDF</title><style>${styles}
+/* V83: Materialbestellung sauber umbrechen */
 @media(max-width:650px){
   .process-card:nth-child(3) b{font-size:15.5px;line-height:1.08;max-width:calc(100% - 42px);white-space:normal;}
   .process-card:nth-child(3) small{font-size:11.5px;max-width:calc(100% - 42px);}
@@ -787,7 +787,7 @@ function renderDocumentation(){
 async function shareDocument(id){
   const item=history.find(x=>x.id===id); if(!item)return;
   const text=`Material-Bestandsaufnahme\nBaustelle: ${item.site}\nDatum: ${new Date(item.date+"T00:00").toLocaleDateString("de-DE")}\nMitarbeiter: ${item.worker}\nTrommeln: ${(item.drums||[]).length}\nStückmaterialien: ${(item.pieces||[]).length}`;
-  if(navigator.share){try{await navigator.share({title:"THADEN MATERIAL · Bestandsliste",text})}catch(e){}}
+  if(navigator.share){try{await navigator.share({title:"TM · Bestandsliste",text})}catch(e){}}
   else alert(text);
 }
 function siteOptions(){
