@@ -95,7 +95,7 @@ body{background:#f3f5f7}
 
 .material-picker{margin:14px 0 22px;padding:16px;border:1px solid #e2e6eb;border-radius:16px;background:#fafbfc}.material-picker label{display:block;font-weight:750;margin-bottom:7px}.material-select{width:100%;min-height:48px;border:1px solid #d7dce2;border-radius:12px;background:#fff;padding:0 13px;font:inherit;color:#16202a}.material-select-btn{width:100%;margin-top:10px}.add-material-box{margin:24px 0;padding:18px;border-radius:16px;background:#f3f5f7;border:1px solid #e0e4e8}.add-material-box h3{margin-top:0}.add-material-box .row{margin-top:10px}.add-material-box .actions{margin-top:12px}
 
-/* V77 PDF layout refinements */
+/* V78 PDF layout refinements */
 .print-head{justify-content:flex-start;align-items:center}
 .print-head img{display:none!important}
 .print-head .print-kicker{margin-left:0;text-align:left;line-height:1.35}
@@ -330,6 +330,7 @@ let pieces=JSON.parse(localStorage.getItem("mm_custom_pieces")||"null")||JSON.pa
 let pinCode=localStorage.getItem("mm_pin")||"1234", entered="", unlocked=false, selected="", drums=JSON.parse(localStorage.getItem("mm_drums")||"[]"), history=JSON.parse(localStorage.getItem("mm_history")||"[]"), current={drums:[],pieces:[]}, editingDrumIndex=-1, editingPieceIndex=-1, editingHistoryId=null;
 const cableMaterials=cables;
 const pieceMaterials=pieces.map(x=>x[0]);
+window.mmPieceMaster=pieceMaterials;
 const $=x=>document.getElementById(x);
 function today(){return new Date(Date.now()-new Date().getTimezoneOffset()*60000).toISOString().slice(0,10)}
 $("invDate").value=today();
@@ -593,10 +594,30 @@ function showDuplicateNotice(no){
 function closeDuplicateNotice(){const o=$("duplicateOverlay");if(o)o.classList.remove("show");}
 async function saveDrum(){let no=$("drumNo").value.trim(),total=Number($("totalLen").value),rest=Number($("restLen").value);if(!no||!Number.isFinite(total)||!Number.isFinite(rest)||total<=0||rest<0||rest>total){alert("Bitte Trommelnummer sowie gültige Gesamtlänge und Restbestand eingeben.");return}const duplicate=findDuplicateDrumNo(no);if(duplicate){showDuplicateNotice(no);return}let old=editingDrumIndex>=0?current.drums[editingDrumIndex]:null;let photo=old?.photo||"";if($("photo").files[0]){try{photo=await compressImage($("photo").files[0])}catch(e){alert("Das Foto konnte nicht verarbeitet werden.");return}}const data={material:selected,no,total,rest,photo};if(editingDrumIndex>=0)current.drums[editingDrumIndex]=data;else current.drums.push(data);editingDrumIndex=-1;$("photo").value="";show("materials");notifySaved(photo?"Trommel + Foto erfolgreich gespeichert":"Trommel erfolgreich gespeichert","Die Trommel wurde in der aktuellen Bestandsaufnahme gespeichert.");const item={site:$("site").value.trim(),street:$("street").value.trim(),id:editingHistoryId||0};if(data.total>0&&data.rest<=data.total/2&&shouldWarnLowStock(item,data.material,"drum",data.rest,data.total,data.no))requestLowStockPrompt(data.material,"drum",data.rest,"m",item);}
 function savePiece(){let q=+$('pieceQty').value;if(q<0){alert("Ungültige Menge.");return}let p=current.pieces.find(x=>x.material===selected);let baseline=p?Number(p.baselineQty)||Number(p.qty)||0:0;if(editingPieceIndex>=0){const target=current.pieces[editingPieceIndex];baseline=Number(target.baselineQty)||Number(target.qty)||0;target.qty=q;target.baselineQty=baseline;editingPieceIndex=-1}else if(p){p.qty=q;p.baselineQty=baseline||q}else{const previous=latestSavedItemFor($('site').value.trim(),$('street').value.trim());const old=previous?.pieces?.find(x=>x.material===selected);baseline=Number(old?.baselineQty)||Number(old?.qty)||q;current.pieces.push({material:selected,qty:q,unit:pieces.find(x=>x[0]===selected)[1],baselineQty:baseline})}show("materials");notifySaved("Material erfolgreich gespeichert","Das Stückmaterial wurde in der aktuellen Bestandsaufnahme gespeichert.");const item={site:$('site').value.trim(),street:$('street').value.trim(),id:editingHistoryId||0};if(baseline>0&&q<=baseline/2&&shouldWarnLowStock(item,selected,"piece",q,baseline,pieces.find(x=>x[0]===selected)?.[1]||"Stück"))requestLowStockPrompt(selected,"piece",q,pieces.find(x=>x[0]===selected)?.[1]||"Stück",item);}
+function materialOrderIndex(name, list){
+  const n=String(name||"").trim().toLowerCase();
+  const idx=list.findIndex(x=>String(Array.isArray(x)?x[0]:x||"").trim().toLowerCase()===n);
+  return idx<0?999999:idx;
+}
+function sortedCurrentDrums(){
+  return current.drums.map((x,index)=>({x,index})).sort((a,b)=>{
+    const ma=materialOrderIndex(a.x.material,cables), mb=materialOrderIndex(b.x.material,cables);
+    if(ma!==mb)return ma-mb;
+    return a.index-b.index;
+  });
+}
+function sortedCurrentPieces(){
+  return current.pieces.map((x,index)=>({x,index})).sort((a,b)=>{
+    const ma=materialOrderIndex(a.x.material,pieces), mb=materialOrderIndex(b.x.material,pieces);
+    if(ma!==mb)return ma-mb;
+    return a.index-b.index;
+  });
+}
 function renderCurrentEntries(){
   const d=$("currentDrums"), p=$("currentPieces");
-  if(d)d.innerHTML=current.drums.length?current.drums.map((x,i)=>`<div class="history-item" style="margin-bottom:10px"><div class="history-item-row"><div>${x.photo?`<img class="photo-thumb" src="${x.photo}" alt="Trommelfoto">`:''}<b>${esc(x.material)}</b><br><span class="muted">Trommel ${esc(x.no)} · ${x.total.toLocaleString("de-DE")} m gesamt · <b>${x.rest.toLocaleString("de-DE")} m Rest</b></span></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="ghost" type="button" onclick="editDrum(${i})">Bearbeiten</button><button class="delete-history" type="button" onclick="deleteCurrentDrum(${i})">Löschen</button></div></div></div>`).join(""): '<div class="empty">Noch keine Trommeln erfasst.</div>';
-  if(p)p.innerHTML=current.pieces.length?current.pieces.map((x,i)=>`<div class="history-item" style="margin-bottom:10px"><div class="history-item-row"><div><b>${esc(x.material)}</b><br><span class="muted">${x.qty.toLocaleString("de-DE")} ${esc(x.unit)}</span></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="ghost" type="button" onclick="editPiece(${i})">Bearbeiten</button><button class="delete-history" type="button" onclick="deleteCurrentPiece(${i})">Löschen</button></div></div></div>`).join(""): '<div class="empty">Noch kein Stückmaterial erfasst.</div>';
+  const sortedDrums=sortedCurrentDrums(), sortedPieces=sortedCurrentPieces();
+  if(d)d.innerHTML=sortedDrums.length?sortedDrums.map(({x,index})=>`<div class="history-item" style="margin-bottom:10px"><div class="history-item-row"><div>${x.photo?`<img class="photo-thumb" src="${x.photo}" alt="Trommelfoto">`:''}<b>${esc(x.material)}</b><br><span class="muted">Trommel ${esc(x.no)} · ${x.total.toLocaleString("de-DE")} m gesamt · <b>${x.rest.toLocaleString("de-DE")} m Rest</b></span></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="ghost" type="button" onclick="editDrum(${index})">Bearbeiten</button><button class="delete-history" type="button" onclick="deleteCurrentDrum(${index})">Löschen</button></div></div></div>`).join(""): '<div class="empty">Noch keine Trommeln erfasst.</div>';
+  if(p)p.innerHTML=sortedPieces.length?sortedPieces.map(({x,index})=>`<div class="history-item" style="margin-bottom:10px"><div class="history-item-row"><div><b>${esc(x.material)}</b><br><span class="muted">${x.qty.toLocaleString("de-DE")} ${esc(x.unit)}</span></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="ghost" type="button" onclick="editPiece(${index})">Bearbeiten</button><button class="delete-history" type="button" onclick="deleteCurrentPiece(${index})">Löschen</button></div></div></div>`).join(""): '<div class="empty">Noch kein Stückmaterial erfasst.</div>';
 }
 function latestProjects(){
   const latest=new Map();
@@ -651,11 +672,11 @@ function renderSummary(){
   $("summaryMeta").innerHTML=meta;
   let h='<h3 class="summary-section-title">Kabel / Trommeln</h3><table><tr><th>Material</th><th>Trommel</th><th>Gesamt</th><th>Rest</th></tr>';
   if(!current.drums.length)h+='<tr><td colspan="4">Keine Trommeln erfasst.</td></tr>';
-  current.drums.forEach(d=>{h+=`<tr><td>${esc(d.material)}</td><td>${esc(d.no)}${d.photo?" 📷":""}</td><td>${d.total.toLocaleString("de-DE")} m</td><td><b>${d.rest.toLocaleString("de-DE")} m</b></td></tr>`});
+  sortedCurrentDrums().forEach(({x:d})=>{h+=`<tr><td>${esc(d.material)}</td><td>${esc(d.no)}${d.photo?" 📷":""}</td><td>${d.total.toLocaleString("de-DE")} m</td><td><b>${d.rest.toLocaleString("de-DE")} m</b></td></tr>`});
   h+='</table>';
   h+='<h3 class="summary-section-title">Stückmaterial</h3><table><tr><th>Material</th><th>Bestand</th></tr>';
   if(!current.pieces.length)h+='<tr><td colspan="2">Kein Stückmaterial erfasst.</td></tr>';
-  current.pieces.forEach(p=>h+=`<tr><td>${esc(p.material)}</td><td><b>${p.qty} ${esc(p.unit)}</b></td></tr>`);
+  sortedCurrentPieces().forEach(({x:p})=>h+=`<tr><td>${esc(p.material)}</td><td><b>${p.qty} ${esc(p.unit)}</b></td></tr>`);
   h+='</table>';
   $("summaryBody").innerHTML=h;
 }
@@ -663,7 +684,10 @@ function esc(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&l
 function renderPrintReport(item){
   const date=new Date(item.date+"T00:00").toLocaleDateString("de-DE");
   const address=[item.place,item.postalCode,item.street].filter(Boolean).join(" · ");
-  const drums=item.drums||[], pieces=item.pieces||[];
+  const drums=(item.id===editingHistoryId && current.drums.length ? sortedCurrentDrums().map(({x})=>x) : (item.drums||[])).slice();
+  drums.sort((a,b)=>{const ma=materialOrderIndex(a.material,cables),mb=materialOrderIndex(b.material,cables);return ma-mb;});
+  const pieces=(item.id===editingHistoryId && current.pieces.length ? sortedCurrentPieces().map(({x})=>x) : (item.pieces||[])).slice();
+  pieces.sort((a,b)=>{const ma=materialOrderIndex(a.material,window.mmPieceMaster||pieces),mb=materialOrderIndex(b.material,window.mmPieceMaster||pieces);return ma-mb;});
   const chunk=(arr,size)=>{const out=[];for(let i=0;i<arr.length;i+=size)out.push(arr.slice(i,i+size));return out;};
   // Restmeter werden bewusst nur je Trommel ausgewiesen, nicht als zusammengefasster Gesamtwert.
   const page=(content,extra="")=>`<section class="print-page ${extra}">${content}</section>`;
