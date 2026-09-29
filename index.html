@@ -6,7 +6,7 @@
 <meta name="theme-color" content="#101820">
 <link rel="apple-touch-icon" sizes="180x180" href="./tm-app-icon-180-v70.png">
 <link rel="icon" type="image/png" sizes="192x192" href="./tm-app-icon-192-v70.png">
-<title>THADEN MATERIAL</title>
+<title>V87 · THADEN MATERIAL</title>
 <style>
 :root{--navy:#101820;--orange:#ff6b00;--orange2:#ff7a00;--bg:#f3f5f7;--card:#fff;--text:#16232d;--muted:#697680;--green:#159b60;--border:#d8dee3}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
@@ -111,6 +111,27 @@ body{background:#f3f5f7}
 <style>/* V67: Workflow-Karten ohne Symbole – Funktionen unverändert */
 
 </style>
+
+<style id="v87-material-order-fix">
+/* V87: 3 · Materialbestellung bleibt sicher innerhalb der Karte */
+.process-card:nth-child(3) .material-order-title{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-start;
+  width:100%;
+  max-width:calc(100% - 48px);
+  font-size:15px;
+  line-height:1.08;
+  letter-spacing:-0.2px;
+  overflow-wrap:normal;
+  word-break:normal;
+}
+.process-card:nth-child(3) .material-order-title span{display:block;white-space:nowrap;}
+@media(max-width:650px){
+  .process-card:nth-child(3) .material-order-title{font-size:15px;line-height:1.08;max-width:calc(100% - 44px);}
+}
+</style>
+<link rel="manifest" href="./manifest.webmanifest">
 </head>
 <body>
 <header class="app-header"><img class="header-logo" src="./thaden-logo.png" alt="THADEN MATERIAL"></header>
@@ -148,7 +169,7 @@ if ('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.s
   <div class="process-grid">
     <button class="process-card orange" onclick="newInventory()"><span class="process-ico"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M13 27h38" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round"/><path d="M19 27 32 17l13 10" fill="none" stroke="currentColor" stroke-width="5" stroke-linejoin="round"/><rect x="21" y="31" width="22" height="17" rx="2" fill="none" stroke="currentColor" stroke-width="5"/><circle cx="32" cy="39.5" r="4" fill="none" stroke="currentColor" stroke-width="4"/></svg></span><b>1 · Bestand aufnehmen</b><small>Material vor Ort erfassen</small></button>
     <button class="process-card dark" onclick="show('documentation')"><span class="process-ico"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M17 9h23l9 9v37H17z" fill="none" stroke="currentColor" stroke-width="5" stroke-linejoin="round"/><path d="M40 9v12h12M24 30h18M24 40h18M24 50h12" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round"/></svg></span><b>2 · Bestandsliste</b><small>PDF für das Lager</small></button>
-    <button class="process-card gray" onclick="show('orders')"><span class="process-ico"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M13 21 32 11l19 10-19 10zM13 21v22l19 10 19-10V21M32 31v22" fill="none" stroke="currentColor" stroke-width="5" stroke-linejoin="round"/><path d="m22 26 10 5 10-5" fill="none" stroke="currentColor" stroke-width="5"/></svg></span><b>3 ·<br>Material-<br>bestellung</b><small>Fehlendes Material melden</small></button>
+    <button class="process-card gray" onclick="show('orders')"><span class="process-ico"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M13 21 32 11l19 10-19 10zM13 21v22l19 10 19-10V21M32 31v22" fill="none" stroke="currentColor" stroke-width="5" stroke-linejoin="round"/><path d="m22 26 10 5 10-5" fill="none" stroke="currentColor" stroke-width="5"/></svg></span><b class="material-order-title"><span>3 ·</span><span>Material-</span><span>bestellung</span></b><small>Fehlendes Material melden</small></button>
     <button class="process-card green" onclick="show('returns')"><span class="process-ico"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M17 23a22 22 0 0 1 35 8" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round"/><path d="m49 20 3 11-11-1" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><path d="M47 41a22 22 0 0 1-35-8" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round"/><path d="m15 44-3-11 11 1" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><b>4 · Leere Trommeln</b><small>Rücklieferung ans Lager</small></button>
   </div>
 </div>
