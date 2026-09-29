@@ -742,7 +742,13 @@ function printPdfInSeparateWindow(){
   }
   const styles=[...document.querySelectorAll('style')].map(s=>s.textContent).join('\n');
   printWin.document.open();
-  printWin.document.write(`<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>THADEN MATERIAL · PDF</title><style>${styles}</style></head><body class="pdf-print-window">${report.innerHTML}<script>window.addEventListener('load',()=>{const imgs=[...document.images];Promise.all(imgs.map(img=>img.complete?Promise.resolve():new Promise(r=>{img.onload=img.onerror=r;}))).then(()=>setTimeout(()=>window.print(),180));});<\/script></body></html>`);
+  printWin.document.write(`<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>THADEN MATERIAL · PDF</title><style>${styles}
+/* V80: Materialbestellung auf der Startseite kompakter */
+@media(max-width:650px){
+  .process-card:nth-child(3) b{font-size:15.5px;line-height:1.12;max-width:calc(100% - 42px);white-space:normal;}
+  .process-card:nth-child(3) small{font-size:11.5px;max-width:calc(100% - 42px);}
+}
+</style></head><body class="pdf-print-window">${report.innerHTML}<script>window.addEventListener('load',()=>{const imgs=[...document.images];Promise.all(imgs.map(img=>img.complete?Promise.resolve():new Promise(r=>{img.onload=img.onerror=r;}))).then(()=>setTimeout(()=>window.print(),180));});<\/script></body></html>`);
   printWin.document.close();
 }
 function openPdfFor(id){
