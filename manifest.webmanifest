@@ -9,13 +9,13 @@
   "description": "Smart Material Logistics – Baustellen- und Lagerbestandsaufnahme",
   "icons": [
     {
-      "src": "./icon-192.png",
+      "src": "./tm-app-icon-192-v70.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "./icon-512.png",
+      "src": "./tm-app-icon-512-v70.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
