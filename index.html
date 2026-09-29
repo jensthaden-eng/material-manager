@@ -269,7 +269,7 @@ if ('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.s
 <section id="drum" class="screen"><div class="card">
 <h2 id="drumTitle">Trommel erfassen</h2><div class="row"><div>
 <label>Trommelnummer</label><input id="drumNo" placeholder="z. B. T-2026-00125">
-<button class="ghost photo-action" style="margin-top:8px;width:100%" onclick="document.getElementById('photo').click()">📷 Trommeletikett fotografieren<br><small>oder Foto auswählen</small></button>
+<button class="ghost photo-action" style="margin-top:8px;width:100%" onclick="document.getElementById('photo').click()">📷 Trommelnummer aufnehmen</button>
 <input id="photo" class="screen" type="file" accept="image/*" capture="environment" onchange="photoChosen()">
 <img id="preview" class="preview"><p id="photoMsg" class="muted"></p><p id="ocrMsg" class="ocr-status neutral" aria-live="polite"></p><button id="ocrRetry" type="button" class="ghost ocr-retry" style="display:none" onclick="retryDrumOcr()">↻ Nummer erneut erkennen</button>
 </div><div>
