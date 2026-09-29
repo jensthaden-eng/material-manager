@@ -1,24 +1,14 @@
 {
   "name": "THADEN MATERIAL",
   "short_name": "THADEN",
-  "start_url": "./",
+  "start_url": "./?v=72",
   "display": "standalone",
   "background_color": "#f3f5f7",
   "theme_color": "#101820",
   "lang": "de",
   "description": "Smart Material Logistics – Baustellen- und Lagerbestandsaufnahme",
   "icons": [
-    {
-      "src": "./tm-app-icon-192-v71.png",
-      "sizes": "192x192",
-      "type": "image/png",
-      "purpose": "any maskable"
-    },
-    {
-      "src": "./tm-app-icon-512-v71.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any maskable"
-    }
+    {"src":"./tm-app-icon-192-v72.png","sizes":"192x192","type":"image/png","purpose":"any maskable"},
+    {"src":"./tm-app-icon-512-v72.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}
   ]
 }
