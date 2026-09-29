@@ -94,6 +94,15 @@ body{background:#f3f5f7}
 .order-items{display:grid;gap:10px;margin-top:10px}.order-item{border:1px solid #dfe5e9;background:#f8fafb;border-radius:14px;padding:12px}.order-item-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:7px}.order-item-number{font-weight:850;color:#16232d}.order-item-grid{display:grid;grid-template-columns:minmax(0,1fr) 150px;gap:10px}.order-item label{margin:0 0 5px;font-size:13px}.order-item select,.order-item input{background:#fff}.remove-order-item{padding:8px 10px;font-size:13px}.add-order-item{width:100%;margin-top:10px}.order-list-items{margin-top:7px;display:grid;gap:4px}.order-list-line{display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-bottom:1px solid #edf0f2}.order-list-line:last-child{border-bottom:0}.order-list-line b{font-weight:800}@media(max-width:650px){.order-item-grid{grid-template-columns:1fr}}
 
 .material-picker{margin:14px 0 22px;padding:16px;border:1px solid #e2e6eb;border-radius:16px;background:#fafbfc}.material-picker label{display:block;font-weight:750;margin-bottom:7px}.material-select{width:100%;min-height:48px;border:1px solid #d7dce2;border-radius:12px;background:#fff;padding:0 13px;font:inherit;color:#16202a}.material-select-btn{width:100%;margin-top:10px}.add-material-box{margin:24px 0;padding:18px;border-radius:16px;background:#f3f5f7;border:1px solid #e0e4e8}.add-material-box h3{margin-top:0}.add-material-box .row{margin-top:10px}.add-material-box .actions{margin-top:12px}
+
+/* V77 PDF layout refinements */
+.print-head{justify-content:flex-start;align-items:center}
+.print-head img{display:none!important}
+.print-head .print-kicker{margin-left:0;text-align:left;line-height:1.35}
+.print-head .print-kicker span{display:block;margin-top:2px}
+.print-detail-page .print-title{line-height:1.15;margin:0 0 10px}
+.print-detail-page h2{margin:0 0 12px;line-height:1.2}
+.print-detail-page .photo-detail,.print-detail-page .piece-detail{margin-bottom:10px}
 </style>
 <style>/* V72: Workflow-Karten im Referenzdesign – Symbole sichtbar */
 .process-card .process-ico{display:flex!important;visibility:visible!important;opacity:1!important;}
@@ -658,7 +667,7 @@ function renderPrintReport(item){
   const chunk=(arr,size)=>{const out=[];for(let i=0;i<arr.length;i+=size)out.push(arr.slice(i,i+size));return out;};
   // Restmeter werden bewusst nur je Trommel ausgewiesen, nicht als zusammengefasster Gesamtwert.
   const page=(content,extra="")=>`<section class="print-page ${extra}">${content}</section>`;
-  const head=`<div class="print-head"><img src="./thaden-logo-pdf.png" alt="THADEN MATERIAL"><div class="print-kicker">Dokumentation<br><span>Material-Bestandsaufnahme</span></div></div>`;
+  const head=`<div class="print-head"><div class="print-kicker">Dokumentation<br><span>Material-Bestandsaufnahme</span></div></div>`;
   const meta=`<div class="print-meta"><div><b>Baustelle</b>${esc(item.site)}</div><div class="print-meta-location"><b>Ort / Lagerplatz</b><small>${esc(address)}</small></div><div><b>Datum</b>${date}</div><div><b>Mitarbeiter</b>${esc(item.worker)}</div></div>`;
   const footer=`<div class="print-footer">THADEN MATERIAL · SMART MATERIAL LOGISTICS · ${esc(item.site)} · ${date}</div>`;
   const pages=[];
