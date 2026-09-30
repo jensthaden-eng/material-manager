@@ -758,7 +758,73 @@ function printPdfInSeparateWindow(){
   .process-card:nth-child(3) b{font-size:15.5px;line-height:1.12;max-width:calc(100% - 42px);white-space:normal;}
   .process-card:nth-child(3) small{font-size:11.5px;max-width:calc(100% - 42px);}
 }
-</style></head><body class="pdf-print-window">${report.innerHTML}<script>window.addEventListener('load',()=>{const imgs=[...document.images];Promise.all(imgs.map(img=>img.complete?Promise.resolve():new Promise(r=>{img.onload=img.onerror=r;}))).then(()=>setTimeout(()=>window.print(),180));});<\/script></body></html>`);
+</style>
+<style id="v91-material-style">
+/* V91 – Material erweitern: dunkler THADEN-MATERIAL Block */
+.add-material-box{
+  background:#2b333b !important;
+  border:1px solid #3c4650 !important;
+  color:#fff !important;
+  box-shadow:0 6px 18px rgba(16,32,48,.10);
+}
+.add-material-box h3{
+  color:#fff !important;
+  font-size:18px !important;
+  font-weight:800 !important;
+  letter-spacing:0 !important;
+}
+.add-material-box > .muted{
+  color:#d6dce1 !important;
+  font-size:13px !important;
+  font-weight:500 !important;
+}
+.add-material-box label{
+  color:#fff !important;
+  font-size:14px !important;
+  font-weight:750 !important;
+}
+.add-material-box input,
+.add-material-box .material-select{
+  background:#fff !important;
+  color:#16202a !important;
+  border-color:#d7dce2 !important;
+}
+.add-material-box .green{
+  background:var(--orange) !important;
+  color:#fff !important;
+}
+.material-manage-dropdown{
+  border-top:0 !important;
+  padding-top:12px !important;
+}
+.material-manage-dropdown summary{
+  background:#252d35 !important;
+  border:1px solid #3d4852 !important;
+  color:#fff !important;
+  font-size:16px !important;
+  font-weight:750 !important;
+  min-height:48px;
+  box-sizing:border-box;
+}
+.material-manage-chevron{color:#fff !important}
+.material-manage-inner{
+  color:#fff;
+}
+.material-manage-inner > .muted{
+  color:#d6dce1 !important;
+}
+.material-manage-row{
+  background:#343d46 !important;
+  border-color:#4a5661 !important;
+  color:#fff !important;
+}
+.material-manage-name{color:#fff !important}
+.material-manage-name small{color:#c4cbd1 !important}
+.material-remove{
+  background:#fff !important;
+}
+</style>
+</head><body class="pdf-print-window">${report.innerHTML}<script>window.addEventListener('load',()=>{const imgs=[...document.images];Promise.all(imgs.map(img=>img.complete?Promise.resolve():new Promise(r=>{img.onload=img.onerror=r;}))).then(()=>setTimeout(()=>window.print(),180));});<\/script></body></html>`);
   printWin.document.close();
 }
 function openPdfFor(id){
