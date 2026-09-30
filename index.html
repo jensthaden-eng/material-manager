@@ -449,7 +449,7 @@ function buildOcrCanvas(img,angle=0,crop=null,mode="soft"){
   const iw=img.naturalWidth, ih=img.naturalHeight;
   const sx=crop?Math.round(iw*crop.x):0, sy=crop?Math.round(ih*crop.y):0;
   const sw=crop?Math.round(iw*crop.w):iw, sh=crop?Math.round(ih*crop.h):ih;
-  const scale=Math.min(2.8,2400/Math.max(sw,sh));
+  const scale=Math.min(4.0,3000/Math.max(sw,sh));
   const rw=Math.max(1,Math.round(sw*scale)), rh=Math.max(1,Math.round(sh*scale));
   const rad=angle*Math.PI/180;
   const w=(angle===0)?rw:rh, h=(angle===0)?rh:rw;
@@ -458,52 +458,96 @@ function buildOcrCanvas(img,angle=0,crop=null,mode="soft"){
   ctx.fillStyle="#fff"; ctx.fillRect(0,0,w,h);
   ctx.translate(w/2,h/2); ctx.rotate(rad); ctx.drawImage(img,sx,sy,sw,sh,-rw/2,-rh/2,rw,rh);
   const data=ctx.getImageData(0,0,w,h);
-  for(let i=0;i<data.data.length;i+=4){
-    const g=data.data[i]*.299+data.data[i+1]*.587+data.data[i+2]*.114;
-    let v=g;
-    if(mode==="contrast") v=Math.max(0,Math.min(255,(g-105)*2.15+105));
-    if(mode==="binary") v=g>165?255:0;
-    data.data[i]=data.data[i+1]=data.data[i+2]=v;
+  const gray=new Uint8Array(w*h);
+  for(let i=0,j=0;i<data.data.length;i+=4,j++) gray[j]=Math.round(data.data[i]*.299+data.data[i+1]*.587+data.data[i+2]*.114);
+  if(mode==="sharp"){
+    const src=gray.slice();
+    for(let y=1;y<h-1;y++)for(let x=1;x<w-1;x++){
+      const k=y*w+x;
+      const v=5*src[k]-src[k-1]-src[k+1]-src[k-w]-src[k+w];
+      gray[k]=Math.max(0,Math.min(255,v));
+    }
+  }
+  for(let y=0;y<h;y++)for(let x=0;x<w;x++){
+    const k=y*w+x, g=gray[k]; let v=g;
+    if(mode==="contrast") v=Math.max(0,Math.min(255,(g-110)*2.45+110));
+    if(mode==="binary") v=g>150?255:0;
+    if(mode==="adaptive"){
+      let sum=0,count=0;
+      for(let yy=Math.max(0,y-7);yy<=Math.min(h-1,y+7);yy++)for(let xx=Math.max(0,x-7);xx<=Math.min(w-1,x+7);xx++){sum+=gray[yy*w+xx];count++}
+      v=g>sum/count-8?255:0;
+    }
+    data.data[k*4]=data.data[k*4+1]=data.data[k*4+2]=v;
+    data.data[k*4+3]=255;
   }
   ctx.putImageData(data,0,0);
-  return c.toDataURL("image/jpeg",.95);
+  return c.toDataURL("image/jpeg",.96);
 }
 function makeOcrVariants(img){
   const crops=[
     {x:0,y:0,w:1,h:1},
-    {x:.15,y:.10,w:.75,h:.80},
-    {x:.30,y:.10,w:.65,h:.80},
-    {x:.45,y:.05,w:.50,h:.90},
-    {x:.05,y:.20,w:.90,h:.60}
+    {x:.05,y:.05,w:.90,h:.90},
+    {x:.10,y:.10,w:.80,h:.80},
+    {x:.18,y:.05,w:.64,h:.90},
+    {x:.32,y:.05,w:.50,h:.90},
+    {x:.45,y:.05,w:.45,h:.90},
+    {x:.05,y:.18,w:.90,h:.64}
   ];
   const variants=[];
   for(const crop of crops){
-    for(const angle of [0,90,270]){
-      variants.push(buildOcrCanvas(img,angle,crop,"soft"));
-      if(angle!==0)variants.push(buildOcrCanvas(img,angle,crop,"contrast"));
+    for(const angle of [0,90,180,270]){
+      variants.push({src:buildOcrCanvas(img,angle,crop,"soft"),angle,crop,mode:"soft"});
+      variants.push({src:buildOcrCanvas(img,angle,crop,"contrast"),angle,crop,mode:"contrast"});
+      if(angle!==0) variants.push({src:buildOcrCanvas(img,angle,crop,"sharp"),angle,crop,mode:"sharp"});
+      if(angle!==0) variants.push({src:buildOcrCanvas(img,angle,crop,"adaptive"),angle,crop,mode:"adaptive"});
     }
   }
   return variants;
 }
-function extractDrumNumber(text){
-  const raw=(text||"").toUpperCase();
-  const normalized=raw
+function normalizeOcrText(text){
+  return (text||"").toUpperCase()
     .replace(/[|IL]/g,"1")
-    .replace(/[OQ]/g,"0")
+    .replace(/[OQD]/g,"0")
+    .replace(/[Z]/g,"2")
+    .replace(/[S]/g,"5")
     .replace(/[^A-Z0-9\n ]/g," ");
-  const lines=normalized.split(/\n+/);
-  for(const line of lines){
+}
+function candidateFromCompact(compact){
+  const c=compact.replace(/[^A-Z0-9]/g,"");
+  let m=c.match(/E\d{8,12}/); if(m)return m[0];
+  m=c.match(/[A-Z]\d{8,12}/); if(m && /^[E5FBR]/.test(m[0])) return "E"+m[0].slice(1);
+  const digits=c.match(/\d{9,12}/g)||[];
+  if(digits.length===1)return "E"+digits[0];
+  return null;
+}
+function extractDrumCandidates(text){
+  const normalized=normalizeOcrText(text);
+  const candidates=[];
+  for(const line of normalized.split(/\n+/)){
     const compact=line.replace(/\s/g,"");
-    const e=compact.match(/E\d{8,12}/);
-    if(e)return e[0];
-    const nearE=compact.match(/[A-Z]\d{8,12}/);
-    if(nearE && /^[E5FBR]/.test(nearE[0]))return "E"+nearE[0].slice(1);
+    const c=candidateFromCompact(compact); if(c)candidates.push(c);
+    const spaced=line.match(/[A-Z]?\s*\d(?:[\s\-]*\d){8,12}/g)||[];
+    for(const part of spaced){const x=candidateFromCompact(part);if(x)candidates.push(x)}
   }
   const all=normalized.replace(/\s/g,"");
-  const e=all.match(/E\d{8,12}/);
-  if(e)return e[0];
-  const digits=all.match(/\d{9,12}/g)||[];
-  if(digits.length===1)return "E"+digits[0];
+  const x=candidateFromCompact(all); if(x)candidates.push(x);
+  return [...new Set(candidates)];
+}
+function extractDrumNumber(text){return extractDrumCandidates(text)[0]||null;}
+async function tryBarcodeNumber(file){
+  try{
+    if(!("BarcodeDetector" in window))return null;
+    const supported=await BarcodeDetector.getSupportedFormats().catch(()=>[]);
+    if(!supported.length)return null;
+    const wanted=["qr_code","data_matrix","code_128","code_39","itf","ean_13","ean_8"].filter(x=>supported.includes(x));
+    if(!wanted.length)return null;
+    const detector=new BarcodeDetector({formats:wanted});
+    const results=await detector.detect(await createImageBitmap(file));
+    for(const r of results||[]){
+      const val=String(r.rawValue||"").toUpperCase().replace(/[^A-Z0-9]/g,"");
+      const c=candidateFromCompact(val); if(c)return c;
+    }
+  }catch(e){console.debug("Barcode-Erkennung nicht verfügbar",e)}
   return null;
 }
 function setOcrStatus(el,type,text,number=''){
@@ -515,21 +559,37 @@ async function runDrumOcr(file,inputId,statusId){
   const status=$(statusId);
   if(status){setOcrStatus(status,"working","🔎 Trommelnummer wird automatisch erkannt …");window.__ocrStatus=status;}
   try{
+    const barcode=await tryBarcodeNumber(file);
+    if(barcode){
+      $(inputId).value=barcode;
+      if(status)setOcrStatus(status,"success","✓ Nummer automatisch aus Etikett erkannt",barcode);
+      return barcode;
+    }
     const img=await loadImageFile(file);
     const variants=makeOcrVariants(img);
     const worker=await getOcrWorker();
-    let found=null;
-    for(let i=0;i<variants.length&&!found;i++){
-      for(const psm of [7,8,6,11]){
+    const scores=new Map();
+    for(let i=0;i<variants.length;i++){
+      const v=variants[i];
+      for(const psm of [7,8,6,11,13]){
         await worker.setParameters({tessedit_pageseg_mode:psm,tessedit_char_whitelist:"ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"});
-        const result=await worker.recognize(variants[i],{rotateAuto:false});
-        found=extractDrumNumber(result.data.text||"");
-        if(found)break;
+        const result=await worker.recognize(v.src,{rotateAuto:false});
+        const text=result.data.text||"";
+        const conf=Number(result.data.confidence||0);
+        for(const c of extractDrumCandidates(text)){
+          const score=(scores.get(c)||0)+Math.max(1,conf/20)+(c.length===11?2:0);
+          scores.set(c,score);
+        }
       }
+      if(status){const pct=Math.round((i+1)/variants.length*100);status.textContent=`🔎 Etikett wird geprüft … ${pct}%`}
     }
-    if(found){
+    const ranked=[...scores.entries()].sort((a,b)=>b[1]-a[1]);
+    if(ranked.length){
+      const found=ranked[0][0];
+      const second=ranked[1];
+      const confident=!second || ranked[0][1]-second[1]>=1.5;
       $(inputId).value=found;
-      if(status)setOcrStatus(status,"success","✓ Trommelnummer automatisch erkannt",found);
+      if(status)setOcrStatus(status,confident?"success":"success","✓ Trommelnummer erkannt – bitte kurz prüfen",found);
       return found;
     }
     if(status)setOcrStatus(status,"error","Nummer nicht eindeutig erkannt – bitte das Etikett näher und möglichst gerade fotografieren.");
@@ -537,9 +597,7 @@ async function runDrumOcr(file,inputId,statusId){
     console.warn("OCR fehlgeschlagen",e);
     const detail=e && e.message ? e.message : "unbekannter Fehler";
     if(status)setOcrStatus(status,"error",`OCR konnte nicht gestartet werden (${detail}). Bitte Internetverbindung prüfen und erneut fotografieren.`);
-  }finally{
-    window.__ocrStatus=null;
-  }
+  }finally{window.__ocrStatus=null;}
   return null;
 }
 function photoChosen(){let f=$("photo").files[0];if(!f)return;$("preview").src=URL.createObjectURL(f);$("preview").style.display="block";$("photoMsg").textContent="Foto aufgenommen. Die Trommelnummer wird automatisch erkannt.";$("ocrRetry").style.display="none";runDrumOcr(f,"drumNo","ocrMsg").then(()=>{if($("ocrMsg").textContent.includes("nicht eindeutig")||$("ocrMsg").textContent.includes("konnte nicht"))$("ocrRetry").style.display="inline-block"})}
