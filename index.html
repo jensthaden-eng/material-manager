@@ -93,7 +93,7 @@ body{background:#f3f5f7}
 @media(max-width:650px){.workflow-intro{padding:22px 18px}.workflow-intro h1{font-size:31px}.workflow-intro p{font-size:17px}.process-grid{grid-template-columns:1fr 1fr}.workflow-actions{grid-template-columns:1fr 1fr}}
 .order-items{display:grid;gap:10px;margin-top:10px}.order-item{border:1px solid #dfe5e9;background:#f8fafb;border-radius:14px;padding:12px}.order-item-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:7px}.order-item-number{font-weight:850;color:#16232d}.order-item-grid{display:grid;grid-template-columns:minmax(0,1fr) 150px;gap:10px}.order-item label{margin:0 0 5px;font-size:13px}.order-item select,.order-item input{background:#fff}.remove-order-item{padding:8px 10px;font-size:13px}.add-order-item{width:100%;margin-top:10px}.order-list-items{margin-top:7px;display:grid;gap:4px}.order-list-line{display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-bottom:1px solid #edf0f2}.order-list-line:last-child{border-bottom:0}.order-list-line b{font-weight:800}@media(max-width:650px){.order-item-grid{grid-template-columns:1fr}}
 
-.material-picker{margin:14px 0 22px;padding:16px;border:1px solid #e2e6eb;border-radius:16px;background:#fafbfc}.material-picker label{display:block;font-weight:750;margin-bottom:7px}.material-select{width:100%;min-height:48px;border:1px solid #d7dce2;border-radius:12px;background:#fff;padding:0 13px;font:inherit;color:#16202a}.material-select-btn{width:100%;margin-top:10px}.add-material-box{margin:24px 0;padding:18px;border-radius:16px;background:#f3f5f7;border:1px solid #e0e4e8}.add-material-box h3{margin-top:0}.add-material-box .row{margin-top:10px}.add-material-box .actions{margin-top:12px}
+.material-picker{margin:14px 0 22px;padding:16px;border:1px solid #e2e6eb;border-radius:16px;background:#fafbfc}.material-picker label{display:block;font-weight:750;margin-bottom:7px}.material-select{width:100%;min-height:48px;border:1px solid #d7dce2;border-radius:12px;background:#fff;padding:0 13px;font:inherit;color:#16202a}.material-select-btn{width:100%;margin-top:10px}.add-material-box{margin:24px 0;padding:18px;border-radius:16px;background:#f3f5f7;border:1px solid #e0e4e8}.add-material-box h3{margin-top:0}.add-material-box .row{margin-top:10px}.add-material-box .actions{margin-top:12px}.material-manage{margin-top:16px;padding-top:14px;border-top:1px solid #dfe4e8}.material-manage-title{font-weight:850;margin-bottom:8px}.material-manage-list{display:grid;gap:7px}.material-manage-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 10px;border:1px solid #dfe4e8;border-radius:11px;background:#fff}.material-manage-name{min-width:0;font-weight:650}.material-manage-name small{display:block;color:#7a8790;font-weight:550;margin-top:2px}.material-remove{flex:0 0 auto;padding:7px 10px!important;font-size:12px!important;color:#9b2c2c!important;border:1px solid #efcaca!important;background:#fff!important}.material-manage-empty{color:#7a8790;font-size:13px}
 
 /* V78 PDF layout refinements */
 .print-head{justify-content:flex-start;align-items:center}
@@ -261,6 +261,11 @@ if ('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.s
     <div><label for="newMaterialUnit">Einheit</label><select id="newMaterialUnit" class="material-select"><option value="Stück">Stück</option><option value="Rollen">Rollen</option><option value="Meter">Meter</option></select></div>
   </div>
   <div class="actions"><button type="button" class="green" onclick="addCustomMaterial()">＋ Material hinzufügen</button></div>
+  <div class="material-manage">
+    <div class="material-manage-title">Material aus Sortiment entfernen</div>
+    <div class="muted" style="font-size:13px;margin-bottom:9px">Entfernt nur die Auswahl für neue Aufnahmen. Bereits gespeicherte Bestände und Historien bleiben erhalten.</div>
+    <div id="materialManageList" class="material-manage-list"></div>
+  </div>
 </div>
 
 <div class="actions"><button class="ghost" onclick="show('home')">← Startseite</button><button class="green" onclick="renderSummary();show('summary')">Aufnahme prüfen →</button></div></div>
@@ -1058,6 +1063,26 @@ function choosePieceFromDropdown(){
   const el=$("pieceSelect"); if(!el||el.value===''){alert('Bitte zuerst ein Stückmaterial auswählen.');return;}
   selectPiece(pieces[Number(el.value)][0]); el.value='';
 }
+function renderMaterialManagement(){
+  const el=$("materialManageList"); if(!el)return;
+  const rows=[];
+  cables.forEach((name,i)=>rows.push(`<div class="material-manage-row"><div class="material-manage-name">${esc(name)}<small>Kabel / Trommel</small></div><button type="button" class="material-remove" onclick="removeMaterial('cable',${i})">Entfernen</button></div>`));
+  pieces.forEach(([name,unit],i)=>rows.push(`<div class="material-manage-row"><div class="material-manage-name">${esc(name)}<small>Stückmaterial · ${esc(unit)}</small></div><button type="button" class="material-remove" onclick="removeMaterial('piece',${i})">Entfernen</button></div>`));
+  el.innerHTML=rows.join('')||'<div class="material-manage-empty">Keine Materialien im Sortiment.</div>';
+}
+function removeMaterial(type,index){
+  const list=type==='cable'?cables:pieces;
+  const item=list[index]; if(!item)return;
+  const name=type==='cable'?item:item[0];
+  const unit=type==='cable'?'Kabel / Trommel':item[1];
+  if(!confirm(`"${name}" (${unit}) wirklich aus dem Sortiment entfernen?\n\nBereits gespeicherte Bestände, Aufnahmen und Historien bleiben erhalten. Das Material wird nur nicht mehr zur Auswahl für neue Aufnahmen angeboten.`))return;
+  list.splice(index,1);
+  if(type==='cable') localStorage.setItem('mm_custom_cables',JSON.stringify(cables));
+  else localStorage.setItem('mm_custom_pieces',JSON.stringify(pieces));
+  refreshMaterialPickers();
+  renderMaterialManagement();
+  notifySaved('Material aus Sortiment entfernt',`${name} wird ab jetzt nicht mehr zur Auswahl angeboten.`);
+}
 function addCustomMaterial(){
   const name=$("newMaterialName").value.trim();
   const type=$("newMaterialType").value;
@@ -1071,9 +1096,11 @@ function addCustomMaterial(){
     pieces.push([name,unit]); localStorage.setItem('mm_custom_pieces',JSON.stringify(pieces));
   }
   refreshMaterialPickers();
+  renderMaterialManagement();
   $("newMaterialName").value='';
   notifySaved('Material erfolgreich hinzugefügt',`${name} wurde zur Materialauswahl hinzugefügt.`);
 }
 refreshMaterialPickers();
+renderMaterialManagement();
 </script>
 </body></html>
