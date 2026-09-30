@@ -374,6 +374,15 @@ function pin(x){if(entered.length<4)entered+=x;updateDots();if(entered.length===
 function pinClear(){entered=entered.slice(0,-1);updateDots()}
 function updateDots(){$("pinDots").textContent=[0,1,2,3].map(i=>i<entered.length?"●":"○").join(" ")}
 function pinOk(){if(entered===pinCode){unlocked=true;entered="";updateDots();$("pinError").textContent="";show("home")}else{$("pinError").textContent="Falsche PIN";entered="";updateDots()}}
+// PC-Tastatur: PIN kann direkt über die Zahlenreihe oder den Ziffernblock eingegeben werden.
+document.addEventListener("keydown",function(e){
+  const lock=$("lock");
+  if(unlocked||!lock||!lock.classList.contains("active"))return;
+  if(/^\d$/.test(e.key)){e.preventDefault();pin(e.key);return;}
+  if(e.key==="Backspace"||e.key==="Delete"){e.preventDefault();pinClear();return;}
+  if(e.key==="Enter"){e.preventDefault();pinOk();return;}
+  if(e.key==="Escape"){e.preventDefault();entered="";updateDots();$("pinError").textContent="";}
+});
 function changePin(){let p=$("newPin").value.trim();if(!/^\d{4}$/.test(p)){alert("Bitte genau 4 Ziffern eingeben.");return}pinCode=p;localStorage.setItem("mm_pin",p);$("newPin").value="";alert("PIN gespeichert.");show("home")}
 function newInventory(){current={drums:[],pieces:[]};editingDrumIndex=-1;editingPieceIndex=-1;editingHistoryId=null;$("site").value="";$("place").value="";$("postalCode").value="";$("street").value="";$("worker").value="";$("invDate").value=today();show("setup")}
 function startInventory(){show("materials")}
