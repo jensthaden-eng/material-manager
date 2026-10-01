@@ -7,6 +7,7 @@
 <link rel="apple-touch-icon" sizes="180x180" href="./tm-app-icon-180-v70.png">
 <link rel="icon" type="image/png" sizes="192x192" href="./tm-app-icon-192-v70.png">
 <title>THADEN MATERIAL</title>
+<!-- TM MATERIAL V100 – Service-Worker Update-Fix -->
 <style>
 :root{--navy:#101820;--orange:#ff6b00;--orange2:#ff7a00;--bg:#f3f5f7;--card:#fff;--text:#16232d;--muted:#697680;--green:#159b60;--border:#d8dee3}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
@@ -138,7 +139,17 @@ body{background:#f3f5f7}
 <body>
 <header class="app-header"><img class="header-logo" src="./thaden-logo-v87.png" alt="THADEN MATERIAL"></header>
 <script>
-if ('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js'));
+if ('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('./sw.js?v=100',{updateViaCache:'none'}).then(reg=>{try{reg.update()}catch(e){}}).catch(()=>{});
+    navigator.serviceWorker.addEventListener('controllerchange',()=>{
+      if(!sessionStorage.getItem('mm_sw_reloaded_v100')){
+        sessionStorage.setItem('mm_sw_reloaded_v100','1');
+        setTimeout(()=>location.reload(),80);
+      }
+    });
+  });
+}
 </script>
 
 
@@ -406,6 +417,7 @@ function updateStats(){if($("statDrums"))$("statDrums").textContent=drums.length
 function compressImage(file,maxSide=900,quality=.72){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>{const img=new Image();img.onload=()=>{const scale=Math.min(1,maxSide/Math.max(img.naturalWidth,img.naturalHeight));const c=document.createElement('canvas');c.width=Math.max(1,Math.round(img.naturalWidth*scale));c.height=Math.max(1,Math.round(img.naturalHeight*scale));const ctx=c.getContext('2d');ctx.drawImage(img,0,0,c.width,c.height);resolve(c.toDataURL('image/jpeg',quality))};img.onerror=reject;img.src=r.result};r.onerror=reject;r.readAsDataURL(file)})}
 let ocrWorkerPromise=null;
 let ocrScriptPromise=null;
+
 async function ensureTesseractLoaded(){
   if(window.Tesseract)return;
   if(ocrScriptPromise)return ocrScriptPromise;
@@ -413,24 +425,24 @@ async function ensureTesseractLoaded(){
     const s=document.createElement("script");
     s.src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js";
     s.async=true;
-    s.onload=()=>{if(window.Tesseract)resolve();else reject(new Error("OCR-Bibliothek geladen, aber Tesseract fehlt"));};
+    s.onload=()=>window.Tesseract?resolve():reject(new Error("OCR-Bibliothek geladen, aber Tesseract fehlt"));
     s.onerror=()=>reject(new Error("OCR-Bibliothek konnte nicht geladen werden"));
     document.head.appendChild(s);
   });
   return ocrScriptPromise;
 }
+
 async function getOcrWorker(){
   if(ocrWorkerPromise)return ocrWorkerPromise;
   ocrWorkerPromise=(async()=>{
     await ensureTesseractLoaded();
-    if(!window.Tesseract || typeof Tesseract.createWorker!=="function") throw new Error("Tesseract createWorker fehlt");
-    // Wichtig: keine eigenen worker/core/lang-Pfade erzwingen.
-    // Tesseract.js ermittelt die passenden Browser-Dateien selbst.
-    // Das ist auf iPhone/Safari robuster als gemischte CDN-Versionen.
+    if(!window.Tesseract || typeof Tesseract.createWorker!=="function"){
+      throw new Error("Tesseract createWorker fehlt");
+    }
     const worker=await Tesseract.createWorker("eng",1,{
       logger:m=>{
         if(window.__ocrStatus && m && m.progress!=null){
-          const pct=Math.round(m.progress*100);
+          const pct=Math.max(0,Math.min(100,Math.round(m.progress*100)));
           window.__ocrStatus.textContent=`🔎 Trommelnummer wird erkannt … ${pct}%`;
         }
       }
@@ -438,72 +450,81 @@ async function getOcrWorker(){
     await worker.setParameters({
       tessedit_char_whitelist:"ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
       preserve_interword_spaces:"1",
-      user_defined_dpi:"300"
+      user_defined_dpi:"300",
+      tessedit_pageseg_mode:"6"
     });
     return worker;
   })();
   try{return await ocrWorkerPromise}catch(e){ocrWorkerPromise=null;throw e}
 }
-function loadImageFile(file){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>{const img=new Image();img.onload=()=>resolve(img);img.onerror=reject;img.src=r.result};r.onerror=reject;r.readAsDataURL(file)})}
-function buildOcrCanvas(img,angle=0,crop=null,mode="soft"){
+
+function loadImageFile(file){
+  return new Promise((resolve,reject)=>{
+    const r=new FileReader();
+    r.onload=()=>{
+      const img=new Image();
+      img.onload=()=>resolve(img);
+      img.onerror=()=>reject(new Error("Foto konnte nicht gelesen werden"));
+      img.src=r.result;
+    };
+    r.onerror=()=>reject(new Error("Foto konnte nicht geladen werden"));
+    r.readAsDataURL(file);
+  });
+}
+
+/*
+ V98 OCR-FIX:
+ Auf dem iPhone war die alte Erkennung zu schwer:
+ 7 Zuschnitte × 4 Drehungen × mehrere Filter × 5 PSM-Modi
+ = mehrere hundert OCR-Durchläufe. Safari kann dabei den Tab wegen
+ Speicher-/CPU-Belastung neu laden. Deshalb jetzt bewusst nur wenige,
+ gut gewählte Varianten.
+*/
+function buildOcrCanvas(img,angle=0,mode="soft"){
+  const maxSide=1800;
   const iw=img.naturalWidth, ih=img.naturalHeight;
-  const sx=crop?Math.round(iw*crop.x):0, sy=crop?Math.round(ih*crop.y):0;
-  const sw=crop?Math.round(iw*crop.w):iw, sh=crop?Math.round(ih*crop.h):ih;
-  const scale=Math.min(4.0,3000/Math.max(sw,sh));
-  const rw=Math.max(1,Math.round(sw*scale)), rh=Math.max(1,Math.round(sh*scale));
+  const scale=Math.min(1,maxSide/Math.max(iw,ih));
+  const rw=Math.max(1,Math.round(iw*scale));
+  const rh=Math.max(1,Math.round(ih*scale));
   const rad=angle*Math.PI/180;
   const w=(angle===0)?rw:rh, h=(angle===0)?rh:rw;
-  const c=document.createElement("canvas"); c.width=w; c.height=h;
+  const c=document.createElement("canvas");
+  c.width=w;c.height=h;
   const ctx=c.getContext("2d",{willReadFrequently:true});
-  ctx.fillStyle="#fff"; ctx.fillRect(0,0,w,h);
-  ctx.translate(w/2,h/2); ctx.rotate(rad); ctx.drawImage(img,sx,sy,sw,sh,-rw/2,-rh/2,rw,rh);
+  ctx.fillStyle="#fff";
+  ctx.fillRect(0,0,w,h);
+  ctx.translate(w/2,h/2);
+  ctx.rotate(rad);
+  ctx.drawImage(img,-rw/2,-rh/2,rw,rh);
+
+  if(mode==="soft")return c.toDataURL("image/jpeg",.88);
+
   const data=ctx.getImageData(0,0,w,h);
-  const gray=new Uint8Array(w*h);
-  for(let i=0,j=0;i<data.data.length;i+=4,j++) gray[j]=Math.round(data.data[i]*.299+data.data[i+1]*.587+data.data[i+2]*.114);
-  if(mode==="sharp"){
-    const src=gray.slice();
-    for(let y=1;y<h-1;y++)for(let x=1;x<w-1;x++){
-      const k=y*w+x;
-      const v=5*src[k]-src[k-1]-src[k+1]-src[k-w]-src[k+w];
-      gray[k]=Math.max(0,Math.min(255,v));
-    }
-  }
-  for(let y=0;y<h;y++)for(let x=0;x<w;x++){
-    const k=y*w+x, g=gray[k]; let v=g;
-    if(mode==="contrast") v=Math.max(0,Math.min(255,(g-110)*2.45+110));
-    if(mode==="binary") v=g>150?255:0;
-    if(mode==="adaptive"){
-      let sum=0,count=0;
-      for(let yy=Math.max(0,y-7);yy<=Math.min(h-1,y+7);yy++)for(let xx=Math.max(0,x-7);xx<=Math.min(w-1,x+7);xx++){sum+=gray[yy*w+xx];count++}
-      v=g>sum/count-8?255:0;
-    }
-    data.data[k*4]=data.data[k*4+1]=data.data[k*4+2]=v;
-    data.data[k*4+3]=255;
+  for(let i=0;i<data.data.length;i+=4){
+    const g=Math.round(data.data[i]*.299+data.data[i+1]*.587+data.data[i+2]*.114);
+    let v=g;
+    if(mode==="contrast")v=Math.max(0,Math.min(255,(g-105)*2.2+128));
+    if(mode==="binary")v=g>150?255:0;
+    data.data[i]=data.data[i+1]=data.data[i+2]=v;
+    data.data[i+3]=255;
   }
   ctx.putImageData(data,0,0);
-  return c.toDataURL("image/jpeg",.96);
+  return c.toDataURL("image/jpeg",.90);
 }
+
 function makeOcrVariants(img){
-  const crops=[
-    {x:0,y:0,w:1,h:1},
-    {x:.05,y:.05,w:.90,h:.90},
-    {x:.10,y:.10,w:.80,h:.80},
-    {x:.18,y:.05,w:.64,h:.90},
-    {x:.32,y:.05,w:.50,h:.90},
-    {x:.45,y:.05,w:.45,h:.90},
-    {x:.05,y:.18,w:.90,h:.64}
+  // Die meisten Trommeletiketten werden damit erfasst:
+  // normal, gedreht links/rechts sowie eine Kontrastvariante.
+  return [
+    {src:buildOcrCanvas(img,0,"soft"),label:"Normal"},
+    {src:buildOcrCanvas(img,90,"soft"),label:"90°"},
+    {src:buildOcrCanvas(img,270,"soft"),label:"270°"},
+    {src:buildOcrCanvas(img,0,"contrast"),label:"Kontrast"},
+    {src:buildOcrCanvas(img,90,"contrast"),label:"Kontrast 90°"},
+    {src:buildOcrCanvas(img,270,"contrast"),label:"Kontrast 270°"}
   ];
-  const variants=[];
-  for(const crop of crops){
-    for(const angle of [0,90,180,270]){
-      variants.push({src:buildOcrCanvas(img,angle,crop,"soft"),angle,crop,mode:"soft"});
-      variants.push({src:buildOcrCanvas(img,angle,crop,"contrast"),angle,crop,mode:"contrast"});
-      if(angle!==0) variants.push({src:buildOcrCanvas(img,angle,crop,"sharp"),angle,crop,mode:"sharp"});
-      if(angle!==0) variants.push({src:buildOcrCanvas(img,angle,crop,"adaptive"),angle,crop,mode:"adaptive"});
-    }
-  }
-  return variants;
 }
+
 function normalizeOcrText(text){
   return (text||"").toUpperCase()
     .replace(/[|IL]/g,"1")
@@ -512,94 +533,189 @@ function normalizeOcrText(text){
     .replace(/[S]/g,"5")
     .replace(/[^A-Z0-9\n ]/g," ");
 }
+
 function candidateFromCompact(compact){
   const c=compact.replace(/[^A-Z0-9]/g,"");
   let m=c.match(/E\d{8,12}/); if(m)return m[0];
-  m=c.match(/[A-Z]\d{8,12}/); if(m && /^[E5FBR]/.test(m[0])) return "E"+m[0].slice(1);
+  m=c.match(/[A-Z]\d{8,12}/);
+  if(m && /^[E5FBR]/.test(m[0]))return "E"+m[0].slice(1);
   const digits=c.match(/\d{9,12}/g)||[];
   if(digits.length===1)return "E"+digits[0];
   return null;
 }
+
 function extractDrumCandidates(text){
   const normalized=normalizeOcrText(text);
   const candidates=[];
   for(const line of normalized.split(/\n+/)){
     const compact=line.replace(/\s/g,"");
-    const c=candidateFromCompact(compact); if(c)candidates.push(c);
+    const c=candidateFromCompact(compact);
+    if(c)candidates.push(c);
     const spaced=line.match(/[A-Z]?\s*\d(?:[\s\-]*\d){8,12}/g)||[];
-    for(const part of spaced){const x=candidateFromCompact(part);if(x)candidates.push(x)}
+    for(const part of spaced){
+      const x=candidateFromCompact(part);
+      if(x)candidates.push(x);
+    }
   }
   const all=normalized.replace(/\s/g,"");
-  const x=candidateFromCompact(all); if(x)candidates.push(x);
+  const x=candidateFromCompact(all);
+  if(x)candidates.push(x);
   return [...new Set(candidates)];
 }
-function extractDrumNumber(text){return extractDrumCandidates(text)[0]||null;}
+
+let qrReaderPromise=null;
+async function ensureQrReaderLoaded(){
+  if(window.ZXingBrowser?.BrowserQRCodeReader)return;
+  if(qrReaderPromise)return qrReaderPromise;
+  qrReaderPromise=new Promise((resolve,reject)=>{
+    const s=document.createElement("script");
+    s.src="https://cdn.jsdelivr.net/npm/@zxing/browser@0.1.5/umd/index.min.js";
+    s.async=true;
+    s.onload=()=>window.ZXingBrowser?.BrowserQRCodeReader?resolve():reject(new Error("QR-Bibliothek geladen, aber nicht verfügbar"));
+    s.onerror=()=>reject(new Error("QR-Bibliothek konnte nicht geladen werden"));
+    document.head.appendChild(s);
+  });
+  return qrReaderPromise;
+}
+
+function candidateFromQrPayload(payload){
+  const raw=String(payload||"").toUpperCase();
+  // Erst gezielt nach typischen Trommelnummern suchen – auch wenn der QR-Code
+  // eine URL oder einen längeren Datensatz enthält.
+  let m=raw.match(/E[\s:_-]*\d(?:[\s._-]*\d){8,12}/);
+  if(m){const c=candidateFromCompact(m[0]);if(c)return c;}
+  m=raw.match(/(?:^|[^A-Z0-9])\d(?:[\s._-]*\d){9,11}(?:$|[^A-Z0-9])/);
+  if(m){const c=candidateFromCompact(m[0]);if(c)return c;}
+  return candidateFromCompact(raw.replace(/[^A-Z0-9]/g,""));
+}
+
 async function tryBarcodeNumber(file){
+  // 1. Native BarcodeDetector – auf unterstützten iPhones sehr schnell.
   try{
-    if(!("BarcodeDetector" in window))return null;
-    const supported=await BarcodeDetector.getSupportedFormats().catch(()=>[]);
-    if(!supported.length)return null;
-    const wanted=["qr_code","data_matrix","code_128","code_39","itf","ean_13","ean_8"].filter(x=>supported.includes(x));
-    if(!wanted.length)return null;
-    const detector=new BarcodeDetector({formats:wanted});
-    const results=await detector.detect(await createImageBitmap(file));
-    for(const r of results||[]){
-      const val=String(r.rawValue||"").toUpperCase().replace(/[^A-Z0-9]/g,"");
-      const c=candidateFromCompact(val); if(c)return c;
+    if("BarcodeDetector" in window){
+      const supported=await BarcodeDetector.getSupportedFormats().catch(()=>[]);
+      const wanted=["qr_code","data_matrix","code_128","code_39","itf","ean_13","ean_8"]
+        .filter(x=>supported.includes(x));
+      if(wanted.length){
+        const detector=new BarcodeDetector({formats:wanted});
+        const bitmap=await createImageBitmap(file);
+        const results=await detector.detect(bitmap);
+        bitmap.close?.();
+        for(const r of results||[]){
+          const c=candidateFromQrPayload(r.rawValue);
+          if(c)return c;
+        }
+      }
     }
-  }catch(e){console.debug("Barcode-Erkennung nicht verfügbar",e)}
+  }catch(e){
+    console.debug("Native Barcode-Erkennung nicht verfügbar",e);
+  }
+
+  // 2. ZXing-Fallback – wichtig für Safari/iPhone, wenn BarcodeDetector fehlt.
+  try{
+    await ensureQrReaderLoaded();
+    const Reader=window.ZXingBrowser?.BrowserQRCodeReader;
+    if(!Reader)return null;
+    const reader=new Reader();
+    const img=await loadImageFile(file);
+    // Mehrere Ansichten helfen bei schräg fotografierten Etiketten.
+    for(const angle of [0,90,270]){
+      const src=buildOcrCanvas(img,angle,"soft");
+      const testImg=new Image();
+      testImg.src=src;
+      await new Promise((resolve,reject)=>{testImg.onload=resolve;testImg.onerror=reject});
+      try{
+        const result=await reader.decodeFromImageElement(testImg);
+        const text=result?.getText?.()||result?.text||"";
+        const c=candidateFromQrPayload(text);
+        if(c)return c;
+      }catch(e){}
+    }
+  }catch(e){
+    console.debug("ZXing QR-Fallback nicht verfügbar",e);
+  }
   return null;
 }
-function setOcrStatus(el,type,text,number=''){
+
+function setOcrStatus(el,type,text,number=""){
   if(!el)return;
-  el.className='ocr-status '+type;
-  el.innerHTML=number?`${text}<span class="ocr-number">${number}</span>`:text;
+  el.className="ocr-status "+type;
+  el.innerHTML=number
+    ? `${text}<span class="ocr-number">${number}</span>`
+    : text;
 }
+
 async function runDrumOcr(file,inputId,statusId){
   const status=$(statusId);
-  if(status){setOcrStatus(status,"working","🔎 Trommelnummer wird automatisch erkannt …");window.__ocrStatus=status;}
+  if(status){
+    setOcrStatus(status,"working","🔎 Trommelnummer wird automatisch erkannt … 0%");
+    window.__ocrStatus=status;
+  }
+
   try{
+    // Erst QR/Barcode prüfen. Das Foto auf dem Etikett enthält häufig
+    // einen QR-Code; OCR ist dafür die falsche Methode.
     const barcode=await tryBarcodeNumber(file);
     if(barcode){
       $(inputId).value=barcode;
       if(status)setOcrStatus(status,"success","✓ Nummer automatisch aus Etikett erkannt",barcode);
       return barcode;
     }
+
+    if(status)setOcrStatus(status,"working","🔎 Foto wird vorbereitet …");
     const img=await loadImageFile(file);
     const variants=makeOcrVariants(img);
     const worker=await getOcrWorker();
     const scores=new Map();
-    for(let i=0;i<variants.length;i++){
-      const v=variants[i];
-      for(const psm of [7,8,6,11,13]){
-        await worker.setParameters({tessedit_pageseg_mode:psm,tessedit_char_whitelist:"ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"});
-        const result=await worker.recognize(v.src,{rotateAuto:false});
-        const text=result.data.text||"";
-        const conf=Number(result.data.confidence||0);
-        for(const c of extractDrumCandidates(text)){
-          const score=(scores.get(c)||0)+Math.max(1,conf/20)+(c.length===11?2:0);
-          scores.set(c,score);
-        }
+    const total=variants.length;
+    let done=0;
+
+    // Nur 6 gezielte Durchläufe statt hunderter Kombinationen.
+    for(const v of variants){
+      await worker.setParameters({tessedit_pageseg_mode:"6"});
+      const result=await worker.recognize(v.src,{rotateAuto:false});
+      const raw=result?.data?.text||"";
+      const conf=Number(result?.data?.confidence||0);
+
+      for(const c of extractDrumCandidates(raw)){
+        const bonus=c.length===11?3:0;
+        const score=(scores.get(c)||0)+Math.max(1,conf/15)+bonus;
+        scores.set(c,score);
       }
-      if(status){const pct=Math.round((i+1)/variants.length*100);status.textContent=`🔎 Etikett wird geprüft … ${pct}%`}
+
+      done++;
+      if(status){
+        const pct=Math.round(done/total*100);
+        status.textContent=`🔎 Etikett wird geprüft … ${pct}%`;
+      }
+
+      // Safari etwas Luft geben, damit die Seite nicht "einfriert".
+      await new Promise(resolve=>setTimeout(resolve,0));
     }
+
     const ranked=[...scores.entries()].sort((a,b)=>b[1]-a[1]);
     if(ranked.length){
       const found=ranked[0][0];
-      const second=ranked[1];
-      const confident=!second || ranked[0][1]-second[1]>=1.5;
       $(inputId).value=found;
-      if(status)setOcrStatus(status,confident?"success":"success","✓ Trommelnummer erkannt – bitte kurz prüfen",found);
+      if(status)setOcrStatus(status,"success","✓ Trommelnummer erkannt – bitte kurz prüfen",found);
       return found;
     }
-    if(status)setOcrStatus(status,"error","Nummer nicht eindeutig erkannt – bitte das Etikett näher und möglichst gerade fotografieren.");
+
+    if(status){
+      setOcrStatus(status,"error","Nummer nicht eindeutig erkannt – bitte das Etikett näher und möglichst gerade fotografieren.");
+    }
   }catch(e){
     console.warn("OCR fehlgeschlagen",e);
-    const detail=e && e.message ? e.message : "unbekannter Fehler";
-    if(status)setOcrStatus(status,"error",`OCR konnte nicht gestartet werden (${detail}). Bitte Internetverbindung prüfen und erneut fotografieren.`);
-  }finally{window.__ocrStatus=null;}
+    const detail=e&&e.message?e.message:"unbekannter Fehler";
+    if(status){
+      setOcrStatus(status,"error",`OCR konnte nicht gestartet werden. Bitte Foto erneut aufnehmen. (${detail})`);
+    }
+  }finally{
+    window.__ocrStatus=null;
+  }
   return null;
 }
+
 function photoChosen(){let f=$("photo").files[0];if(!f)return;$("preview").src=URL.createObjectURL(f);$("preview").style.display="block";$("photoMsg").textContent="Foto aufgenommen. Die Trommelnummer wird automatisch erkannt.";$("ocrRetry").style.display="none";runDrumOcr(f,"drumNo","ocrMsg").then(()=>{if($("ocrMsg").textContent.includes("nicht eindeutig")||$("ocrMsg").textContent.includes("konnte nicht"))$("ocrRetry").style.display="inline-block"})}
 function retryDrumOcr(){const f=$("photo").files[0];if(f){$("ocrRetry").style.display="none";runDrumOcr(f,"drumNo","ocrMsg").then(()=>{if($("ocrMsg").textContent.includes("nicht eindeutig")||$("ocrMsg").textContent.includes("konnte nicht"))$("ocrRetry").style.display="inline-block"})}}
 function returnPhotoChosen(){let f=$("returnPhoto").files[0];if(!f)return;$("returnPreview").src=URL.createObjectURL(f);$("returnPreview").style.display="block";$("returnPhotoMsg").textContent="Foto aufgenommen. Die Trommelnummer wird automatisch erkannt.";runDrumOcr(f,"returnDrum","returnOcrMsg")}
