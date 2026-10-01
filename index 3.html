@@ -1,0 +1,1320 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#101820">
+<link rel="apple-touch-icon" sizes="180x180" href="./tm-app-icon-180-v70.png">
+<link rel="icon" type="image/png" sizes="192x192" href="./tm-app-icon-192-v70.png">
+<title>THADEN MATERIAL</title>
+<style>
+:root{--navy:#101820;--orange:#ff6b00;--orange2:#ff7a00;--bg:#f3f5f7;--card:#fff;--text:#16232d;--muted:#697680;--green:#159b60;--border:#d8dee3}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+header{background:var(--navy);color:#fff;padding:13px max(16px,calc((100vw - 980px)/2));display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:5;box-shadow:0 3px 14px #0003}
+header strong{font-size:20px;letter-spacing:.2px} header .brand{display:flex;align-items:center;gap:10px} header .tm{font-weight:950;font-size:22px;letter-spacing:-2px;color:#fff} header .tm span{color:var(--orange)} header small{color:#d9e0e5;font-size:11px;letter-spacing:2px;text-transform:uppercase;display:block;margin-top:1px}.wrap{max-width:980px;margin:auto;padding:18px}.screen{display:none}.screen.active{display:block}
+.card{background:var(--card);border-radius:18px;padding:20px;margin-bottom:16px;box-shadow:0 4px 18px #18324b12}
+h1{font-size:27px;margin:0 0 6px}h2{margin:0 0 12px}h3{margin:18px 0 8px}.muted{color:var(--muted);font-size:14px}
+input,select{width:100%;padding:13px 14px;border:1px solid var(--border);border-radius:11px;font-size:17px;background:#fff}
+label{display:block;font-weight:700;margin:12px 0 6px}
+.location-block{margin-top:18px;padding:16px;background:#f6f8fa;border:1px solid #e1e5e8;border-radius:14px}
+.location-title{font-size:19px;font-weight:800;margin-bottom:2px}.location-subtitle{font-size:13px;color:var(--muted);margin-bottom:6px}
+input[readonly]{background:#f4f6f8;color:var(--text);cursor:default}
+button{border:0;border-radius:12px;padding:13px 16px;font-size:16px;font-weight:750;cursor:pointer}.primary{background:var(--orange);color:#fff}.green{background:var(--green);color:#fff}.ghost{background:#e9edf0;color:var(--text)}.danger{background:#ffecec;color:#a40000}
+.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(205px,1fr));gap:10px}
+.tile{text-align:left;background:#fff;border:1px solid #e1e5e8;min-height:72px;box-shadow:0 2px 8px #0000000b}.tile:active,.tile.active{border-color:var(--orange);background:#fff7f0}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.pinbox{text-align:center;max-width:390px;margin:10vh auto}.pin-dots{font-size:30px;letter-spacing:10px;margin:14px}.numpad{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.numpad button{background:#edf3f8;font-size:21px;padding:16px}.error{color:#b00020;min-height:22px}
+.nav{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}.nav button{padding:20px;text-align:left;background:#fff;box-shadow:0 4px 14px #00000012;border:1px solid #e1e5e8}.nav button:first-letter{color:var(--orange)}
+table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px solid #e8edf2;text-align:left;vertical-align:top}.badge{display:inline-block;background:#e8f7ef;color:#087044;border-radius:999px;padding:4px 8px;font-size:12px;font-weight:700}
+.preview{width:100%;max-width:100%;height:190px;border-radius:14px;margin-top:8px;display:none;object-fit:cover;box-shadow:0 3px 12px #10203018}.photo-thumb{width:58px;height:58px;object-fit:cover;border-radius:10px;border:1px solid #d8dee3;vertical-align:middle;margin-right:8px}.photo-box{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:start}.photo-action{min-height:100px;display:flex;align-items:center;justify-content:center;text-align:center;border:1px dashed #c8d1d8;background:#f8fafb}.ocr-status{margin:10px 0 0!important;padding:11px 13px;border-radius:13px;font-size:14px!important;line-height:1.35;font-weight:700}.ocr-status.working{background:#f3f6f8;color:#53616c;border:1px solid #e0e6ea}.ocr-status.success{background:#e8f7ef;color:#087044;border:1px solid #b9e4cb}.ocr-status.error{background:#fff5f3;color:#a43a2f;border:1px solid #f0c8c1}.ocr-status.neutral{background:#f7f9fa;color:#697680;border:1px solid #e1e6ea}.ocr-number{display:block;margin-top:4px;font-size:17px;letter-spacing:.3px;color:#0a7548}.ocr-retry{width:100%;margin-top:8px!important;padding:11px 12px!important;background:#eef3f6!important;border:1px solid #d9e0e5!important;color:#16232d!important}.total{text-align:right;font-weight:800;font-size:20px}
+.history-item{padding:13px;border:1px solid var(--border);border-radius:12px;margin:9px 0;background:#fbfcfe}.history-item-row{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.delete-history{border:1px solid #d7dde2;background:#fff;color:#b42318;border-radius:10px;padding:8px 10px;font-weight:700;white-space:nowrap}
+.empty{padding:20px;text-align:center;color:var(--muted)}
+
+.dashboard{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-top:14px}.dash-tile{min-height:88px;border:0;border-radius:18px;padding:16px;color:#fff;text-align:left;box-shadow:0 5px 16px #10203022;position:relative;overflow:hidden}.dash-tile .ico{font-size:22px;display:block;margin-bottom:8px}.dash-tile b{font-size:16px}.dash-tile small{display:block;margin-top:3px;opacity:.88;font-size:11px}.dash-orange{background:linear-gradient(135deg,#ff6b00,#ff8a21)}.dash-dark{background:linear-gradient(135deg,#18232d,#2a3742)}.dash-green{background:linear-gradient(135deg,#149c62,#25b879)}.dash-purple{background:linear-gradient(135deg,#6636d8,#8058e8)}.dash-blue{background:linear-gradient(135deg,#2366c7,#3c83e8)}.dash-gray{background:linear-gradient(135deg,#52606b,#697782)}.quick{display:flex;gap:10px;overflow:auto;padding:4px 1px 6px}.quick button{min-width:145px;text-align:left;background:#fff;border:1px solid #e2e7eb}.home-hero{background:linear-gradient(135deg,#101820,#1d2a35);color:#fff;border-radius:22px;padding:20px;box-shadow:0 7px 22px #10203022}.home-hero h1{font-size:27px;margin:0}.home-hero p{margin:7px 0 0;color:#d5dde3}.section-title{display:flex;justify-content:space-between;align-items:center;margin:18px 2px 9px}.section-title h3{margin:0}.activity{background:#fff;border-radius:16px;padding:4px 15px;box-shadow:0 3px 14px #0000000b}.activity-row{display:flex;gap:11px;align-items:center;padding:13px 0;border-bottom:1px solid #edf0f2}.activity-row:last-child{border-bottom:0}.activity-dot{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:#eef3f6}.bottom-nav{position:sticky;bottom:0;z-index:10;background:#101820;color:#fff;margin:18px -11px -11px;padding:8px 6px calc(8px + env(safe-area-inset-bottom));display:grid;grid-template-columns:repeat(5,1fr);box-shadow:0 -4px 15px #0003}.bottom-nav button{background:transparent;color:#dbe2e7;padding:7px 2px;font-size:11px;border-radius:10px}.bottom-nav button.active{background:#202e39;color:#ff7a00}.bottom-nav span{display:block;font-size:20px;line-height:22px;margin-bottom:3px}.feature-list{display:grid;gap:9px}.feature-item{display:flex;justify-content:space-between;align-items:center;background:#fff;border:1px solid #e2e7eb;border-radius:14px;padding:13px}.feature-item .left{display:flex;gap:10px;align-items:center}.feature-icon{width:38px;height:38px;border-radius:10px;background:#eef2f5;display:grid;place-items:center;font-size:20px}.back{margin-bottom:12px}.stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.stat{background:#fff;border-radius:15px;padding:15px;border:1px solid #e2e7eb}.stat b{font-size:24px;display:block}@media(min-width:700px){.dashboard{grid-template-columns:repeat(3,1fr)}.bottom-nav{max-width:980px;margin-left:auto;margin-right:auto;border-radius:18px 18px 0 0}}
+@media(max-width:650px){.wrap{padding:11px}.row{grid-template-columns:1fr}header{padding:13px}.card{padding:16px}}
+@media print{header,.no-print{display:none!important}body{background:#fff}.card{box-shadow:none;border:0}.wrap{max-width:none}}
+
+
+.site-overview{display:grid;gap:10px}.site-card{background:#fff;border:1px solid #e0e6ea;border-radius:16px;padding:14px;box-shadow:0 3px 12px #1020300b}.site-card-main{display:flex;gap:12px;align-items:flex-start}.site-badge{width:42px;height:42px;border-radius:12px;background:#eef3f6;color:var(--orange);display:grid;place-items:center;font-size:20px;flex:none}.site-card b{font-size:17px}.site-stock{margin-top:5px;font-size:13px;color:var(--muted)}.site-stock strong{color:var(--text)}.site-card-actions{display:flex;gap:8px;margin-top:12px}.site-card-actions button{flex:1;padding:11px 10px;font-size:14px}.compact-dashboard .dash-tile{min-height:78px;padding:13px}.compact-dashboard .dash-tile .ico{font-size:18px;margin-bottom:5px}.detail-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}.stock-summary{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin:16px 0}.stock-summary>div{background:#f5f7f8;border-radius:12px;padding:12px}.stock-summary span{display:block;color:var(--muted);font-size:12px}.stock-summary b{display:block;margin-top:4px;font-size:18px}.stock-list{border:1px solid #e1e6ea;border-radius:14px;overflow:hidden}.stock-row{display:flex;justify-content:space-between;gap:10px;padding:13px;border-bottom:1px solid #edf0f2}.stock-row:last-child{border-bottom:0}.stock-row>strong{white-space:nowrap}.duplicate-overlay{position:fixed;inset:0;z-index:240;display:none;align-items:center;justify-content:center;padding:24px;background:rgba(16,24,32,.48);backdrop-filter:blur(3px)}.duplicate-overlay.show{display:flex}.duplicate-card{width:min(92vw,430px);background:#fff;border-radius:24px;padding:26px 22px 22px;text-align:center;box-shadow:0 18px 55px rgba(16,24,32,.3);animation:savePop .22s ease-out}.duplicate-icon{width:68px;height:68px;margin:0 auto 14px;border-radius:50%;background:#fff1ee;color:#c23a2d;display:grid;place-items:center;font-size:34px;font-weight:950;line-height:1;box-shadow:inset 0 0 0 2px #f2c7c0}.duplicate-title{font-size:22px;font-weight:900;color:#16232d;line-height:1.15}.duplicate-message{margin-top:8px;color:#697680;font-size:16px;font-weight:650;line-height:1.4}.duplicate-number{display:block;margin-top:10px;font-size:19px;font-weight:900;letter-spacing:.3px;color:#c23a2d}.duplicate-close{margin-top:18px;width:100%;padding:13px 16px;border:0;border-radius:14px;background:#ff6b00;color:#fff;font-size:16px;font-weight:850}.toast{position:fixed;inset:0;z-index:200;display:none;align-items:center;justify-content:center;padding:24px;background:rgba(16,24,32,.48);backdrop-filter:blur(3px)}.toast.show{display:flex}.toast-card{width:min(92vw,420px);background:#fff;border-radius:24px;padding:28px 22px 24px;text-align:center;box-shadow:0 18px 55px rgba(16,24,32,.28);animation:savePop .22s ease-out}.toast-check{width:72px;height:72px;margin:0 auto 14px;border-radius:50%;background:#e8f7ef;color:#159b60;display:grid;place-items:center;font-size:42px;font-weight:950;line-height:1;box-shadow:inset 0 0 0 2px #b9e4cb}.toast-title{font-size:22px;font-weight:900;color:#16232d;line-height:1.15}.toast-message{margin-top:7px;color:#697680;font-size:16px;font-weight:650;line-height:1.35}.toast-action{margin-top:18px;font-size:13px;color:#159b60;font-weight:850}@keyframes savePop{from{opacity:0;transform:scale(.92)}to{opacity:1;transform:scale(1)}}.success{background:#e8f7ef;color:#087044;border:1px solid #b9e4cb;border-radius:12px;padding:12px 14px;font-weight:750}.save-confirm-inline{display:none;background:#e8f7ef;color:#087044;border:1px solid #b9e4cb;border-radius:14px;padding:14px 16px;margin-top:12px;font-weight:850;text-align:center}.save-confirm-inline.show{display:block;animation:savePop .22s ease-out}.summary-actions.is-saved{opacity:.9}.summary-actions.is-saved .green{background:#159b60;pointer-events:none}@media(max-width:650px){.detail-head{display:block}.detail-head .primary{width:100%;margin-top:10px}.stock-summary{grid-template-columns:1fr 1fr}}
+
+.logo-img{display:block;width:210px;max-width:46vw;height:auto}.brand-mark{width:44px;height:44px;object-fit:contain;flex:none}.brand-copy{display:flex;flex-direction:column}.print-report{display:none}.pdf-thumb{width:58px;height:42px;object-fit:cover;border-radius:6px}.print-section{margin-top:20px}.print-muted{color:#6d7a86;font-size:12px}.print-complete{margin-top:18px;padding:11px 14px;border-radius:9px;background:#e8f7ef;color:#087044;font-weight:850;border:1px solid #b9e4cb}.print-footer{margin-top:18px;padding-top:8px;border-top:1px solid #d8dee3;color:#6d7a86;font-size:9px}.photo-detail,.piece-detail{display:flex;gap:12px;border:1px solid #d8dee3;border-radius:10px;padding:10px;margin:0 0 10px;break-inside:avoid}.photo-number{width:30px;height:30px;border-radius:8px;background:#101820;color:#fff;display:grid;place-items:center;font-weight:900;flex:none}.photo-info{flex:1}.photo-info h3,.piece-detail h3{margin:0 0 4px;font-size:15px}.photo-meta{font-size:11px;color:#53616c}.pdf-detail-photo{display:block;width:min(280px,100%);max-height:145px;object-fit:cover;border-radius:8px;margin-top:8px}.photo-placeholder{margin-top:8px;padding:16px;border:1px dashed #c8d1d8;border-radius:8px;color:#6d7a86;font-size:10px}@page{size:A4 portrait;margin:0}*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}.print-page{box-sizing:border-box;width:210mm;height:270mm;min-height:270mm;max-height:270mm;page-break-after:always;break-after:page;padding:10mm 14mm 10mm;background:#fff;color:#111820;overflow:hidden}.print-page:last-of-type{page-break-after:auto;break-after:auto}.print-detail-page .photo-detail{break-inside:avoid}.photo-mark{display:inline-block;padding:2px 6px;border-radius:5px;background:#eef3f6;color:#53616c;font-size:9px;font-weight:800}.print-head{display:flex;align-items:center;justify-content:space-between;background:#101820;border-bottom:4px solid var(--orange);padding:9mm 10mm 7mm;margin:-12mm -14mm 14mm;color:#fff}.print-head img{width:235px;height:auto;display:block}.print-head .print-kicker{color:#d8e0e5}.print-head .print-kicker span{color:#ff7a00}.print-kicker{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#6d7a86}.print-title{font-size:28px;font-weight:900;margin:6px 0 0}.print-meta{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0}.print-meta>div{border:1px solid #d8dee3;border-radius:10px;padding:10px}.print-meta b{display:block;font-size:10px;text-transform:uppercase;color:#6d7a86;margin-bottom:3px}.print-meta-location span{display:block;font-size:14px;line-height:1.3}.print-meta-location small{display:block;margin-top:2px;font-size:14px;line-height:1.3;color:#111820}.print-table{width:100%;border-collapse:collapse;font-size:11px}.print-table th{background:#101820;color:#fff;text-align:left;padding:8px}.print-table td{border-bottom:1px solid #dfe4e8;padding:7px}.print-note{border:1px solid #d8dee3;border-radius:10px;padding:12px;font-size:12px;line-height:1.45;background:#f8fafb}.notice-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.order-print-page .print-meta{grid-template-columns:repeat(3,1fr)}.order-open{margin-top:24px}.print-total{margin:10px 0;padding:10px 12px;border-left:5px solid var(--orange);background:#f3f5f7;font-weight:800}.print-alt-head{display:flex;align-items:center;gap:16px;background:#101820;color:#fff;padding:14px 16px;margin:-14mm -14mm 18px;border-bottom:5px solid var(--orange)}.print-alt-head img{width:155px;height:auto}.print-alt-head .page-label{margin-left:auto;text-align:right}.print-alt-head .page-label strong{display:block;font-size:18px}.print-alt-head .page-label span{font-size:10px;letter-spacing:1.5px;color:#ff7a00}@media print{html,body{min-height:0!important;height:auto!important;margin:0!important;padding:0!important;background:#fff!important}body{width:210mm}.screen{display:none!important}.print-report{display:block!important;width:210mm;margin:0!important;padding:0!important}header{display:none!important}.no-print{display:none!important}.print-page{width:210mm;height:270mm;min-height:270mm;max-height:270mm;box-sizing:border-box;margin:0!important;overflow:hidden!important}.print-table{font-size:10.5px}.print-table th,.print-table td{padding:6px}.print-head{margin-bottom:12px}.print-head img{width:210px}.print-title{font-size:25px}.print-meta{margin:12px 0}.print-meta>div{padding:8px}.print-section{margin-top:14px}.print-complete{margin-top:14px}.print-footer{margin-top:12px}}
+
+.app-header{background:var(--navy);color:#fff;padding:22px 16px 24px;display:flex;justify-content:center;align-items:center;position:sticky;top:0;z-index:5;box-shadow:0 3px 14px #0003;min-height:116px}.header-logo{display:block;width:min(360px,78vw);height:auto}.pinbox{max-width:430px;margin:8vh auto 24px;padding:24px 20px 22px}.pinbox>div:first-child{margin:0 auto 26px!important;padding:10px 14px!important;display:block!important;width:fit-content;max-width:100%}.pinbox .logo-img{width:260px;max-width:68vw}.pin-dots{font-size:34px;letter-spacing:12px;margin:16px 0 26px}.numpad{gap:10px}.numpad button{background:#edf3f8;color:var(--text);font-size:22px;padding:18px 16px;min-height:68px}.numpad button.primary{background:var(--orange);color:#fff}.numpad button.ghost{color:var(--text)}
+@media(max-width:650px){.app-header{min-height:160px;padding:18px 12px 20px}.header-logo{width:min(640px,78vw)}.pinbox{margin:5vh auto 20px;padding:30px 14px 24px}.pin-title{font-size:28px;margin-bottom:28px}.pin-dots{font-size:34px;margin-bottom:30px}.numpad{gap:10px}.numpad button{min-height:68px;padding:18px 16px}}
+
+/* V14 summary refinement */
+.summary-meta{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:12px 0 22px}
+.summary-meta-item{background:#f7f9fa;border:1px solid #e1e6ea;border-radius:12px;padding:11px 13px;min-width:0}
+.summary-meta-item.full{grid-column:1/-1}
+.summary-meta-item b{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.7px;color:#697680;margin-bottom:3px}
+.summary-meta-item span{display:block;font-size:16px;line-height:1.3;overflow-wrap:anywhere}
+.summary-section-title{font-size:20px;margin:22px 0 9px}
+.summary-total{margin:9px 0 18px;padding:8px 11px;border-left:3px solid var(--orange);background:#f7f9fa;color:#394752;font-weight:700;font-size:15px;text-align:left}
+.summary-actions{position:sticky;bottom:calc(10px + env(safe-area-inset-bottom));z-index:20;background:rgba(255,255,255,.96);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);padding:10px 0 calc(10px + env(safe-area-inset-bottom));margin:18px -2px -10px;border-top:1px solid #e5e9ec}
+.summary-actions button{min-height:54px}
+@media(max-width:650px){.summary-meta{grid-template-columns:1fr;gap:8px}.summary-meta-item.full{grid-column:auto}.summary-actions{margin-left:-4px;margin-right:-4px}.summary-actions .ghost{flex:0 0 auto}.summary-actions .green{flex:1;min-width:0}}
+
+/* V11 exact-login refinement */
+body{background:#f3f5f7}
+.app-header{background:#101820!important;min-height:150px!important;height:150px!important;padding:16px 18px 12px!important;display:flex!important;justify-content:center!important;align-items:center!important;border-bottom:2px solid #ff6b00!important;box-shadow:none!important}
+.header-logo{width:min(250px,68vw)!important;height:auto!important;max-height:none!important;object-fit:contain!important;display:block!important}
+#lock{padding-top:58px!important}
+#lock .pinbox{max-width:620px!important;width:calc(100% - 32px)!important;margin:0 auto 24px!important;padding:32px 28px 28px!important;border-radius:28px!important;background:#fff!important;box-shadow:0 8px 30px rgba(16,24,32,.08)!important}
+.pin-title{font-size:31px!important;line-height:1.15!important;font-weight:750!important;margin:0 0 28px!important;color:#16232d!important}
+.pin-dots{font-size:36px!important;letter-spacing:15px!important;margin:0 0 32px!important;color:#16232d!important;line-height:1!important}
+.numpad{gap:10px!important}
+.numpad button{min-height:64px!important;padding:12px 12px!important;border-radius:15px!important;background:#edf3f8!important;color:#16232d!important;font-size:23px!important;font-weight:650!important;border:0!important;box-shadow:none!important}
+.numpad button.primary{background:#ff6b00!important;color:#fff!important;font-weight:750!important}
+.numpad button.ghost{color:#16232d!important}
+#pinError{min-height:0!important}
+@media(max-width:650px){
+ .app-header{min-height:125px!important;height:125px!important;padding:14px 14px 10px!important}
+ .header-logo{width:min(235px,72vw)!important}
+ #lock{padding-top:46px!important}
+ #lock .pinbox{width:calc(100% - 24px)!important;margin:0 auto 24px!important;padding:42px 28px 32px!important;border-radius:28px!important}
+ .pin-title{font-size:25px!important;margin-bottom:30px!important}
+ .pin-dots{font-size:31px!important;letter-spacing:10px!important;margin-bottom:34px!important}
+ .numpad{gap:8px!important}
+ .numpad button{min-height:58px!important;border-radius:14px!important;font-size:22px!important;padding:10px 8px!important}
+}
+@media(min-width:651px){#lock .pinbox{max-width:500px!important;padding:36px 24px 28px!important}.numpad{gap:8px!important}.numpad button{min-height:64px!important;font-size:21px!important;padding:9px 8px!important;border-radius:13px!important}}
+
+/* V23 workflow-first start */
+.workflow-intro{background:#101820;color:#fff;border-radius:24px;padding:24px;margin-bottom:18px;box-shadow:0 8px 24px #18324b18}
+.workflow-intro h1{font-size:34px;margin:0 0 5px}.workflow-intro p{font-size:18px;color:#d9e0e5;margin:0 0 18px}
+.workflow-primary{width:100%;font-size:18px;padding:16px 18px;border-radius:16px}
+.workflow-section{margin:18px 0}.workflow-section h3{font-size:25px;margin:0 0 10px}
+.workflow-card{background:#fff;border:1px solid #e0e5e8;border-radius:18px;padding:16px;margin-bottom:12px;box-shadow:0 4px 16px #18324b0d}
+.workflow-card .top{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.workflow-card b{font-size:19px}.workflow-card .meta{color:var(--muted);font-size:14px;margin-top:3px}.status-pill{display:inline-flex;align-items:center;gap:5px;margin-top:8px;padding:5px 9px;border-radius:999px;background:#e7f7ef;color:#13764c;font-size:12px;font-weight:800}.status-pill.warn{background:#fff3d8;color:#9a6500}
+.workflow-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}.workflow-actions button{width:100%;padding:12px 10px;font-size:14px}
+.process-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;background:#fff;border:1px solid #e1e6ea;border-radius:24px;padding:14px;box-sizing:border-box;box-shadow:0 5px 18px #18324b0b}.process-card{position:relative;min-height:142px;border:0;border-radius:20px;padding:15px 15px 14px;color:#fff;display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-end;gap:4px;box-sizing:border-box;text-align:left;overflow:hidden;box-shadow:0 5px 16px #18324b12}.process-card.orange{background:linear-gradient(135deg,#ff7800 0%,#ff6500 100%)}.process-card.dark{background:#24323e}.process-card.green{background:#dff9ea;color:#102331}.process-card.gray{background:#f3f5f6;color:var(--text)}.process-card .process-ico{display:flex!important;align-items:center;justify-content:center;width:58px;height:58px;border-radius:13px;background:rgba(255,255,255,.96);color:#ff6500;font-size:0;line-height:1;margin-bottom:auto;flex:none;box-shadow:0 1px 3px rgba(0,0,0,.06)}.process-card.dark .process-ico{color:#24323e}.process-card.green .process-ico{color:#159b60}.process-card .process-ico svg{width:34px;height:34px;display:block}.process-card .process-ico::after{content:""}.process-card b{font-size:18px;line-height:1.12;max-width:calc(100% - 52px)}.process-card small{opacity:.9;font-size:13px;margin-top:1px;line-height:1.2;max-width:calc(100% - 52px)}.process-card::before{content:"";position:absolute;right:13px;top:12px;width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.18)}.process-card::after{content:"→";position:absolute;right:10px;bottom:10px;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.92);color:var(--orange);font-size:25px;font-weight:900}.process-card.dark::after{color:#24323e;background:rgba(255,255,255,.16)}.process-card.green::after{color:#159b60;background:rgba(255,255,255,.45)}.process-card:nth-child(1)::before{content:"1";display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:16px}.process-card:nth-child(2)::before{content:"2";display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:16px}.process-card:nth-child(3)::before{content:"3";display:flex;align-items:center;justify-content:center;color:#7b4b17;font-weight:800;font-size:16px;background:#fff0df}.process-card:nth-child(4)::before{content:"4";display:flex;align-items:center;justify-content:center;color:#159b60;font-weight:800;font-size:16px;background:#bff2d5}.process-card:nth-child(3) b{font-size:16px;line-height:1.08;max-width:calc(100% - 48px);overflow-wrap:anywhere}.process-card:nth-child(3) small{font-size:12.5px;line-height:1.15;max-width:calc(100% - 48px)}@media(max-width:650px){.process-grid{padding:12px;border-radius:22px}.process-card{min-height:138px;padding:14px}.process-card .process-ico{width:50px;height:50px}.process-card .process-ico svg{width:29px;height:29px}.process-card b{font-size:16.5px;max-width:calc(100% - 48px)}.process-card small{font-size:12px;max-width:calc(100% - 48px)}.process-card::after{width:36px;height:36px;right:9px;bottom:9px;font-size:22px}}
+.notice-success{background:#e7f7ef;border:1px solid #b8e5cf;color:#126f47;border-radius:14px;padding:14px;font-weight:750;margin-bottom:14px}
+.form-card{background:#fff;border:1px solid #e0e5e8;border-radius:18px;padding:18px;margin-bottom:14px}.form-card h3{margin:0 0 6px;font-size:22px}.form-actions{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-top:14px}
+@media(max-width:650px){.workflow-intro{padding:22px 18px}.workflow-intro h1{font-size:31px}.workflow-intro p{font-size:17px}.process-grid{grid-template-columns:1fr 1fr}.workflow-actions{grid-template-columns:1fr 1fr}}
+.order-items{display:grid;gap:10px;margin-top:10px}.order-item{border:1px solid #dfe5e9;background:#f8fafb;border-radius:14px;padding:12px}.order-item-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:7px}.order-item-number{font-weight:850;color:#16232d}.order-item-grid{display:grid;grid-template-columns:minmax(0,1fr) 150px;gap:10px}.order-item label{margin:0 0 5px;font-size:13px}.order-item select,.order-item input{background:#fff}.remove-order-item{padding:8px 10px;font-size:13px}.add-order-item{width:100%;margin-top:10px}.order-list-items{margin-top:7px;display:grid;gap:4px}.order-list-line{display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-bottom:1px solid #edf0f2}.order-list-line:last-child{border-bottom:0}.order-list-line b{font-weight:800}@media(max-width:650px){.order-item-grid{grid-template-columns:1fr}}
+
+.material-picker{margin:14px 0 22px;padding:16px;border:1px solid #e2e6eb;border-radius:16px;background:#fafbfc}.material-picker label{display:block;font-weight:750;margin-bottom:7px}.material-select{width:100%;min-height:48px;border:1px solid #d7dce2;border-radius:12px;background:#fff;padding:0 13px;font:inherit;color:#16202a}.material-select-btn{width:100%;margin-top:10px}.add-material-box{margin:24px 0;padding:18px;border-radius:16px;background:#f3f5f7;border:1px solid #e0e4e8}.add-material-box h3{margin-top:0}.add-material-box .row{margin-top:10px}.add-material-box .actions{margin-top:12px}.material-manage-dropdown{margin-top:16px;border-top:1px solid #dfe4e8;padding-top:12px}.material-manage-dropdown summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px 14px;border:1px solid #dfe4e8;border-radius:12px;background:#fff;font-weight:800}.material-manage-dropdown summary::-webkit-details-marker{display:none}.material-manage-chevron{font-size:18px;line-height:1;transition:transform .18s ease;color:#6e7780}.material-manage-dropdown[open] .material-manage-chevron{transform:rotate(180deg)}.material-manage-inner{padding:12px 2px 2px}.material-manage-list{display:grid;gap:7px;max-height:360px;overflow:auto;padding-right:2px}.material-manage-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 10px;border:1px solid #dfe4e8;border-radius:11px;background:#fff}.material-manage-name{min-width:0;font-weight:650}.material-manage-name small{display:block;color:#7a8790;font-weight:550;margin-top:2px}.material-remove{flex:0 0 auto;padding:7px 10px!important;font-size:12px!important;color:#9b2c2c!important;border:1px solid #efcaca!important;background:#fff!important}.material-manage-empty{color:#7a8790;font-size:13px}
+
+/* V78 PDF layout refinements */
+.print-head{justify-content:flex-start;align-items:center}
+.print-head img{display:none!important}
+.print-head .print-kicker{margin-left:0;text-align:left;line-height:1.35}
+.print-head .print-kicker span{display:block;margin-top:2px}
+.print-detail-page .print-title{line-height:1.15;margin:0 0 10px}
+.print-detail-page h2{margin:0 0 12px;line-height:1.2}
+.print-detail-page .photo-detail,.print-detail-page .piece-detail{margin-bottom:10px}
+</style>
+<style>/* V72: Workflow-Karten im Referenzdesign – Symbole sichtbar */
+.process-card .process-ico{display:flex!important;visibility:visible!important;opacity:1!important;}
+.process-card .process-ico svg{display:block!important;visibility:visible!important;opacity:1!important;}
+</style>
+<style>/* V67: Workflow-Karten ohne Symbole – Funktionen unverändert */
+
+</style>
+<style id="v92-material-style">
+/* V92 – Material erweitern: Anthrazit-Design im Hauptfenster */
+.add-material-box{
+  background:#2b333b !important;
+  border:1px solid #3c4650 !important;
+  color:#fff !important;
+  box-shadow:0 6px 18px rgba(16,32,48,.10);
+}
+.add-material-box h3{color:#fff !important;font-size:18px !important;font-weight:800 !important;letter-spacing:0 !important;}
+.add-material-box > .muted{color:#d6dce1 !important;font-size:13px !important;font-weight:500 !important;}
+.add-material-box label{color:#fff !important;font-size:14px !important;font-weight:750 !important;}
+.add-material-box input,.add-material-box .material-select{background:#fff !important;color:#16202a !important;border-color:#d7dce2 !important;}
+.add-material-box .green{background:var(--orange) !important;color:#fff !important;}
+.material-manage-dropdown{border-top:0 !important;padding-top:12px !important;}
+.material-manage-dropdown summary{background:#252d35 !important;border:1px solid #3d4852 !important;color:#fff !important;font-size:16px !important;font-weight:750 !important;min-height:48px;box-sizing:border-box;}
+.material-manage-chevron{color:#fff !important}
+.material-manage-inner{color:#fff;}
+.material-manage-inner > .muted{color:#d6dce1 !important;}
+.material-manage-row{background:#343d46 !important;border-color:#4a5661 !important;color:#fff !important;}
+.material-manage-name{color:#fff !important}
+.material-manage-name small{color:#c4cbd1 !important}
+.material-remove{background:#fff !important;}
+</style>
+</head>
+<body>
+<header class="app-header"><img class="header-logo" src="./thaden-logo-v87.png" alt="THADEN MATERIAL"></header>
+<script>
+if ('serviceWorker' in navigator) window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js'));
+</script>
+
+
+<div class="wrap">
+<section id="lock" class="screen active">
+<div class="card pinbox">
+<h2 class="pin-title">PIN eingeben</h2>
+<div id="pinDots" class="pin-dots">○ ○ ○ ○</div><div id="pinError" class="error"></div>
+<div class="numpad">
+<button onclick="pin('1')">1</button><button onclick="pin('2')">2</button><button onclick="pin('3')">3</button>
+<button onclick="pin('4')">4</button><button onclick="pin('5')">5</button><button onclick="pin('6')">6</button>
+<button onclick="pin('7')">7</button><button onclick="pin('8')">8</button><button onclick="pin('9')">9</button>
+<button class="ghost" onclick="pinClear()">⌫</button><button onclick="pin('0')">0</button><button class="primary" onclick="pinOk()">OK</button>
+</div>
+</div>
+</section>
+
+<section id="home" class="screen">
+<div class="workflow-intro">
+  <h1>Moin</h1>
+  <p>Material im Blick. Prozesse im Griff.</p>
+  <button class="primary workflow-primary" onclick="newInventory()">＋ Neue Bestandsaufnahme</button>
+</div>
+<div class="workflow-section">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h3>Meine Lagerplätze</h3><button class="ghost" onclick="show('sites')">Alle →</button></div>
+  <div id="homeSites"></div>
+</div>
+<div class="workflow-section">
+  <h3>Arbeitsablauf</h3>
+  <div class="process-grid">
+    <button class="process-card orange" onclick="newInventory()"><span class="process-ico"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M13 27h38" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round"/><path d="M19 27 32 17l13 10" fill="none" stroke="currentColor" stroke-width="5" stroke-linejoin="round"/><rect x="21" y="31" width="22" height="17" rx="2" fill="none" stroke="currentColor" stroke-width="5"/><circle cx="32" cy="39.5" r="4" fill="none" stroke="currentColor" stroke-width="4"/></svg></span><b>1 · Bestand aufnehmen</b><small>Material vor Ort erfassen</small></button>
+    <button class="process-card dark" onclick="show('documentation')"><span class="process-ico"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M17 9h23l9 9v37H17z" fill="none" stroke="currentColor" stroke-width="5" stroke-linejoin="round"/><path d="M40 9v12h12M24 30h18M24 40h18M24 50h12" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round"/></svg></span><b>2 · Bestandsliste</b><small>PDF für das Lager</small></button>
+    <button class="process-card gray" onclick="show('orders')"><span class="process-ico"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M13 21 32 11l19 10-19 10zM13 21v22l19 10 19-10V21M32 31v22" fill="none" stroke="currentColor" stroke-width="5" stroke-linejoin="round"/><path d="m22 26 10 5 10-5" fill="none" stroke="currentColor" stroke-width="5"/></svg></span><b>3 ·<br>Material-<br>bestellung</b><small>Fehlendes Material melden</small></button>
+    <button class="process-card green" onclick="show('returns')"><span class="process-ico"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M17 23a22 22 0 0 1 35 8" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round"/><path d="m49 20 3 11-11-1" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><path d="M47 41a22 22 0 0 1-35-8" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round"/><path d="m15 44-3-11 11 1" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><b>4 · Leere Trommeln</b><small>Rücklieferung ans Lager</small></button>
+  </div>
+</div>
+<div class="workflow-section">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h3>Letzte Vorgänge</h3><button class="ghost" onclick="show('history')">Historie →</button></div>
+  <div id="homeActivity" class="activity"></div>
+</div>
+<div class="bottom-nav">
+<button class="active" onclick="show('home')"><span>⌂</span>Start</button>
+<button onclick="show('sites')"><span>🏗️</span>Lagerplätze</button>
+<button onclick="show('documentation')"><span>▤</span>Dokumentation</button>
+<button onclick="show('orders')"><span>＋</span>Bedarf</button>
+<button onclick="show('returns')"><span>↻</span>Rücklauf</button>
+</div>
+</section>
+
+<section id="orders" class="screen">
+<div class="card"><button class="ghost back" onclick="show('home')">← Start</button><h2>Materialbestellung</h2><p class="muted">Mehrere fehlende Materialien für eine Baustelle gemeinsam an das Lager melden.</p>
+<div id="orderNotice"></div>
+<div class="form-card"><h3>Bestellung erfassen</h3>
+<label>Lagerplatz</label><select id="orderSite"></select>
+<div id="orderItems" class="order-items"></div>
+<button class="ghost add-order-item" type="button" onclick="addOrderItem()">＋ Weitere Position</button>
+<label>Bemerkung (optional)</label><input id="orderNote" type="text" placeholder="z. B. Bauabschnitt 2">
+<div class="form-actions"><button class="primary" onclick="saveMaterialOrder()">Materialbestellung speichern</button><button class="ghost" onclick="show('orderList')">Offene Meldungen</button></div>
+</div>
+</div>
+</section>
+
+<section id="orderList" class="screen"><div class="card"><button class="ghost back" onclick="show('orders')">← Materialbestellung</button><h2>Offene Materialbestellungen</h2><p class="muted">Bestellungen werden je Lagerplatz automatisch zu einer Sammelbestellung zusammengefasst.</p><div id="ordersList"></div></div></section>
+
+<section id="warehouse" class="screen"><div class="card"><button class="ghost back" onclick="show('home')">← Start</button><h2>Lagerbestand</h2><p class="muted">Bestände auf einen Blick.</p><div class="stat-grid"><div class="stat"><span class="muted">Trommeln</span><b id="statDrums">0</b></div><div class="stat"><span class="muted">Aufnahmen</span><b id="statHistory">0</b></div></div><div class="actions"><button class="primary" onclick="newInventory()">＋ Bestandsaufnahme</button><button class="ghost" onclick="show('drums')">Trommeln anzeigen</button></div></div></section>
+
+<section id="scan" class="screen"><div class="card"><button class="ghost back" onclick="show('home')">← Start</button><h2>Material scannen</h2><p class="muted">Trommeletikett fotografieren und anschließend die Daten erfassen.</p><button class="primary" style="width:100%;padding:18px" onclick="newInventory()">📷 Scan / Aufnahme starten</button><p class="muted" style="margin-top:12px">Beim Fotografieren des Trommeletiketts wird die Trommelnummer automatisch erkannt und eingetragen.</p></div></section>
+
+<section id="returns" class="screen">
+<div class="card"><button class="ghost back" onclick="show('home')">← Start</button><h2>Leere Trommeln</h2><p class="muted">Mehrere leere Trommeln nacheinander erfassen und anschließend gemeinsam an das Lager melden.</p>
+<div id="returnNotice"></div>
+<div class="form-card"><h3>Rücklieferung erfassen</h3>
+<label>Baustelle</label><select id="returnSite"></select>
+<label>Material</label><select id="returnMaterial"></select>
+<label>Trommelnummer</label><input id="returnDrum" type="text" placeholder="z. B. E2557689057">
+<label>Foto der leeren Trommel</label>
+<div class="photo-box"><button type="button" class="ghost photo-action" onclick="document.getElementById('returnPhoto').click()">📷 Foto aufnehmen</button><div><img id="returnPreview" class="preview" alt="Foto der leeren Trommel"><p id="returnPhotoMsg" class="muted"></p><p id="returnOcrMsg" class="ocr-status neutral" aria-live="polite"></p><button id="returnOcrRetry" type="button" class="ghost ocr-retry" style="display:none" onclick="retryReturnOcr()">↻ Nummer erneut erkennen</button></div></div>
+<input id="returnPhoto" class="screen" type="file" accept="image/*" capture="environment" onchange="returnPhotoChosen()">
+<div class="form-actions"><button class="ghost" onclick="addReturnDrum()">＋ Weitere Trommel hinzufügen</button><button class="green" onclick="saveReturnBatch()">✓ Rücklieferungen speichern</button></div>
+<div id="returnBatchList"></div>
+<div class="actions" style="margin-top:12px"><button class="ghost" onclick="show('returnList')">Rücklaufliste anzeigen</button></div>
+</div>
+</div>
+</section>
+<section id="returnList" class="screen"><div class="card"><button class="ghost back" onclick="show('returns')">← Rücklauf</button><h2>Rücklieferliste</h2><div id="returnsList"></div><div class="actions"><button class="primary" onclick="shareReturnList()">📄 PDF erstellen / teilen</button></div></div></section>
+
+<section id="sites" class="screen"><div class="card"><button class="ghost back" onclick="show('home')">← Start</button><h2>Lagerplätze</h2><p class="muted">Bereits angelegte Vorhaben fortsetzen oder eine neue Bestandsaufnahme starten.</p><div class="actions"><button class="primary" onclick="newInventory()">＋ Neues Vorhaben</button></div><div id="siteList"></div></div></section>
+
+
+
+<section id="siteDetail" class="screen"><div class="card"><button class="ghost back" onclick="show('sites')">← Lagerplätze</button><div id="siteDetailContent"></div></div></section>
+
+<section id="documentation" class="screen"><div class="card"><button class="ghost back" onclick="show('home')">← Start</button><h2>Dokumentation</h2><p class="muted">Material-Bestandslisten je Baustelle und PDF-Ausgabe.</p><div id="documentationNotice"></div><div id="documentationList"></div><div class="actions"><button class="ghost" onclick="show('history')">Historie öffnen</button></div></div></section>
+
+<section id="setup" class="screen">
+<div class="card"><h2>Neue Bestandsaufnahme</h2>
+<label for="site">Baustelle</label>
+<input id="site" type="text" placeholder="Baustelle eingeben">
+
+<div class="location-block">
+  <div class="location-title">Lagerplatz</div>
+  <div class="location-subtitle">Standort des Lagerplatzes</div>
+  <label for="place">Ort</label>
+  <input id="place" type="text" placeholder="Ort eingeben">
+  <div class="row">
+    <div><label for="postalCode">PLZ</label><input id="postalCode" type="text" inputmode="numeric" maxlength="5" placeholder="PLZ"></div>
+    <div><label for="street">Straße und Hausnummer</label><input id="street" type="text" placeholder="Straße und Hausnummer"></div>
+  </div>
+</div>
+
+<label for="invDate">Datum</label>
+<input id="invDate" type="date" readonly aria-readonly="true">
+
+<label for="worker">Mitarbeiter</label>
+<input id="worker" type="text" placeholder="Mitarbeiter eingeben">
+
+<div class="actions"><button class="ghost" onclick="show('home')">← Zurück</button><button class="primary" onclick="startInventory()">Aufnahme starten →</button></div>
+</div>
+</section>
+
+<section id="materials" class="screen">
+<div class="card"><h2>Material auswählen</h2>
+<div class="material-picker">
+  <label for="cableSelect">Kabel / Trommeln</label>
+  <select id="cableSelect" class="material-select"><option value="">Material auswählen …</option></select>
+  <button type="button" class="primary material-select-btn" onclick="chooseCableFromDropdown()">Trommel erfassen →</button>
+</div>
+<h3>Erfasste Trommeln</h3><div id="currentDrums"></div>
+<div class="material-picker piece-picker">
+  <label for="pieceSelect">Stückmaterial</label>
+  <select id="pieceSelect" class="material-select"><option value="">Material auswählen …</option></select>
+  <button type="button" class="primary material-select-btn" onclick="choosePieceFromDropdown()">Stückmaterial erfassen →</button>
+</div>
+<h3>Erfasste Stückmaterialien</h3><div id="currentPieces"></div>
+
+<div class="add-material-box">
+  <h3>Material erweitern</h3>
+  <p class="muted">Eigenes Material hinzufügen. Es bleibt auf diesem Gerät gespeichert.</p>
+  <label for="newMaterialName">Materialbezeichnung</label>
+  <input id="newMaterialName" type="text" placeholder="z. B. Kabelmuffe 7x12">
+  <div class="row">
+    <div><label for="newMaterialType">Materialart</label><select id="newMaterialType" class="material-select"><option value="cable">Kabel / Trommel</option><option value="piece">Stückmaterial</option></select></div>
+    <div><label for="newMaterialUnit">Einheit</label><select id="newMaterialUnit" class="material-select"><option value="Stück">Stück</option><option value="Rollen">Rollen</option><option value="Meter">Meter</option></select></div>
+  </div>
+  <div class="actions"><button type="button" class="green" onclick="addCustomMaterial()">＋ Material hinzufügen</button></div>
+  <details class="material-manage-dropdown">
+    <summary>
+      <span>Material aus Sortiment verwalten</span>
+      <span class="material-manage-chevron">⌄</span>
+    </summary>
+    <div class="material-manage-inner">
+      <div class="muted" style="font-size:13px;margin-bottom:9px">Hier kannst du Materialien aus der Auswahl für neue Aufnahmen entfernen. Bereits gespeicherte Bestände und Historien bleiben erhalten.</div>
+      <div id="materialManageList" class="material-manage-list"></div>
+    </div>
+  </details>
+</div>
+
+<div class="actions"><button class="ghost" onclick="show('home')">← Startseite</button><button class="green" onclick="renderSummary();show('summary')">Aufnahme prüfen →</button></div></div>
+</section>
+
+<section id="drum" class="screen"><div class="card">
+<h2 id="drumTitle">Trommel erfassen</h2><div class="row"><div>
+<label>Trommelnummer</label><input id="drumNo" placeholder="z. B. T-2026-00125">
+<button class="ghost photo-action" style="margin-top:8px;width:100%" onclick="document.getElementById('photo').click()">📷 Trommelnummer aufnehmen</button>
+<input id="photo" class="screen" type="file" accept="image/*" capture="environment" onchange="photoChosen()">
+<img id="preview" class="preview"><p id="photoMsg" class="muted"></p><p id="ocrMsg" class="ocr-status neutral" aria-live="polite"></p><button id="ocrRetry" type="button" class="ghost ocr-retry" style="display:none" onclick="retryDrumOcr()">↻ Nummer erneut erkennen</button>
+</div><div>
+<label>Gesamtlänge</label><input id="totalLen" type="number" min="0" step="1" placeholder="z. B. 2400"><span class="muted">Meter</span>
+<label>Restbestand</label><input id="restLen" type="number" min="0" step="1" placeholder="z. B. 1850"><span class="muted">Meter</span>
+</div></div>
+<div class="actions"><button class="ghost" onclick="show('materials')">← Zurück</button><button class="green" onclick="saveDrum()">✓ Trommel speichern</button></div>
+</div></section>
+
+<section id="piece" class="screen"><div class="card"><h2 id="pieceTitle">Stückmaterial</h2><label>Anzahl</label><input id="pieceQty" type="number" min="0" step="1" value="0"><div class="actions"><button class="ghost" onclick="show('materials')">← Zurück</button><button class="green" onclick="savePiece()">✓ Speichern</button></div></div></section>
+
+<section id="summary" class="screen"><div class="card">
+<h2>Aufnahme kontrollieren</h2><p id="summaryMeta"></p><div id="summaryBody"></div>
+<div id="summarySaveConfirm" class="save-confirm-inline" role="status" aria-live="polite">✓ Material erfolgreich gespeichert<br><span style="font-weight:650;font-size:13px">Die Bestandsaufnahme wurde gespeichert.</span></div><div id="summaryActions" class="actions no-print summary-actions"><button type="button" class="ghost" onclick="show('materials')">← Einträge ändern</button><button id="confirmSaveBtn" type="button" class="green" onclick="completeInventory()">✓ Aufnahme bestätigen</button></div>
+</div></section>
+
+<section id="done" class="screen"><div class="card"><h1>✓ Aufnahme gespeichert</h1><p>Die Aufnahme liegt jetzt lokal auf diesem Gerät.</p>
+<div class="actions no-print"><button class="primary" onclick="printLastDocument()">📄 PDF erstellen</button><button class="primary" onclick="shareText()">📤 Daten teilen</button><button class="ghost" onclick="show('documentation')">Dokumentation</button></div>
+</div></section>
+
+<section id="history" class="screen"><div class="card"><h2>📚 Historie</h2><div id="historyList"></div><div class="actions"><button class="ghost" onclick="show('home')">← Startseite</button></div></div></section>
+
+<section id="drums" class="screen"><div class="card"><h2>🧵 Trommelverwaltung</h2><div id="drumList"></div><div class="actions"><button class="ghost" onclick="show('home')">← Startseite</button></div></div></section>
+
+<section id="settings" class="screen"><div class="card"><h2>⚙️ Einstellungen</h2><p class="muted">Lokale App-Einstellungen</p>
+<label>Neue PIN</label><input id="newPin" inputmode="numeric" maxlength="4" placeholder="4 Ziffern"><div class="actions"><button class="green" onclick="changePin()">PIN speichern</button><button class="ghost" onclick="show('home')">← Startseite</button></div>
+<p class="muted">Die Daten bleiben in diesem Browser auf diesem Gerät. Der Prototyp ist noch nicht für vertrauliche Unternehmensdaten gedacht.</p>
+</div></section>
+</div>
+
+<style>
+.lowstock-overlay{position:fixed;inset:0;z-index:260;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(16,24,32,.55);backdrop-filter:blur(4px)}
+.lowstock-overlay.show{display:flex}
+.lowstock-card{width:min(92vw,430px);background:#fff;border-radius:24px;padding:26px 22px 22px;box-shadow:0 20px 70px rgba(16,24,32,.3);text-align:center}
+.lowstock-icon{width:64px;height:64px;margin:0 auto 12px;border-radius:50%;background:#fff3e8;color:#ff6b00;display:grid;place-items:center;font-size:32px;font-weight:900}
+.lowstock-title{font-size:22px;font-weight:900;color:#16232d;line-height:1.15}
+.lowstock-text{margin-top:9px;color:#697680;font-size:16px;line-height:1.4}
+.lowstock-actions{display:flex;gap:10px;margin-top:20px}
+.lowstock-actions button{flex:1;min-height:50px}
+</style>
+<div id="duplicateOverlay" class="duplicate-overlay" role="dialog" aria-modal="true" aria-labelledby="duplicateTitle"><div class="duplicate-card"><div class="duplicate-icon">!</div><div id="duplicateTitle" class="duplicate-title">Trommel bereits aufgenommen</div><div class="duplicate-message">Diese Trommelnummer wurde bereits erfasst und kann nicht noch einmal gespeichert werden.</div><span id="duplicateNumber" class="duplicate-number"></span><button type="button" class="duplicate-close" onclick="closeDuplicateNotice()">Okay</button></div></div><div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true"><div class="toast-card"><div class="toast-check">✓</div><div id="toastTitle" class="toast-title">Material erfolgreich gespeichert</div><div id="toastMessage" class="toast-message">Die Bestandsaufnahme wurde gespeichert.</div><div id="toastAction" class="toast-action"></div></div></div><div id="lowStockPrompt" class="lowstock-overlay" role="dialog" aria-modal="true" aria-labelledby="lowStockTitle">
+  <div class="lowstock-card">
+    <div class="lowstock-icon">!</div>
+    <div id="lowStockTitle" class="lowstock-title">Material ist fast leer</div>
+    <div id="lowStockText" class="lowstock-text"></div>
+    <div class="lowstock-actions">
+      <button type="button" class="ghost" onclick="closeLowStockPrompt(false)">Nein</button>
+      <button type="button" class="green" onclick="closeLowStockPrompt(true)">Ja, auf Bedarfsliste</button>
+    </div>
+  </div>
+</div><div id="printReport" class="print-report"></div>
+
+<script>
+const defaultCables=["SNRVe 7x12 M","SNRVe 7x12 O","SNRVe 7x12 O/S","SNRVe 7x12 O/W","SNRVe 22x7 O","SNRVe 22x7 O/W","SNRVe 22x7 O/R","SNRVe 8x7 O","SNRVe 8x7 O/S","SNR 1x7","Gf-1x12","Gf-2x12","Gf-4x12","Gf-8x12","Gf-1x4","Gf-1x6"];
+const defaultPieces=[["DN-50 Rohr","Stück"],["Verbinder 12mm","Stück"],["Verbinder 7mm","Stück"],["Endkappe 12mm","Stück"],["Endkappe 7mm","Stück"],["Trassenwarnband Telekom","Rollen"]];
+let cables=JSON.parse(localStorage.getItem("mm_custom_cables")||"null")||[...defaultCables];
+let pieces=JSON.parse(localStorage.getItem("mm_custom_pieces")||"null")||JSON.parse(JSON.stringify(defaultPieces));
+let pinCode=localStorage.getItem("mm_pin")||"1234", entered="", unlocked=false, selected="", drums=JSON.parse(localStorage.getItem("mm_drums")||"[]"), history=JSON.parse(localStorage.getItem("mm_history")||"[]"), current={drums:[],pieces:[]}, editingDrumIndex=-1, editingPieceIndex=-1, editingHistoryId=null;
+const cableMaterials=cables;
+const pieceMaterials=pieces.map(x=>x[0]);
+window.mmPieceMaster=pieceMaterials;
+const $=x=>document.getElementById(x);
+function today(){return new Date(Date.now()-new Date().getTimezoneOffset()*60000).toISOString().slice(0,10)}
+$("invDate").value=today();
+function show(id){
+  if(id==="summary"){const inline=$("summarySaveConfirm"), actions=$("summaryActions"), btn=$("confirmSaveBtn"); if(inline) inline.classList.remove("show"); if(actions) actions.classList.remove("is-saved"); if(btn){btn.disabled=false;btn.textContent="✓ Aufnahme bestätigen";}}if(id==="home"&&!unlocked)return;document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));const target=document.querySelector(`.screen#${CSS.escape(id)}`);if(!target)return;target.classList.add("active");if(id==="home")renderHome();if(id==="history")renderHistory();if(id==="drums")renderDrums();if(id==="documentation")renderDocumentation();if(id==="sites")renderSites();if(id==="materials")renderCurrentEntries();if(id==="orders")renderOrderForm();if(id==="orderList")renderOrders();if(id==="returns")renderReturnForm();if(id==="returnList")renderReturns();updateStats();window.scrollTo({top:0,left:0,behavior:"auto"});document.documentElement.scrollTop=0;document.body.scrollTop=0}
+unlocked=false;
+function pin(x){if(entered.length<4)entered+=x;updateDots();if(entered.length===4)setTimeout(pinOk,120)}
+function pinClear(){entered=entered.slice(0,-1);updateDots()}
+function updateDots(){$("pinDots").textContent=[0,1,2,3].map(i=>i<entered.length?"●":"○").join(" ")}
+function pinOk(){if(entered===pinCode){unlocked=true;entered="";updateDots();$("pinError").textContent="";show("home")}else{$("pinError").textContent="Falsche PIN";entered="";updateDots()}}
+// PC-Tastatur: PIN kann direkt über die Zahlenreihe oder den Ziffernblock eingegeben werden.
+document.addEventListener("keydown",function(e){
+  const lock=$("lock");
+  if(unlocked||!lock||!lock.classList.contains("active"))return;
+  if(/^\d$/.test(e.key)){e.preventDefault();pin(e.key);return;}
+  if(e.key==="Backspace"||e.key==="Delete"){e.preventDefault();pinClear();return;}
+  if(e.key==="Enter"){e.preventDefault();pinOk();return;}
+  if(e.key==="Escape"){e.preventDefault();entered="";updateDots();$("pinError").textContent="";}
+});
+function changePin(){let p=$("newPin").value.trim();if(!/^\d{4}$/.test(p)){alert("Bitte genau 4 Ziffern eingeben.");return}pinCode=p;localStorage.setItem("mm_pin",p);$("newPin").value="";alert("PIN gespeichert.");show("home")}
+function newInventory(){current={drums:[],pieces:[]};editingDrumIndex=-1;editingPieceIndex=-1;editingHistoryId=null;$("site").value="";$("place").value="";$("postalCode").value="";$("street").value="";$("worker").value="";$("invDate").value=today();show("setup")}
+function startInventory(){show("materials")}
+function continueProject(id){
+  const item=history.find(x=>x.id===id); if(!item)return;
+  current={drums:JSON.parse(JSON.stringify(item.drums||[])),pieces:JSON.parse(JSON.stringify(item.pieces||[]))};
+  editingDrumIndex=-1; editingPieceIndex=-1; editingHistoryId=item.id;
+  $("site").value=item.site||""; $("place").value=item.place||""; $("postalCode").value=item.postalCode||""; $("street").value=item.street||""; $("worker").value=item.worker||""; $("invDate").value=today();
+  show("setup");
+}
+function selectCable(n){selected=n;editingDrumIndex=-1;$("drumTitle").textContent=n+" – Trommel erfassen";$("drumNo").value="";$("totalLen").value="";$("restLen").value="";$("photo").value="";$("preview").style.display="none";$("preview").removeAttribute("src");$("photoMsg").textContent="";show("drum")} 
+function editDrum(index){const d=current.drums[index];if(!d)return;selected=d.material;editingDrumIndex=index;$("drumTitle").textContent=d.material+" – Trommel bearbeiten";$("drumNo").value=d.no||"";$("totalLen").value=d.total??"";$("restLen").value=d.rest??"";$("photo").value="";if(d.photo){$("preview").src=d.photo;$("preview").style.display="block";$("photoMsg").textContent="Vorhandenes Foto gespeichert."}else{$("preview").style.display="none";$("preview").removeAttribute("src");$("photoMsg").textContent=""}show("drum")} 
+function deleteCurrentDrum(index){if(!confirm("Diese Trommel aus der aktuellen Aufnahme entfernen?"))return;current.drums.splice(index,1);renderCurrentEntries();}
+function selectPiece(n){selected=n;editingPieceIndex=-1;$("pieceTitle").textContent=n;let old=current.pieces.find(x=>x.material===n);$("pieceQty").value=old?old.qty:0;show("piece")} 
+function editPiece(index){const p=current.pieces[index];if(!p)return;selected=p.material;editingPieceIndex=index;$("pieceTitle").textContent=p.material+" – bearbeiten";$("pieceQty").value=p.qty??0;show("piece")} 
+function deleteCurrentPiece(index){if(!confirm("Dieses Stückmaterial aus der aktuellen Aufnahme entfernen?"))return;current.pieces.splice(index,1);renderCurrentEntries();}
+function showHistory(){show("history")}
+function showDrums(){show("drums")}
+function showSettings(){show("settings")}
+function updateStats(){if($("statDrums"))$("statDrums").textContent=drums.length;if($("statHistory"))$("statHistory").textContent=history.length}
+function compressImage(file,maxSide=900,quality=.72){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>{const img=new Image();img.onload=()=>{const scale=Math.min(1,maxSide/Math.max(img.naturalWidth,img.naturalHeight));const c=document.createElement('canvas');c.width=Math.max(1,Math.round(img.naturalWidth*scale));c.height=Math.max(1,Math.round(img.naturalHeight*scale));const ctx=c.getContext('2d');ctx.drawImage(img,0,0,c.width,c.height);resolve(c.toDataURL('image/jpeg',quality))};img.onerror=reject;img.src=r.result};r.onerror=reject;r.readAsDataURL(file)})}
+let ocrWorkerPromise=null;
+let ocrScriptPromise=null;
+
+async function ensureTesseractLoaded(){
+  if(window.Tesseract)return;
+  if(ocrScriptPromise)return ocrScriptPromise;
+  ocrScriptPromise=new Promise((resolve,reject)=>{
+    const s=document.createElement("script");
+    s.src="https://cdn.jsdelivr.net/npm/tesseract.js@5/dist/tesseract.min.js";
+    s.async=true;
+    s.onload=()=>window.Tesseract?resolve():reject(new Error("OCR-Bibliothek geladen, aber Tesseract fehlt"));
+    s.onerror=()=>reject(new Error("OCR-Bibliothek konnte nicht geladen werden"));
+    document.head.appendChild(s);
+  });
+  return ocrScriptPromise;
+}
+
+async function getOcrWorker(){
+  if(ocrWorkerPromise)return ocrWorkerPromise;
+  ocrWorkerPromise=(async()=>{
+    await ensureTesseractLoaded();
+    if(!window.Tesseract || typeof Tesseract.createWorker!=="function"){
+      throw new Error("Tesseract createWorker fehlt");
+    }
+    const worker=await Tesseract.createWorker("eng",1,{
+      logger:m=>{
+        if(window.__ocrStatus && m && m.progress!=null){
+          const pct=Math.max(0,Math.min(100,Math.round(m.progress*100)));
+          window.__ocrStatus.textContent=`🔎 Trommelnummer wird erkannt … ${pct}%`;
+        }
+      }
+    });
+    await worker.setParameters({
+      tessedit_char_whitelist:"ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
+      preserve_interword_spaces:"1",
+      user_defined_dpi:"300",
+      tessedit_pageseg_mode:"6"
+    });
+    return worker;
+  })();
+  try{return await ocrWorkerPromise}catch(e){ocrWorkerPromise=null;throw e}
+}
+
+function loadImageFile(file){
+  return new Promise((resolve,reject)=>{
+    const r=new FileReader();
+    r.onload=()=>{
+      const img=new Image();
+      img.onload=()=>resolve(img);
+      img.onerror=()=>reject(new Error("Foto konnte nicht gelesen werden"));
+      img.src=r.result;
+    };
+    r.onerror=()=>reject(new Error("Foto konnte nicht geladen werden"));
+    r.readAsDataURL(file);
+  });
+}
+
+/*
+ V98 OCR-FIX:
+ Auf dem iPhone war die alte Erkennung zu schwer:
+ 7 Zuschnitte × 4 Drehungen × mehrere Filter × 5 PSM-Modi
+ = mehrere hundert OCR-Durchläufe. Safari kann dabei den Tab wegen
+ Speicher-/CPU-Belastung neu laden. Deshalb jetzt bewusst nur wenige,
+ gut gewählte Varianten.
+*/
+function buildOcrCanvas(img,angle=0,mode="soft"){
+  const maxSide=1800;
+  const iw=img.naturalWidth, ih=img.naturalHeight;
+  const scale=Math.min(1,maxSide/Math.max(iw,ih));
+  const rw=Math.max(1,Math.round(iw*scale));
+  const rh=Math.max(1,Math.round(ih*scale));
+  const rad=angle*Math.PI/180;
+  const w=(angle===0)?rw:rh, h=(angle===0)?rh:rw;
+  const c=document.createElement("canvas");
+  c.width=w;c.height=h;
+  const ctx=c.getContext("2d",{willReadFrequently:true});
+  ctx.fillStyle="#fff";
+  ctx.fillRect(0,0,w,h);
+  ctx.translate(w/2,h/2);
+  ctx.rotate(rad);
+  ctx.drawImage(img,-rw/2,-rh/2,rw,rh);
+
+  if(mode==="soft")return c.toDataURL("image/jpeg",.88);
+
+  const data=ctx.getImageData(0,0,w,h);
+  for(let i=0;i<data.data.length;i+=4){
+    const g=Math.round(data.data[i]*.299+data.data[i+1]*.587+data.data[i+2]*.114);
+    let v=g;
+    if(mode==="contrast")v=Math.max(0,Math.min(255,(g-105)*2.2+128));
+    if(mode==="binary")v=g>150?255:0;
+    data.data[i]=data.data[i+1]=data.data[i+2]=v;
+    data.data[i+3]=255;
+  }
+  ctx.putImageData(data,0,0);
+  return c.toDataURL("image/jpeg",.90);
+}
+
+function makeOcrVariants(img){
+  // Die meisten Trommeletiketten werden damit erfasst:
+  // normal, gedreht links/rechts sowie eine Kontrastvariante.
+  return [
+    {src:buildOcrCanvas(img,0,"soft"),label:"Normal"},
+    {src:buildOcrCanvas(img,90,"soft"),label:"90°"},
+    {src:buildOcrCanvas(img,270,"soft"),label:"270°"},
+    {src:buildOcrCanvas(img,0,"contrast"),label:"Kontrast"},
+    {src:buildOcrCanvas(img,90,"contrast"),label:"Kontrast 90°"},
+    {src:buildOcrCanvas(img,270,"contrast"),label:"Kontrast 270°"}
+  ];
+}
+
+function normalizeOcrText(text){
+  return (text||"").toUpperCase()
+    .replace(/[|IL]/g,"1")
+    .replace(/[OQD]/g,"0")
+    .replace(/[Z]/g,"2")
+    .replace(/[S]/g,"5")
+    .replace(/[^A-Z0-9\n ]/g," ");
+}
+
+function candidateFromCompact(compact){
+  const c=compact.replace(/[^A-Z0-9]/g,"");
+  let m=c.match(/E\d{8,12}/); if(m)return m[0];
+  m=c.match(/[A-Z]\d{8,12}/);
+  if(m && /^[E5FBR]/.test(m[0]))return "E"+m[0].slice(1);
+  const digits=c.match(/\d{9,12}/g)||[];
+  if(digits.length===1)return "E"+digits[0];
+  return null;
+}
+
+function extractDrumCandidates(text){
+  const normalized=normalizeOcrText(text);
+  const candidates=[];
+  for(const line of normalized.split(/\n+/)){
+    const compact=line.replace(/\s/g,"");
+    const c=candidateFromCompact(compact);
+    if(c)candidates.push(c);
+    const spaced=line.match(/[A-Z]?\s*\d(?:[\s\-]*\d){8,12}/g)||[];
+    for(const part of spaced){
+      const x=candidateFromCompact(part);
+      if(x)candidates.push(x);
+    }
+  }
+  const all=normalized.replace(/\s/g,"");
+  const x=candidateFromCompact(all);
+  if(x)candidates.push(x);
+  return [...new Set(candidates)];
+}
+
+async function tryBarcodeNumber(file){
+  try{
+    if(!("BarcodeDetector" in window))return null;
+    const supported=await BarcodeDetector.getSupportedFormats().catch(()=>[]);
+    if(!supported.length)return null;
+    const wanted=["qr_code","data_matrix","code_128","code_39","itf","ean_13","ean_8"]
+      .filter(x=>supported.includes(x));
+    if(!wanted.length)return null;
+    const detector=new BarcodeDetector({formats:wanted});
+    const bitmap=await createImageBitmap(file);
+    const results=await detector.detect(bitmap);
+    bitmap.close?.();
+    for(const r of results||[]){
+      const val=String(r.rawValue||"").toUpperCase().replace(/[^A-Z0-9]/g,"");
+      const c=candidateFromCompact(val);
+      if(c)return c;
+    }
+  }catch(e){
+    console.debug("Barcode-Erkennung nicht verfügbar",e);
+  }
+  return null;
+}
+
+function setOcrStatus(el,type,text,number=""){
+  if(!el)return;
+  el.className="ocr-status "+type;
+  el.innerHTML=number
+    ? `${text}<span class="ocr-number">${number}</span>`
+    : text;
+}
+
+async function runDrumOcr(file,inputId,statusId){
+  const status=$(statusId);
+  if(status){
+    setOcrStatus(status,"working","🔎 Trommelnummer wird automatisch erkannt … 0%");
+    window.__ocrStatus=status;
+  }
+
+  try{
+    // Erst Barcode/QR prüfen – schnell und ohne Tesseract.
+    const barcode=await tryBarcodeNumber(file);
+    if(barcode){
+      $(inputId).value=barcode;
+      if(status)setOcrStatus(status,"success","✓ Nummer automatisch aus Etikett erkannt",barcode);
+      return barcode;
+    }
+
+    if(status)setOcrStatus(status,"working","🔎 Foto wird vorbereitet …");
+    const img=await loadImageFile(file);
+    const variants=makeOcrVariants(img);
+    const worker=await getOcrWorker();
+    const scores=new Map();
+    const total=variants.length;
+    let done=0;
+
+    // Nur 6 gezielte Durchläufe statt hunderter Kombinationen.
+    for(const v of variants){
+      await worker.setParameters({tessedit_pageseg_mode:"6"});
+      const result=await worker.recognize(v.src,{rotateAuto:false});
+      const raw=result?.data?.text||"";
+      const conf=Number(result?.data?.confidence||0);
+
+      for(const c of extractDrumCandidates(raw)){
+        const bonus=c.length===11?3:0;
+        const score=(scores.get(c)||0)+Math.max(1,conf/15)+bonus;
+        scores.set(c,score);
+      }
+
+      done++;
+      if(status){
+        const pct=Math.round(done/total*100);
+        status.textContent=`🔎 Etikett wird geprüft … ${pct}%`;
+      }
+
+      // Safari etwas Luft geben, damit die Seite nicht "einfriert".
+      await new Promise(resolve=>setTimeout(resolve,0));
+    }
+
+    const ranked=[...scores.entries()].sort((a,b)=>b[1]-a[1]);
+    if(ranked.length){
+      const found=ranked[0][0];
+      $(inputId).value=found;
+      if(status)setOcrStatus(status,"success","✓ Trommelnummer erkannt – bitte kurz prüfen",found);
+      return found;
+    }
+
+    if(status){
+      setOcrStatus(status,"error","Nummer nicht eindeutig erkannt – bitte das Etikett näher und möglichst gerade fotografieren.");
+    }
+  }catch(e){
+    console.warn("OCR fehlgeschlagen",e);
+    const detail=e&&e.message?e.message:"unbekannter Fehler";
+    if(status){
+      setOcrStatus(status,"error",`OCR konnte nicht gestartet werden. Bitte Foto erneut aufnehmen. (${detail})`);
+    }
+  }finally{
+    window.__ocrStatus=null;
+  }
+  return null;
+}
+
+function photoChosen(){let f=$("photo").files[0];if(!f)return;$("preview").src=URL.createObjectURL(f);$("preview").style.display="block";$("photoMsg").textContent="Foto aufgenommen. Die Trommelnummer wird automatisch erkannt.";$("ocrRetry").style.display="none";runDrumOcr(f,"drumNo","ocrMsg").then(()=>{if($("ocrMsg").textContent.includes("nicht eindeutig")||$("ocrMsg").textContent.includes("konnte nicht"))$("ocrRetry").style.display="inline-block"})}
+function retryDrumOcr(){const f=$("photo").files[0];if(f){$("ocrRetry").style.display="none";runDrumOcr(f,"drumNo","ocrMsg").then(()=>{if($("ocrMsg").textContent.includes("nicht eindeutig")||$("ocrMsg").textContent.includes("konnte nicht"))$("ocrRetry").style.display="inline-block"})}}
+function returnPhotoChosen(){let f=$("returnPhoto").files[0];if(!f)return;$("returnPreview").src=URL.createObjectURL(f);$("returnPreview").style.display="block";$("returnPhotoMsg").textContent="Foto aufgenommen. Die Trommelnummer wird automatisch erkannt.";runDrumOcr(f,"returnDrum","returnOcrMsg")}
+let toastTimer=null;function notifySaved(title="Material erfolgreich gespeichert",message="Die Bestandsaufnahme wurde gespeichert.",action=""){
+  $("toastTitle").textContent=title;
+  $("toastMessage").textContent=message;
+  $("toastAction").textContent=action;
+  $("toastAction").style.display=action?"block":"none";
+  const t=$("toast"); t.classList.add("show");
+  if(toastTimer) clearTimeout(toastTimer);
+  try{navigator.vibrate?.(35)}catch(e){}
+  toastTimer=setTimeout(()=>t.classList.remove("show"),2600);
+}
+let pendingLowStock=null, lowStockQueue=[];
+function lowStockKey(item, material, type, id=''){return `${item.site||''}|${item.street||''}|${type}|${material}|${id}`.toLowerCase()}
+function latestSavedItemFor(site, street, excludeId=null){
+  return [...history].sort((a,b)=>b.id-a.id).find(x=>Number(x.id)!==Number(excludeId) && (x.site||'').trim().toLowerCase()===(site||'').trim().toLowerCase() && (x.street||'').trim().toLowerCase()===(street||'').trim().toLowerCase());
+}
+function shouldWarnLowStock(item, material, type, currentValue, baselineValue, id=''){
+  const baseline=Number(baselineValue)||0, current=Number(currentValue)||0;
+  const key=lowStockKey(item,material,type,id);
+  const alerts=JSON.parse(localStorage.getItem('mm_lowstock_alerts')||'{}');
+  if(baseline<=0) return false;
+  if(current>baseline/2){ if(alerts[key]){delete alerts[key];localStorage.setItem('mm_lowstock_alerts',JSON.stringify(alerts));} return false; }
+  if(alerts[key]) return false;
+  alerts[key]=true; localStorage.setItem('mm_lowstock_alerts',JSON.stringify(alerts));
+  return true;
+}
+function openLowStockPayload(payload){
+  pendingLowStock=payload;
+  const text=`${payload.material} · nur noch ${Number(payload.currentValue).toLocaleString('de-DE')} ${payload.unit} vorhanden.\n\nDas Material ist fast leer. Soll es auf die Bedarfsliste gesetzt werden?`;
+  $('lowStockText').textContent=text;
+  $('lowStockPrompt').classList.add('show');
+}
+function requestLowStockPrompt(material, type, currentValue, unit, contextItem){
+  const payload={material,type,currentValue,unit,contextItem};
+  if(pendingLowStock || $('lowStockPrompt').classList.contains('show')){lowStockQueue.push(payload);return;}
+  openLowStockPayload(payload);
+}
+function closeLowStockPrompt(addToNeed){
+  const pending=pendingLowStock; pendingLowStock=null; $('lowStockPrompt').classList.remove('show');
+  if(addToNeed && pending){
+    const answer=prompt(`Welche Menge soll für „${pending.material}“ auf die Bedarfsliste?`,'1');
+    if(answer!==null){
+      const qty=Number(answer.replace(',','.'));
+      if(Number.isFinite(qty)&&qty>0){
+        const list=JSON.parse(localStorage.getItem('mm_orders')||'[]');
+        const existing=list.find(o=>o.site===pending.contextItem.site && o.status==='offen' && normalizeOrderItems(o).some(i=>i.material===pending.material));
+        if(existing){
+          const items=normalizeOrderItems(existing); const item=items.find(i=>i.material===pending.material); if(item)item.qty=Math.max(Number(item.qty)||0,qty); existing.items=items; existing.note=existing.note||'Automatisch wegen niedrigem Bestand';
+        }else{
+          list.unshift({id:Date.now(),site:pending.contextItem.site,items:[{material:pending.material,qty}],note:'Automatisch wegen niedrigem Bestand',date:today(),status:'offen'});
+        }
+        localStorage.setItem('mm_orders',JSON.stringify(list));
+        notifySaved('Auf Bedarfsliste gesetzt',`${pending.material} wurde zur Bedarfsliste hinzugefügt.`,'Bedarfsliste öffnen');
+      }else alert('Bitte eine gültige Bedarfsmenge eingeben.');
+    }
+  }
+  const next=lowStockQueue.shift();
+  if(next)setTimeout(()=>openLowStockPayload(next),180);
+}
+function checkLowStockForSavedItem(item){
+  const prev=latestSavedItemFor(item.site,item.street,item.id);
+  (item.drums||[]).forEach(d=>{
+    if(Number(d.total)>0 && Number(d.rest)<=Number(d.total)/2 && shouldWarnLowStock(item,d.material,'drum',d.rest,d.total,d.no)) requestLowStockPrompt(d.material,'drum',d.rest,'m',item);
+  });
+  (item.pieces||[]).forEach(p=>{
+    let baseline=Number(p.baselineQty)||0;
+    if(!baseline && prev){ const old=(prev.pieces||[]).find(x=>x.material===p.material); if(old) baseline=Number(old.baselineQty)||Number(old.qty)||0; }
+    if(!baseline) baseline=Number(p.qty)||0;
+    if(Number(p.qty)<=baseline/2 && shouldWarnLowStock(item,p.material,'piece',p.qty,baseline,p.unit)) requestLowStockPrompt(p.material,'piece',p.qty,p.unit,item);
+  });
+}
+function normalizeDrumNo(value){return String(value||"").trim().toUpperCase().replace(/\s+/g,"");}
+function findDuplicateDrumNo(no){
+  const key=normalizeDrumNo(no);
+  if(!key)return null;
+  const currentMatch=current.drums.find((d,i)=>normalizeDrumNo(d.no)===key && i!==editingDrumIndex);
+  if(currentMatch)return {scope:"aktuellen Bestandsaufnahme",drum:currentMatch};
+  for(const item of history){
+    if(editingHistoryId && item.id===editingHistoryId)continue;
+    const match=(item.drums||[]).find(d=>normalizeDrumNo(d.no)===key);
+    if(match)return {scope:`Aufnahme ${new Date(item.date+"T00:00").toLocaleDateString("de-DE")}`,drum:match,item};
+  }
+  return null;
+}
+function showDuplicateNotice(no){
+  const n=$("duplicateNumber"), o=$("duplicateOverlay");
+  if(n)n.textContent=normalizeDrumNo(no);
+  if(o)o.classList.add("show");
+}
+function closeDuplicateNotice(){const o=$("duplicateOverlay");if(o)o.classList.remove("show");}
+async function saveDrum(){let no=$("drumNo").value.trim(),total=Number($("totalLen").value),rest=Number($("restLen").value);if(!no||!Number.isFinite(total)||!Number.isFinite(rest)||total<=0||rest<0||rest>total){alert("Bitte Trommelnummer sowie gültige Gesamtlänge und Restbestand eingeben.");return}const duplicate=findDuplicateDrumNo(no);if(duplicate){showDuplicateNotice(no);return}let old=editingDrumIndex>=0?current.drums[editingDrumIndex]:null;let photo=old?.photo||"";if($("photo").files[0]){try{photo=await compressImage($("photo").files[0])}catch(e){alert("Das Foto konnte nicht verarbeitet werden.");return}}const data={material:selected,no,total,rest,photo};if(editingDrumIndex>=0)current.drums[editingDrumIndex]=data;else current.drums.push(data);editingDrumIndex=-1;$("photo").value="";show("materials");notifySaved(photo?"Trommel + Foto erfolgreich gespeichert":"Trommel erfolgreich gespeichert","Die Trommel wurde in der aktuellen Bestandsaufnahme gespeichert.");const item={site:$("site").value.trim(),street:$("street").value.trim(),id:editingHistoryId||0};if(data.total>0&&data.rest<=data.total/2&&shouldWarnLowStock(item,data.material,"drum",data.rest,data.total,data.no))requestLowStockPrompt(data.material,"drum",data.rest,"m",item);}
+function savePiece(){let q=+$('pieceQty').value;if(q<0){alert("Ungültige Menge.");return}let p=current.pieces.find(x=>x.material===selected);let baseline=p?Number(p.baselineQty)||Number(p.qty)||0:0;if(editingPieceIndex>=0){const target=current.pieces[editingPieceIndex];baseline=Number(target.baselineQty)||Number(target.qty)||0;target.qty=q;target.baselineQty=baseline;editingPieceIndex=-1}else if(p){p.qty=q;p.baselineQty=baseline||q}else{const previous=latestSavedItemFor($('site').value.trim(),$('street').value.trim());const old=previous?.pieces?.find(x=>x.material===selected);baseline=Number(old?.baselineQty)||Number(old?.qty)||q;current.pieces.push({material:selected,qty:q,unit:pieces.find(x=>x[0]===selected)[1],baselineQty:baseline})}show("materials");notifySaved("Material erfolgreich gespeichert","Das Stückmaterial wurde in der aktuellen Bestandsaufnahme gespeichert.");const item={site:$('site').value.trim(),street:$('street').value.trim(),id:editingHistoryId||0};if(baseline>0&&q<=baseline/2&&shouldWarnLowStock(item,selected,"piece",q,baseline,pieces.find(x=>x[0]===selected)?.[1]||"Stück"))requestLowStockPrompt(selected,"piece",q,pieces.find(x=>x[0]===selected)?.[1]||"Stück",item);}
+function materialOrderIndex(name, list){
+  const n=String(name||"").trim().toLowerCase();
+  const idx=list.findIndex(x=>String(Array.isArray(x)?x[0]:x||"").trim().toLowerCase()===n);
+  return idx<0?999999:idx;
+}
+function sortedCurrentDrums(){
+  return current.drums.map((x,index)=>({x,index})).sort((a,b)=>{
+    const ma=materialOrderIndex(a.x.material,cables), mb=materialOrderIndex(b.x.material,cables);
+    if(ma!==mb)return ma-mb;
+    return a.index-b.index;
+  });
+}
+function sortedCurrentPieces(){
+  return current.pieces.map((x,index)=>({x,index})).sort((a,b)=>{
+    const ma=materialOrderIndex(a.x.material,pieces), mb=materialOrderIndex(b.x.material,pieces);
+    if(ma!==mb)return ma-mb;
+    return a.index-b.index;
+  });
+}
+function renderCurrentEntries(){
+  const d=$("currentDrums"), p=$("currentPieces");
+  const sortedDrums=sortedCurrentDrums(), sortedPieces=sortedCurrentPieces();
+  if(d)d.innerHTML=sortedDrums.length?sortedDrums.map(({x,index})=>`<div class="history-item" style="margin-bottom:10px"><div class="history-item-row"><div>${x.photo?`<img class="photo-thumb" src="${x.photo}" alt="Trommelfoto">`:''}<b>${esc(x.material)}</b><br><span class="muted">Trommel ${esc(x.no)} · ${x.total.toLocaleString("de-DE")} m gesamt · <b>${x.rest.toLocaleString("de-DE")} m Rest</b></span></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="ghost" type="button" onclick="editDrum(${index})">Bearbeiten</button><button class="delete-history" type="button" onclick="deleteCurrentDrum(${index})">Löschen</button></div></div></div>`).join(""): '<div class="empty">Noch keine Trommeln erfasst.</div>';
+  if(p)p.innerHTML=sortedPieces.length?sortedPieces.map(({x,index})=>`<div class="history-item" style="margin-bottom:10px"><div class="history-item-row"><div><b>${esc(x.material)}</b><br><span class="muted">${x.qty.toLocaleString("de-DE")} ${esc(x.unit)}</span></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button class="ghost" type="button" onclick="editPiece(${index})">Bearbeiten</button><button class="delete-history" type="button" onclick="deleteCurrentPiece(${index})">Löschen</button></div></div></div>`).join(""): '<div class="empty">Noch kein Stückmaterial erfasst.</div>';
+}
+function latestProjects(){
+  const latest=new Map();
+  [...history].sort((a,b)=>b.id-a.id).forEach(item=>{
+    const key=(item.site||"").trim().toLowerCase()+"|"+(item.street||"").trim().toLowerCase();
+    if(!latest.has(key)) latest.set(key,item);
+  });
+  return [...latest.values()];
+}
+function projectStats(item){
+  const pieces=(item.pieces||[]).reduce((sum,p)=>sum+(Number(p.qty)||0),0);
+  return {drums:(item.drums||[]).length,pieces:(item.pieces||[]).length,piecesQty:pieces};
+}
+function renderHome(){
+  const sites=$('homeSites'), activity=$('homeActivity'); if(!sites||!activity)return;
+  const items=latestProjects();
+  sites.innerHTML=items.length?items.slice(0,5).map(item=>{
+    const st=projectStats(item); const date=new Date(item.date+"T00:00").toLocaleDateString("de-DE");
+    const status=st.drums||st.pieces?'<span class="status-pill">● Bestand vorhanden</span>':'<span class="status-pill warn">● Noch kein Bestand</span>';
+    return `<div class="workflow-card"><div class="top"><div><b>${esc(item.site)}</b><div class="meta">${esc(item.place||"")} · letzte Aufnahme ${date}</div>${status}</div><div style="text-align:right;font-size:13px;color:#697680">${st.drums} Trommeln<br>${st.pieces} Materialarten</div></div><div class="workflow-actions"><button class="ghost" onclick="openSiteDetail(${item.id})">Bestand ansehen</button><button class="primary" onclick="continueProject(${item.id})">Bearbeiten</button></div></div>`;
+  }).join(''):'<div class="workflow-card"><b>Noch keine Baustelle angelegt.</b><div class="meta">Starte mit der ersten Bestandsaufnahme.</div></div>';
+  activity.innerHTML=history.length?history.slice(0,3).map(item=>{const d=new Date(item.date+"T00:00").toLocaleDateString("de-DE");return `<div class="workflow-card" style="padding:13px 15px"><div class="top"><div><b>${esc(item.site)}</b><div class="meta">Bestandsaufnahme · ${d}</div></div><button class="ghost" onclick="openPdfFor(${item.id})">PDF</button></div></div>`}).join(''):'<div class="workflow-card"><div class="meta">Noch keine Aufnahmen gespeichert.</div></div>';
+}
+function renderSites(){
+  const el=$("siteList"); if(!el)return; const items=latestProjects();
+  if(!items.length){el.innerHTML='<div class="empty" style="margin-top:16px">Noch keine Vorhaben angelegt.</div>';return;}
+  el.innerHTML='<div class="site-overview">'+items.map(item=>{const date=new Date(item.date+"T00:00").toLocaleDateString("de-DE");const st=projectStats(item);return `<div class="site-card"><div class="site-card-main"><div class="site-badge">⌂</div><div><b>${esc(item.site)}</b><div class="muted">${esc(item.place||"")} · ${esc(item.street||"")}<br>Letzte Aufnahme: ${date}</div><div class="site-stock">${st.drums} Trommeln · ${st.pieces} Stückmaterial</div></div></div><div class="site-card-actions"><button class="ghost" type="button" onclick="openSiteDetail(${item.id})">Bestand ansehen</button><button class="primary" type="button" onclick="continueProject(${item.id})">Bestand bearbeiten</button></div></div>`}).join('')+'</div>';
+}
+function openSiteDetail(id){
+  const item=history.find(x=>x.id===id); if(!item)return;
+  const st=projectStats(item); const date=new Date(item.date+"T00:00").toLocaleDateString("de-DE");
+  let html=`<div class="detail-head"><div><h2>${esc(item.site)}</h2><p class="muted">${esc(item.place||"")} · ${esc(item.street||"")} · letzte Aufnahme ${date}</p></div><button class="primary" onclick="continueProject(${item.id})">Bestand bearbeiten</button></div>`;
+  html+=`<div class="stock-summary"><div><span>Trommeln</span><b>${st.drums}</b></div><div><span>Stückmaterial</span><b>${st.pieces}</b></div></div>`;
+  html+='<h3>Materialbestand</h3><div class="stock-list">';
+  if(item.drums.length) item.drums.forEach(d=>html+=`<div class="stock-row"><div><b>${esc(d.material)}</b><div class="muted">Trommel ${esc(d.no)} · ${Number(d.total).toLocaleString("de-DE")} m gesamt</div></div><strong>${Number(d.rest).toLocaleString("de-DE")} m</strong></div>`);
+  if(item.pieces.length) item.pieces.forEach(p=>html+=`<div class="stock-row"><div><b>${esc(p.material)}</b></div><strong>${Number(p.qty).toLocaleString("de-DE")} ${esc(p.unit)}</strong></div>`);
+  if(!item.drums.length&&!item.pieces.length)html+='<div class="empty">Noch kein Material gespeichert.</div>';
+  html+='</div><div class="actions"><button class="primary" onclick="openPdfFor('+item.id+')">📄 PDF erstellen / teilen</button><button class="ghost" onclick="continueProject('+item.id+')">✎ Bestand bearbeiten</button></div>';
+  $('siteDetailContent').innerHTML=html; show('siteDetail');
+}
+
+function renderSummary(){
+  const date=new Date($("invDate").value+"T00:00").toLocaleDateString("de-DE");
+  const meta=`<div class="summary-meta">
+    <div class="summary-meta-item full"><b>Lagerplatz</b><span>${esc($("site").value)}</span></div>
+    <div class="summary-meta-item"><b>Ort</b><span>${esc($("place").value)}</span></div>
+    <div class="summary-meta-item"><b>PLZ</b><span>${esc($("postalCode").value)}</span></div>
+    <div class="summary-meta-item full"><b>Straße und Hausnummer</b><span>${esc($("street").value)}</span></div>
+    <div class="summary-meta-item"><b>Datum</b><span>${date}</span></div>
+    <div class="summary-meta-item"><b>Mitarbeiter</b><span>${esc($("worker").value)}</span></div>
+  </div>`;
+  $("summaryMeta").innerHTML=meta;
+  let h='<h3 class="summary-section-title">Kabel / Trommeln</h3><table><tr><th>Material</th><th>Trommel</th><th>Gesamt</th><th>Rest</th></tr>';
+  if(!current.drums.length)h+='<tr><td colspan="4">Keine Trommeln erfasst.</td></tr>';
+  sortedCurrentDrums().forEach(({x:d})=>{h+=`<tr><td>${esc(d.material)}</td><td>${esc(d.no)}${d.photo?" 📷":""}</td><td>${d.total.toLocaleString("de-DE")} m</td><td><b>${d.rest.toLocaleString("de-DE")} m</b></td></tr>`});
+  h+='</table>';
+  h+='<h3 class="summary-section-title">Stückmaterial</h3><table><tr><th>Material</th><th>Bestand</th></tr>';
+  if(!current.pieces.length)h+='<tr><td colspan="2">Kein Stückmaterial erfasst.</td></tr>';
+  sortedCurrentPieces().forEach(({x:p})=>h+=`<tr><td>${esc(p.material)}</td><td><b>${p.qty} ${esc(p.unit)}</b></td></tr>`);
+  h+='</table>';
+  $("summaryBody").innerHTML=h;
+}
+function esc(v){return String(v??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]))}
+function renderPrintReport(item){
+  const date=new Date(item.date+"T00:00").toLocaleDateString("de-DE");
+  const address=[item.place,item.postalCode,item.street].filter(Boolean).join(" · ");
+  const drums=(item.id===editingHistoryId && current.drums.length ? sortedCurrentDrums().map(({x})=>x) : (item.drums||[])).slice();
+  drums.sort((a,b)=>{const ma=materialOrderIndex(a.material,cables),mb=materialOrderIndex(b.material,cables);return ma-mb;});
+  const pieces=(item.id===editingHistoryId && current.pieces.length ? sortedCurrentPieces().map(({x})=>x) : (item.pieces||[])).slice();
+  pieces.sort((a,b)=>{const ma=materialOrderIndex(a.material,window.mmPieceMaster||pieces),mb=materialOrderIndex(b.material,window.mmPieceMaster||pieces);return ma-mb;});
+  const chunk=(arr,size)=>{const out=[];for(let i=0;i<arr.length;i+=size)out.push(arr.slice(i,i+size));return out;};
+  // Restmeter werden bewusst nur je Trommel ausgewiesen, nicht als zusammengefasster Gesamtwert.
+  const page=(content,extra="")=>`<section class="print-page ${extra}">${content}</section>`;
+  const head=`<div class="print-head"><div class="print-kicker">Dokumentation<br><span>Material-Bestandsaufnahme</span></div></div>`;
+  const meta=`<div class="print-meta"><div><b>Baustelle</b>${esc(item.site)}</div><div class="print-meta-location"><b>Ort / Lagerplatz</b><small>${esc(address)}</small></div><div><b>Datum</b>${date}</div><div><b>Mitarbeiter</b>${esc(item.worker)}</div></div>`;
+  const footer=`<div class="print-footer">TM · SMART MATERIAL LOGISTICS · ${esc(item.site)} · ${date}</div>`;
+  const pages=[];
+  const drumChunks=chunk(drums,12);
+  if(!drumChunks.length) pages.push(page(`${head}<div class="print-title">BESTANDSLISTE</div>${meta}<h2>Kabel / Trommeln</h2><p class="print-muted">Keine Trommeln erfasst.</p>${footer}`));
+  else drumChunks.forEach((arr,idx)=>{
+    const rows=arr.map(d=>`<tr><td>${esc(d.material)}</td><td>${esc(d.no)}</td><td>${Number(d.total).toLocaleString("de-DE")} m</td><td><b>${Number(d.rest).toLocaleString("de-DE")} m</b></td><td>${d.photo?'<span class="photo-mark">Foto</span>':'—'}</td></tr>`).join("");
+    pages.push(page(`${head}<div class="print-title">${idx?'BESTANDSLISTE · FORTSETZUNG':'BESTANDSLISTE'}</div>${idx?'':meta}<h2>Kabel / Trommeln</h2><table class="print-table"><thead><tr><th>Material</th><th>Trommel</th><th>Gesamt</th><th>Rest</th><th>Foto</th></tr></thead><tbody>${rows}</tbody></table>${footer}`));
+  });
+  const pieceChunks=chunk(pieces,18), piecePages=pieceChunks.length?pieceChunks:[[]];
+  piecePages.forEach((arr,idx)=>{
+    const rows=arr.map(p=>`<tr><td>${esc(p.material)}</td><td><b>${Number(p.qty).toLocaleString("de-DE")} ${esc(p.unit)}</b></td></tr>`).join("");
+    pages.push(page(`${head}<div class="print-title">BESTAND &amp; STÜCKMATERIAL${idx?' · FORTSETZUNG':''}</div><h2 class="print-section">Stückmaterial</h2><table class="print-table"><thead><tr><th>Material</th><th>Bestand</th></tr></thead><tbody>${rows||'<tr><td colspan="2">Kein Stückmaterial erfasst.</td></tr>'}</tbody></table>${idx===piecePages.length-1?'<div class="print-complete">✓ Bestandsaufnahme abgeschlossen</div>':''}${footer}`));
+  });
+  const detailItems=[
+    ...drums.map((d,i)=>`<article class="photo-detail"><div class="photo-number">${String(i+1).padStart(2,"0")}</div><div class="photo-info"><h3>${esc(d.material)}</h3><div class="photo-meta">Trommel ${esc(d.no)} · ${Number(d.total).toLocaleString("de-DE")} m gesamt · <b>${Number(d.rest).toLocaleString("de-DE")} m Rest</b></div>${d.photo?`<img src="${d.photo}" class="pdf-detail-photo" alt="Foto ${esc(d.material)}">`:'<div class="photo-placeholder">Kein Foto hinterlegt</div>'}</div></article>`),
+    ...pieces.map((p,i)=>`<article class="piece-detail"><div class="photo-number">${String(i+1).padStart(2,"0")}</div><div><h3>${esc(p.material)}</h3><div class="photo-meta"><b>${Number(p.qty).toLocaleString("de-DE")} ${esc(p.unit)}</b></div></div></article>`)
+  ];
+  const detailChunks=chunk(detailItems,4);
+  detailChunks.forEach((arr,idx)=>pages.push(page(`${head}<div class="print-title">BESTANDSDETAILS${idx?' · FORTSETZUNG':''}</div>${idx===0?'<h2>Detailübersicht · Trommeln &amp; Stückmaterial</h2>':''}${arr.join('')}${footer}`,'print-detail-page')));
+  $("printReport").innerHTML=pages.join("");
+}
+function rebuildDrumStore(){drums=history.flatMap(x=>(x.drums||[]).map(d=>({...d,site:x.site,date:x.date})));localStorage.setItem("mm_drums",JSON.stringify(drums));}
+function completeInventory(){
+  let site=$("site").value.trim(),place=$("place").value.trim(),postalCode=$("postalCode").value.trim(),street=$("street").value.trim(),worker=$("worker").value.trim();
+  if(!site||!place||!postalCode||!street||!worker){alert("Bitte Baustelle, Ort, PLZ, Straße und Hausnummer sowie Mitarbeiter ausfüllen.");return}
+  let item={id:editingHistoryId||Date.now(),site,warehouse:"Lagerplatz",place,postalCode,street,date:$("invDate").value||today(),worker,drums:JSON.parse(JSON.stringify(current.drums)),pieces:JSON.parse(JSON.stringify(current.pieces))};
+  const existingIndex=history.findIndex(x=>x.id===item.id);
+  if(existingIndex>=0) history[existingIndex]=item; else history.unshift(item);
+  localStorage.setItem("mm_history",JSON.stringify(history)); rebuildDrumStore(); checkLowStockForSavedItem(item);
+  renderPrintReport(item);
+  localStorage.setItem("mm_last_documentation_id",String(item.id));
+  localStorage.setItem("mm_last_documentation_message","Material erfolgreich gespeichert und als PDF bereit.");
+  const inline=$("summarySaveConfirm"), actions=$("summaryActions"), btn=$("confirmSaveBtn");
+  if(inline) inline.classList.add("show");
+  if(actions) actions.classList.add("is-saved");
+  if(btn){btn.textContent="✓ Gespeichert";btn.disabled=true;}
+  notifySaved("Material erfolgreich gespeichert","Die Bestandsaufnahme wurde gespeichert.","PDF kann jetzt erstellt werden");
+  setTimeout(()=>show("documentation"),2650);
+}
+function printPdfInSeparateWindow(){
+  const report=$('printReport');
+  if(!report)return;
+  const printWin=window.open('', '_blank');
+  if(!printWin){
+    setTimeout(()=>window.print(),50);
+    return;
+  }
+  const styles=[...document.querySelectorAll('style')].map(s=>s.textContent).join('\n');
+  printWin.document.open();
+  printWin.document.write(`<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>THADEN MATERIAL · PDF</title><style>${styles}
+/* V85: Materialbestellung auf der Startseite kompakter */
+@media(max-width:650px){
+  .process-card:nth-child(3) b{font-size:15.5px;line-height:1.12;max-width:calc(100% - 42px);white-space:normal;}
+  .process-card:nth-child(3) small{font-size:11.5px;max-width:calc(100% - 42px);}
+}
+</style>
+<style id="v91-material-style">
+/* V91 – Material erweitern: dunkler THADEN-MATERIAL Block */
+.add-material-box{
+  background:#2b333b !important;
+  border:1px solid #3c4650 !important;
+  color:#fff !important;
+  box-shadow:0 6px 18px rgba(16,32,48,.10);
+}
+.add-material-box h3{
+  color:#fff !important;
+  font-size:18px !important;
+  font-weight:800 !important;
+  letter-spacing:0 !important;
+}
+.add-material-box > .muted{
+  color:#d6dce1 !important;
+  font-size:13px !important;
+  font-weight:500 !important;
+}
+.add-material-box label{
+  color:#fff !important;
+  font-size:14px !important;
+  font-weight:750 !important;
+}
+.add-material-box input,
+.add-material-box .material-select{
+  background:#fff !important;
+  color:#16202a !important;
+  border-color:#d7dce2 !important;
+}
+.add-material-box .green{
+  background:var(--orange) !important;
+  color:#fff !important;
+}
+.material-manage-dropdown{
+  border-top:0 !important;
+  padding-top:12px !important;
+}
+.material-manage-dropdown summary{
+  background:#252d35 !important;
+  border:1px solid #3d4852 !important;
+  color:#fff !important;
+  font-size:16px !important;
+  font-weight:750 !important;
+  min-height:48px;
+  box-sizing:border-box;
+}
+.material-manage-chevron{color:#fff !important}
+.material-manage-inner{
+  color:#fff;
+}
+.material-manage-inner > .muted{
+  color:#d6dce1 !important;
+}
+.material-manage-row{
+  background:#343d46 !important;
+  border-color:#4a5661 !important;
+  color:#fff !important;
+}
+.material-manage-name{color:#fff !important}
+.material-manage-name small{color:#c4cbd1 !important}
+.material-remove{
+  background:#fff !important;
+}
+</style>
+</head><body class="pdf-print-window">${report.innerHTML}<script>window.addEventListener('load',()=>{const imgs=[...document.images];Promise.all(imgs.map(img=>img.complete?Promise.resolve():new Promise(r=>{img.onload=img.onerror=r;}))).then(()=>setTimeout(()=>window.print(),180));});<\/script></body></html>`);
+  printWin.document.close();
+}
+function openPdfFor(id){
+  const item=history.find(x=>x.id===id); if(!item)return;
+  renderPrintReport(item);
+  printPdfInSeparateWindow();
+}
+function deleteDocumentation(id){
+  const item=history.find(x=>x.id===id); if(!item)return;
+  const date=new Date(item.date+"T00:00").toLocaleDateString("de-DE");
+  if(!confirm(`Bestandsdokumentation für ${item.site} vom ${date} wirklich löschen?\n\nDie gespeicherte Bestandsaufnahme wird aus der Dokumentation und Historie entfernt.`))return;
+  history=history.filter(x=>x.id!==id);
+  localStorage.setItem("mm_history",JSON.stringify(history));
+  if(Number(localStorage.getItem("mm_last_documentation_id"))===Number(id)){
+    localStorage.removeItem("mm_last_documentation_id");
+    localStorage.removeItem("mm_last_documentation_message");
+  }
+  rebuildDrumStore();
+  renderDocumentation();
+  renderHistory();
+  renderHome();
+  renderSites();
+  updateStats();
+  notifySaved('Dokumentation gelöscht','Die Bestandsaufnahme wurde aus der Dokumentation entfernt.','Gelöscht');
+}
+function renderDocumentation(){
+  const el=$("documentationList"); if(!el)return;
+  const items=latestProjects();
+  if(!items.length){el.innerHTML='<div class="empty">Noch keine Bestandslisten gespeichert.</div>';return;}
+  el.innerHTML=items.map(item=>{
+    const st=projectStats(item);
+    const date=new Date(item.date+"T00:00").toLocaleDateString("de-DE");
+    return `<div class="workflow-card"><div class="top"><div><b>${esc(item.site)}</b><div class="meta">${esc(item.place||"")} · ${date} · ${st.drums} Trommeln · ${st.pieces} Materialarten</div><span class="status-pill">● gespeichert</span></div></div><div class="workflow-actions" style="grid-template-columns:1fr 1fr 1fr"><button class="primary" type="button" onclick="openPdfFor(${item.id})">📄 PDF erstellen</button><button class="ghost" type="button" onclick="shareDocument(${item.id})">📤 Teilen</button><button class="danger" type="button" onclick="deleteDocumentation(${item.id})">🗑 Löschen</button></div></div>`;
+  }).join("");
+}
+async function shareDocument(id){
+  const item=history.find(x=>x.id===id); if(!item)return;
+  const text=`Material-Bestandsaufnahme\nBaustelle: ${item.site}\nDatum: ${new Date(item.date+"T00:00").toLocaleDateString("de-DE")}\nMitarbeiter: ${item.worker}\nTrommeln: ${(item.drums||[]).length}\nStückmaterialien: ${(item.pieces||[]).length}`;
+  if(navigator.share){try{await navigator.share({title:"THADEN MATERIAL · Bestandsliste",text})}catch(e){}}
+  else alert(text);
+}
+function siteOptions(){
+  return latestProjects().map(x=>`<option value="${esc(x.site)}">${esc(x.site)}</option>`).join("");
+}
+function orderMaterialOptions(selected=''){
+  const all=[...cableMaterials,...pieceMaterials];
+  return all.map(x=>`<option value="${esc(x)}" ${x===selected.trim()?'selected':''}>${esc(x)}</option>`).join('');
+}
+function addOrderItem(material='', qty=''){
+  const wrap=$('orderItems'); if(!wrap)return;
+  const index=wrap.children.length+1;
+  const row=document.createElement('div'); row.className='order-item';
+  row.innerHTML=`<div class="order-item-head"><span class="order-item-number">Position ${index}</span>${index>1?`<button class="danger remove-order-item" type="button" onclick="this.closest('.order-item').remove();renumberOrderItems()">🗑 Entfernen</button>`:''}</div><div class="order-item-grid"><div><label>Material</label><select class="order-material">${orderMaterialOptions(material)}</select></div><div><label>Menge</label><input class="order-qty" type="number" min="1" step="1" value="${qty?esc(qty):''}" placeholder="z. B. 20"></div></div>`;
+  wrap.appendChild(row);
+}
+function renumberOrderItems(){
+  const rows=document.querySelectorAll('#orderItems .order-item');
+  rows.forEach((row,i)=>{
+    const n=row.querySelector('.order-item-number'); if(n)n.textContent=`Position ${i+1}`;
+    const remove=row.querySelector('.remove-order-item'); if(remove)remove.style.display=i===0&&rows.length===1?'none':'';
+  });
+}
+function renderOrderForm(){
+  const ss=$('orderSite'), wrap=$('orderItems'); if(!ss||!wrap)return;
+  ss.innerHTML=siteOptions()||'<option value="">Bitte zuerst eine Baustelle anlegen</option>';
+  wrap.innerHTML=''; addOrderItem(); renumberOrderItems(); renderOrders();
+}
+function getOrderItemsFromForm(){
+  const rows=[...document.querySelectorAll('#orderItems .order-item')];
+  const combined=new Map();
+  for(const row of rows){
+    const material=row.querySelector('.order-material')?.value||'';
+    const qty=Number(row.querySelector('.order-qty')?.value||0);
+    if(material&&qty>0) combined.set(material,(combined.get(material)||0)+qty);
+  }
+  return [...combined.entries()].map(([material,qty])=>({material,qty}));
+}
+function normalizeOrderItems(order){
+  if(Array.isArray(order.items)&&order.items.length)return order.items.map(x=>({material:x.material,qty:Number(x.qty)||0}));
+  if(order.material)return [{material:order.material,qty:Number(order.qty)||0}];
+  return [];
+}
+function saveMaterialOrder(){
+  const site=$('orderSite').value, note=$('orderNote').value.trim(), items=getOrderItemsFromForm(), date=today();
+  if(!site||!items.length){alert('Bitte Lagerplatz sowie mindestens ein Material mit Menge ausfüllen.');return}
+  const list=JSON.parse(localStorage.getItem('mm_orders')||'[]');
+  // Gleicher Lagerplatz + gleicher Tag = eine gemeinsame Tagesbestellung.
+  const existing=list.find(x=>x.site===site && x.date===date && x.status!=='erledigt');
+  let order;
+  if(existing){
+    const merged=new Map(normalizeOrderItems(existing).map(x=>[x.material,Number(x.qty)||0]));
+    items.forEach(x=>merged.set(x.material,(merged.get(x.material)||0)+Number(x.qty)||0));
+    existing.items=[...merged.entries()].map(([material,qty])=>({material,qty}));
+    if(note){
+      const notes=String(existing.note||'').split(' · ').map(x=>x.trim()).filter(Boolean);
+      if(!notes.includes(note)) notes.push(note);
+      existing.note=notes.join(' · ');
+    }
+    order=existing;
+  }else{
+    order={id:Date.now(),site,items,note,date,status:'offen'};
+    list.unshift(order);
+  }
+  localStorage.setItem('mm_orders',JSON.stringify(list));
+  $('orderNote').value=''; $('orderItems').innerHTML=''; addOrderItem(); renumberOrderItems();
+  renderOrderPrintReport(order);
+  $('orderNotice').innerHTML=`<div class="notice-success">✓ Tages-Sammelbestellung gespeichert und für das Lager bereit.<div class="notice-actions"><button class="primary" type="button" onclick="printGroupedOrderPdf(${JSON.stringify(site)},${JSON.stringify(date)})">📄 Tages-Sammel-PDF erstellen</button><button class="ghost" type="button" onclick="shareGroupedOrder(${JSON.stringify(site)},${JSON.stringify(date)})">📤 PDF-Versand vorbereiten</button></div></div>`;
+  renderOrders(); notifySaved('Materialbestellung gespeichert','Die Positionen für diesen Lagerplatz werden für heute gesammelt.','Eine gemeinsame PDF kann jetzt erstellt werden');
+}
+function renderOrderPrintReport(order){
+  const date=new Date(order.date+'T00:00').toLocaleDateString('de-DE');
+  const items=normalizeOrderItems(order);
+  const footer=`<div class="print-footer">TM · SMART MATERIAL LOGISTICS · Materialbestellung · ${date}</div>`;
+  const page=(content)=>`<section class="print-page order-print-page">${content}</section>`;
+  const head=`<div class="print-head"><img src="./thaden-logo-pdf.png" alt="THADEN MATERIAL"><div class="print-kicker">Dokumentation<br><span>Materialbestellung</span></div></div>`;
+  const meta=`<div class="print-meta order-meta"><div><b>Lagerplatz</b>${esc(order.site)}</div><div><b>Datum</b>${date}</div><div><b>Positionen</b>${items.length}</div></div>`;
+  const rows=items.map(x=>`<tr><td>${esc(x.material)}</td><td><b>${Number(x.qty).toLocaleString('de-DE')}</b></td></tr>`).join('');
+  const body=`<h2>Materialbestellung</h2><table class="print-table"><thead><tr><th>Material</th><th>Menge</th></tr></thead><tbody>${rows}</tbody></table>${order.note?`<h2 class="print-section">Bemerkung</h2><div class="print-note">${esc(order.note)}</div>`:''}<div class="print-complete order-open">✓ Tages-Sammelbestellung bereit für das Lager</div>${footer}`;
+  $('printReport').innerHTML=page(`${head}<div class="print-title">MATERIALBESTELLUNG</div>${meta}${body}`);
+}
+function getGroupedOrders(site,date=''){
+  const list=JSON.parse(localStorage.getItem('mm_orders')||'[]');
+  return list.filter(x=>x.site===site && (!date || x.date===date));
+}
+function groupedOrderItems(orders){
+  const map=new Map();
+  orders.forEach(order=>normalizeOrderItems(order).forEach(item=>{
+    const key=item.material;
+    map.set(key,(map.get(key)||0)+Number(item.qty||0));
+  }));
+  return [...map.entries()].map(([material,qty])=>({material,qty}));
+}
+function renderGroupedOrderPrintReport(site, orders, date=''){
+  const items=groupedOrderItems(orders);
+  const dates=orders.map(x=>x.date).filter(Boolean).sort();
+  const printDate=date || (dates.length?dates[dates.length-1]:today());
+  const dateLabel=new Date(printDate+'T00:00').toLocaleDateString('de-DE');
+  const head=`<div class="print-head"><img src="./thaden-logo-pdf.png" alt="THADEN MATERIAL"><div class="print-kicker">Dokumentation<br><span>Materialbestellung</span></div></div>`;
+  const footer=`<div class="print-footer">TM · SMART MATERIAL LOGISTICS · Materialbestellung · ${dateLabel}</div>`;
+  const meta=`<div class="print-meta order-meta"><div><b>Lagerplatz</b>${esc(site)}</div><div><b>Datum</b>${dateLabel}</div><div><b>Positionen</b>${items.length}</div></div>`;
+  const rows=items.map(x=>`<tr><td>${esc(x.material)}</td><td><b>${Number(x.qty).toLocaleString('de-DE')}</b></td></tr>`).join('');
+  const notes=[...new Set(orders.map(x=>String(x.note||'').trim()).filter(Boolean))];
+  const body=`<h2>Materialbestellung</h2><table class="print-table"><thead><tr><th>Material</th><th>Menge</th></tr></thead><tbody>${rows}</tbody></table>${notes.length?`<h2 class="print-section">Bemerkungen</h2><div class="print-note">${notes.map(esc).join('<br>')}</div>`:''}<div class="print-complete order-open">✓ Tages-Sammelbestellung bereit für das Lager</div>${footer}`;
+  $('printReport').innerHTML=`<section class="print-page order-print-page">${head}<div class="print-title">MATERIALBESTELLUNG</div>${meta}${body}</section>`;
+}
+function printOrderPdf(id){
+  const list=JSON.parse(localStorage.getItem('mm_orders')||'[]'); const order=list.find(x=>x.id===id); if(!order)return;
+  const orders=getGroupedOrders(order.site,order.date); renderGroupedOrderPrintReport(order.site,orders,order.date); printPdfInSeparateWindow();
+}
+function printGroupedOrderPdf(site,date=''){
+  const orders=getGroupedOrders(site,date); if(!orders.length)return;
+  renderGroupedOrderPrintReport(site,orders,date); printPdfInSeparateWindow();
+}
+async function shareOrder(id){
+  const list=JSON.parse(localStorage.getItem('mm_orders')||'[]'); const order=list.find(x=>x.id===id); if(!order)return;
+  return shareGroupedOrder(order.site,order.date);
+}
+async function shareGroupedOrder(site,date=''){
+  const orders=getGroupedOrders(site,date); if(!orders.length)return;
+  const items=groupedOrderItems(orders);
+  const dateValue=date || orders.map(x=>x.date).sort().slice(-1)[0] || today();
+  // Auf iPhone/iPad wird zunächst die gemeinsame PDF-Druckansicht geöffnet.
+  // Von dort kann die PDF über das iOS-Teilen-Symbol verschickt werden.
+  renderGroupedOrderPrintReport(site,orders,dateValue);
+  printPdfInSeparateWindow();
+  setTimeout(()=>{
+    if(confirm(`Die Sammel-PDF für ${site} · ${new Date(dateValue+'T00:00').toLocaleDateString('de-DE')} wurde zur Erstellung geöffnet.\n\nWenn du sie über das Teilen-Symbol verschickt hast, sollen die Bestellungen von dieser Seite entfernt werden?`)){
+      markOrderGroupDone(site,dateValue,false);
+    }
+  },900);
+}
+function markOrderGroupDone(site,date='',ask=true){
+  const list=JSON.parse(localStorage.getItem('mm_orders')||'[]');
+  const count=list.filter(x=>x.site===site && (!date || x.date===date)).length; if(!count)return;
+  if(ask && !confirm(`Tages-Sammelbestellung für ${site} wurde versendet?\n\n${count} offene Meldung${count===1?'':'en'} werden anschließend entfernt.`))return;
+  localStorage.setItem('mm_orders',JSON.stringify(list.filter(x=>!(x.site===site && (!date || x.date===date)))));
+  renderOrders(); renderOrderForm();
+  notifySaved('Sammelbestellung erledigt',`${site} · ${date?new Date(date+'T00:00').toLocaleDateString('de-DE'):'alle offenen Bestellungen'} wurde aus den offenen Materialbestellungen entfernt.`,'Für diesen Lagerplatz und Tag ist nichts mehr offen');
+}
+function deleteMaterialOrder(id){
+  const list=JSON.parse(localStorage.getItem('mm_orders')||'[]'); const order=list.find(x=>x.id===id); if(!order)return;
+  const items=normalizeOrderItems(order); const detail=items.map(x=>`${x.material} · ${Number(x.qty).toLocaleString('de-DE')}`).join('\n');
+  if(!confirm(`Materialbestellung für ${order.site} · ${new Date(order.date+'T00:00').toLocaleDateString('de-DE')}\n${detail}\n\nWird diese Bestellung nicht mehr benötigt und wirklich gelöscht?`))return;
+  localStorage.setItem('mm_orders',JSON.stringify(list.filter(x=>x.id!==id))); renderOrders(); renderOrderForm();
+  notifySaved('Materialbestellung gelöscht','Die Bestellung wurde aus den offenen Meldungen entfernt.','Nicht mehr erforderlich');
+}
+function renderOrders(){
+  const el=$('ordersList'); if(!el)return;
+  const list=JSON.parse(localStorage.getItem('mm_orders')||'[]');
+  const groups=new Map();
+  list.forEach(order=>{ const key=`${order.site}||${order.date||''}`; if(!groups.has(key))groups.set(key,[]); groups.get(key).push(order); });
+  if(!groups.size){el.innerHTML='<div class="empty">Keine offenen Materialbestellungen.<br><small>Bestellungen werden je Lagerplatz und Tag zu einer Sammelbestellung zusammengefasst.</small></div>';return;}
+  el.innerHTML=[...groups.entries()].map(([key,orders])=>{
+    const site=orders[0].site, date=orders[0].date||today();
+    const items=groupedOrderItems(orders);
+    const latest=date;
+    const notes=[...new Set(orders.map(x=>String(x.note||'').trim()).filter(Boolean))];
+    return `<div class="workflow-card"><div class="top"><div><b>${esc(site)}</b><div class="meta">Tages-Sammelbestellung · ${new Date(latest+"T00:00").toLocaleDateString('de-DE')} · ${items.length} ${items.length===1?'Materialposition':'Materialpositionen'}</div><div class="order-list-items">${items.map(it=>`<div class="order-list-line"><span>${esc(it.material)}</span><b>${Number(it.qty).toLocaleString('de-DE')}</b></div>`).join('')}</div>${notes.length?`<div class="meta">${notes.map(esc).join(' · ')}</div>`:''}</div><span class="status-pill">● offen</span></div><div class="workflow-actions" style="grid-template-columns:1fr 1fr 1fr"><button class="primary" type="button" onclick='printGroupedOrderPdf(${JSON.stringify(site)},${JSON.stringify(date)})'>📄 Sammel-PDF</button><button class="ghost" type="button" onclick='shareGroupedOrder(${JSON.stringify(site)},${JSON.stringify(date)})'>📤 PDF erstellen & versenden</button><button class="danger" type="button" onclick='markOrderGroupDone(${JSON.stringify(site)},${JSON.stringify(date)},true)'>🗑 Erledigt / entfernen</button></div></div>`;
+  }).join('');
+}
+
+let pendingReturnDrums=[];
+
+function renderReturnForm(){
+  const ss=$('returnSite'), ms=$('returnMaterial'); if(!ss||!ms)return;
+  ss.innerHTML=siteOptions()||'<option value="">Bitte zuerst eine Baustelle anlegen</option>';
+  ms.innerHTML=cableMaterials.map(x=>`<option>${esc(x)}</option>`).join('');
+  pendingReturnDrums=[];
+  clearReturnFields();
+  renderPendingReturns();
+  renderReturns();
+}
+function clearReturnFields(){
+  if($('returnDrum')) $('returnDrum').value='';
+  if($('returnPhoto')) $('returnPhoto').value='';
+  if($('returnPreview')) { $('returnPreview').style.display='none'; $('returnPreview').removeAttribute('src'); }
+  if($('returnPhotoMsg')) $('returnPhotoMsg').textContent=''; if($('returnOcrMsg')) $('returnOcrMsg').textContent=''; if($('returnOcrRetry')) $('returnOcrRetry').style.display='none';
+}
+function renderPendingReturns(){
+  const el=$('returnBatchList'); if(!el)return;
+  el.innerHTML=pendingReturnDrums.length?`<div class="history-item" style="margin-top:14px"><b>Für diese Rücklieferung vorgemerkt: ${pendingReturnDrums.length} Trommel${pendingReturnDrums.length===1?'':'n'}</b>${pendingReturnDrums.map((x,i)=>`<div class="history-item-row" style="margin-top:9px"><div>${x.photo?`<img class="photo-thumb" src="${x.photo}" alt="Foto der leeren Trommel">`:''}<b>${esc(x.material)}</b><br><span class="muted">${esc(x.site)} · Trommel ${esc(x.no)}</span></div><button class="delete-history" type="button" onclick="removePendingReturn(${i})">Löschen</button></div>`).join('')}</div>`:'';
+}
+function returnPhotoChosen(){
+  const f=$('returnPhoto').files[0]; if(!f)return;
+  $('returnPreview').src=URL.createObjectURL(f); $('returnPreview').style.display='block'; $('returnPhotoMsg').textContent='Foto aufgenommen. Die Trommelnummer wird automatisch erkannt.';
+  if($('returnOcrRetry'))$('returnOcrRetry').style.display='none';
+  runDrumOcr(f,'returnDrum','returnOcrMsg').then(()=>{if($('returnOcrMsg').textContent.includes('nicht eindeutig')||$('returnOcrMsg').textContent.includes('konnte nicht'))$('returnOcrRetry').style.display='inline-block'});
+}
+function retryReturnOcr(){const f=$('returnPhoto').files[0];if(f){$('returnOcrRetry').style.display='none';runDrumOcr(f,'returnDrum','returnOcrMsg').then(()=>{if($('returnOcrMsg').textContent.includes('nicht eindeutig')||$('returnOcrMsg').textContent.includes('konnte nicht'))$('returnOcrRetry').style.display='inline-block'})}}
+async function addReturnDrum(){
+  const site=$('returnSite').value, material=$('returnMaterial').value, no=$('returnDrum').value.trim();
+  if(!site||!material||!no){alert('Bitte Baustelle, Material und Trommelnummer ausfüllen.');return}
+  let photo=''; if($('returnPhoto').files[0]){try{photo=await compressImage($('returnPhoto').files[0])}catch(e){alert('Das Foto konnte nicht verarbeitet werden.');return}}
+  pendingReturnDrums.push({site,material,no,photo});
+  clearReturnFields(); renderPendingReturns();
+  notifySaved('Trommel zur Rücklieferung hinzugefügt',`${pendingReturnDrums.length}. Trommel ist für die gemeinsame Meldung vorgemerkt.`);
+}
+function removePendingReturn(index){ pendingReturnDrums.splice(index,1); renderPendingReturns(); }
+async function saveReturnBatch(){
+  if(!pendingReturnDrums.length){
+    // Wenn nur eine Trommel erfasst wurde, direkt aus den Eingabefeldern übernehmen.
+    const site=$('returnSite').value, material=$('returnMaterial').value, no=$('returnDrum').value.trim();
+    if(site&&material&&no) await addReturnDrum();
+  }
+  if(!pendingReturnDrums.length){alert('Bitte mindestens eine leere Trommel erfassen.');return}
+  const date=today(), list=JSON.parse(localStorage.getItem('mm_returns')||'[]');
+  pendingReturnDrums.forEach(x=>list.unshift({id:Date.now()+Math.random(),site:x.site,material:x.material,no:x.no,photo:x.photo,date,status:'offen'}));
+  localStorage.setItem('mm_returns',JSON.stringify(list));
+  const count=pendingReturnDrums.length;
+  pendingReturnDrums=[]; clearReturnFields(); renderPendingReturns(); renderReturns();
+  const latest=list.slice(0,count);
+  $('returnNotice').innerHTML=`<div class="notice-success">✓ ${count} Rücklieferung${count===1?'':'en'} gespeichert und für das Lager bereit.<div class="notice-actions"><button class="primary" type="button" onclick="shareReturnList()">📄 Rücklieferliste als PDF erstellen</button><button class="ghost" type="button" onclick="shareReturnList()">📤 Rücklieferliste teilen</button></div></div>`;
+  notifySaved(`${count} leere Trommel${count===1?'':'n'} erfolgreich gespeichert`,`Die Rücklieferung wurde gemeinsam gespeichert.`,`PDF kann jetzt erstellt werden`);
+}
+function renderReturns(){
+  const el=$('returnsList'); if(!el)return; const list=JSON.parse(localStorage.getItem('mm_returns')||'[]');
+  el.innerHTML=list.length?list.map(x=>`<div class="workflow-card"><div class="top"><div>${x.photo?`<img class="photo-thumb" src="${x.photo}" alt="Foto der leeren Trommel">`:''}<b>${esc(x.site)}</b><div class="meta">${esc(x.material)} · Trommel ${esc(x.no)}${x.photo?' · Foto vorhanden':''}</div></div><span class="status-pill">● offen</span></div><div class="workflow-actions" style="grid-template-columns:1fr 1fr"><button class="primary" type="button" onclick="printReturnPdf(${x.id})">📄 PDF erstellen</button><button class="danger" type="button" onclick="deleteReturn(${x.id})">🗑 Löschen</button></div></div>`).join(''):'<div class="empty">Keine Trommeln zur Rücklieferung gemeldet.</div>';
+}
+function renderReturnPrintReport(list){
+  const date=new Date().toLocaleDateString('de-DE');
+  const head=`<div class="print-head"><img src="./thaden-logo-pdf.png" alt="THADEN MATERIAL"><div class="print-kicker">Dokumentation<br><span>Rücklieferliste · Leere Trommeln</span></div></div>`;
+  const footer=`<div class="print-footer">TM · SMART MATERIAL LOGISTICS · Rücklieferliste · ${date}</div>`;
+  const pages=[];
+  const groups={}; list.forEach(x=>(groups[x.site]||(groups[x.site]=[])).push(x));
+  Object.entries(groups).forEach(([site,items])=>{
+    const rows=items.map(x=>`<tr><td>${esc(x.material)}</td><td>${esc(x.no)}</td><td>${x.photo?'<span class="photo-mark">Foto</span>':'—'}</td><td>Offen</td></tr>`).join('');
+    pages.push(`<section class="print-page return-print-page">${head}<div class="print-title">RÜCKLIEFERLISTE</div><div class="print-meta"><div><b>Baustelle</b>${esc(site)}</div><div><b>Datum</b>${date}</div><div><b>Positionen</b>${items.length}</div></div><h2>Leere Trommeln</h2><table class="print-table"><thead><tr><th>Material</th><th>Trommel</th><th>Foto</th><th>Status</th></tr></thead><tbody>${rows}</tbody></table>${footer}</section>`);
+  });
+  const detailItems=list.filter(x=>x.photo).map((x,i)=>`<article class="photo-detail"><div class="photo-number">${String(i+1).padStart(2,'0')}</div><div class="photo-info"><h3>${esc(x.site)} · ${esc(x.material)}</h3><div class="photo-meta">Trommel ${esc(x.no)} · Rücklieferung offen</div><img src="${x.photo}" class="pdf-detail-photo" alt="Foto der leeren Trommel"></div></article>`);
+  for(let i=0;i<detailItems.length;i+=4){pages.push(`<section class="print-page print-detail-page">${head}<div class="print-title">RÜCKLIEFERDETAILS${i?' · FORTSETZUNG':''}</div><h2>Fotos der leeren Trommeln</h2>${detailItems.slice(i,i+4).join('')}${footer}</section>`)}
+  $('printReport').innerHTML=pages.join('');
+}
+function printReturnPdf(id){
+  const list=JSON.parse(localStorage.getItem('mm_returns')||'[]'); const item=list.find(x=>x.id==id); if(!item)return;
+  renderReturnPrintReport([item]); printPdfInSeparateWindow();
+}
+function shareReturnList(){
+  const list=JSON.parse(localStorage.getItem('mm_returns')||'[]'); if(!list.length){alert('Noch keine leeren Trommeln gemeldet.');return}
+  renderReturnPrintReport(list); printPdfInSeparateWindow();
+}
+function deleteReturn(id){
+  const list=JSON.parse(localStorage.getItem('mm_returns')||'[]'); const item=list.find(x=>x.id==id); if(!item)return;
+  if(!confirm(`Rücklieferung für ${item.site} · ${item.material} · Trommel ${item.no} wirklich löschen?`))return;
+  localStorage.setItem('mm_returns',JSON.stringify(list.filter(x=>x.id!=id))); renderReturns();
+  notifySaved('Rücklieferung gelöscht','Die Trommel wurde aus der Rücklieferliste entfernt.','Nicht mehr erforderlich');
+}
+
+function renderHistory(){let h=history.map((x,i)=>`<div class="history-item"><div class="history-item-row"><div><b>${esc(x.site)}</b> <span class="badge">${new Date(x.date+"T00:00").toLocaleDateString("de-DE")}</span><br><span class="muted">${esc(x.worker)} · ${esc(x.place||"")} · ${x.drums.length} Trommeln · ${x.pieces.length} Stückmaterialien</span></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="primary" onclick="continueProject(${x.id})">Fortsetzen</button><button type="button" class="delete-history" onclick="deleteHistory(${i})">Löschen</button></div></div></div>`).join("");$("historyList").innerHTML=h||'<div class="empty">Noch keine Aufnahmen gespeichert.</div>'}
+
+function deleteHistory(index){const item=history[index];if(!item)return;const date=new Date(item.date+"T00:00").toLocaleDateString("de-DE");if(!confirm(`Aufnahme von ${item.site} vom ${date} wirklich löschen?`))return;history.splice(index,1);localStorage.setItem("mm_history",JSON.stringify(history));rebuildDrumStore();renderHistory();renderHome();updateStats()}
+function renderDrums(){let h=drums.map((d,i)=>`<div class="history-item"><b>${d.material}</b><br>Trommel: <b>${d.no}</b> · Rest: <b>${d.rest.toLocaleString("de-DE")} m</b><br><span class="muted">Gesamtlänge: ${d.total.toLocaleString("de-DE")} m ${d.photo?"· Foto vorhanden":""}</span></div>`).join("");$("drumList").innerHTML=h||'<div class="empty">Noch keine Trommeln gespeichert.</div>'}
+function printLastDocument(){
+  const id=Number(localStorage.getItem("mm_last_documentation_id"));
+  if(id) openPdfFor(id); else alert("Noch keine gespeicherte Bestandsaufnahme vorhanden.");
+}
+async function shareText(){let text="Materialbestandsaufnahme – "+$("site").value+" – Lagerplatz: "+$("place").value+", "+$("postalCode").value+" "+$("street").value+" – "+$("invDate").value;if(navigator.share){try{await navigator.share({title:"Materialbestandsaufnahme",text})}catch(e){}}else alert(text+"\n\nAuf diesem Gerät ist kein Teilen-Menü verfügbar.")}
+function refreshMaterialPickers(){
+  const cs=$("cableSelect"), ps=$("pieceSelect");
+  if(cs){ const old=cs.value; cs.innerHTML='<option value="">Material auswählen …</option>'+cables.map((n,i)=>`<option value="${i}">${esc(n)}</option>`).join(''); if([...cs.options].some(o=>o.value===old))cs.value=old; }
+  if(ps){ const old=ps.value; ps.innerHTML='<option value="">Material auswählen …</option>'+pieces.map(([n,u],i)=>`<option value="${i}">${esc(n)} · ${esc(u)}</option>`).join(''); if([...ps.options].some(o=>o.value===old))ps.value=old; }
+}
+function chooseCableFromDropdown(){
+  const el=$("cableSelect"); if(!el||el.value===''){alert('Bitte zuerst ein Kabelmaterial auswählen.');return;}
+  selectCable(cables[Number(el.value)]); el.value='';
+}
+function choosePieceFromDropdown(){
+  const el=$("pieceSelect"); if(!el||el.value===''){alert('Bitte zuerst ein Stückmaterial auswählen.');return;}
+  selectPiece(pieces[Number(el.value)][0]); el.value='';
+}
+function renderMaterialManagement(){
+  const el=$("materialManageList"); if(!el)return;
+  const rows=[];
+  cables.forEach((name,i)=>rows.push(`<div class="material-manage-row"><div class="material-manage-name">${esc(name)}<small>Kabel / Trommel</small></div><button type="button" class="material-remove" onclick="removeMaterial('cable',${i})">Entfernen</button></div>`));
+  pieces.forEach(([name,unit],i)=>rows.push(`<div class="material-manage-row"><div class="material-manage-name">${esc(name)}<small>Stückmaterial · ${esc(unit)}</small></div><button type="button" class="material-remove" onclick="removeMaterial('piece',${i})">Entfernen</button></div>`));
+  el.innerHTML=rows.join('')||'<div class="material-manage-empty">Keine Materialien im Sortiment.</div>';
+}
+function removeMaterial(type,index){
+  const list=type==='cable'?cables:pieces;
+  const item=list[index]; if(!item)return;
+  const name=type==='cable'?item:item[0];
+  const unit=type==='cable'?'Kabel / Trommel':item[1];
+  if(!confirm(`"${name}" (${unit}) wirklich aus dem Sortiment entfernen?\n\nBereits gespeicherte Bestände, Aufnahmen und Historien bleiben erhalten. Das Material wird nur nicht mehr zur Auswahl für neue Aufnahmen angeboten.`))return;
+  list.splice(index,1);
+  if(type==='cable') localStorage.setItem('mm_custom_cables',JSON.stringify(cables));
+  else localStorage.setItem('mm_custom_pieces',JSON.stringify(pieces));
+  refreshMaterialPickers();
+  renderMaterialManagement();
+  notifySaved('Material aus Sortiment entfernt',`${name} wird ab jetzt nicht mehr zur Auswahl angeboten.`);
+}
+function addCustomMaterial(){
+  const name=$("newMaterialName").value.trim();
+  const type=$("newMaterialType").value;
+  const unit=$("newMaterialUnit").value;
+  if(!name){alert('Bitte eine Materialbezeichnung eingeben.');$("newMaterialName").focus();return;}
+  if(type==='cable'){
+    if(cables.some(x=>x.toLowerCase()===name.toLowerCase())){alert('Dieses Kabelmaterial ist bereits vorhanden.');return;}
+    cables.push(name); localStorage.setItem('mm_custom_cables',JSON.stringify(cables));
+  }else{
+    if(pieces.some(x=>x[0].toLowerCase()===name.toLowerCase())){alert('Dieses Stückmaterial ist bereits vorhanden.');return;}
+    pieces.push([name,unit]); localStorage.setItem('mm_custom_pieces',JSON.stringify(pieces));
+  }
+  refreshMaterialPickers();
+  renderMaterialManagement();
+  $("newMaterialName").value='';
+  notifySaved('Material erfolgreich hinzugefügt',`${name} wurde zur Materialauswahl hinzugefügt.`);
+}
+refreshMaterialPickers();
+renderMaterialManagement();
+</script>
+</body></html>
