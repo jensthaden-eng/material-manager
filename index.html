@@ -104,6 +104,18 @@ body{background:#f3f5f7}
 .print-detail-page .print-title{line-height:1.15;margin:0 0 10px}
 .print-detail-page h2{margin:0 0 12px;line-height:1.2}
 .print-detail-page .photo-detail,.print-detail-page .piece-detail{margin-bottom:10px}
+
+/* V103 PIN effects */
+#lock .pin-dots{transition:transform .18s ease, color .18s ease;}
+#lock .pin-dots.pin-pop{transform:scale(1.10);}
+#lock .pin-dots.pin-success{color:#16a765!important;transform:scale(1.12);}
+#lock .pin-dots.pin-error{color:#d92d20!important;animation:pinShake .34s ease;}
+#lock .numpad button{transition:transform .09s ease, filter .12s ease, background-color .16s ease, box-shadow .16s ease;}
+#lock .numpad button.pin-press{transform:scale(.94);filter:brightness(.96);box-shadow:inset 0 2px 5px rgba(0,0,0,.08);}
+#lock .numpad button.primary.pin-press{filter:brightness(.92);}
+@keyframes pinShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-9px)}40%{transform:translateX(8px)}60%{transform:translateX(-6px)}80%{transform:translateX(5px)}}
+#pinError.pin-error-text{color:#d92d20!important;font-weight:700;}
+
 </style>
 <style>/* V72: Workflow-Karten im Referenzdesign – Symbole sichtbar */
 .process-card .process-ico{display:flex!important;visibility:visible!important;opacity:1!important;}
@@ -381,10 +393,35 @@ $("invDate").value=today();
 function show(id){
   if(id==="summary"){const inline=$("summarySaveConfirm"), actions=$("summaryActions"), btn=$("confirmSaveBtn"); if(inline) inline.classList.remove("show"); if(actions) actions.classList.remove("is-saved"); if(btn){btn.disabled=false;btn.textContent="✓ Aufnahme bestätigen";}}if(id==="home"&&!unlocked)return;document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));const target=document.querySelector(`.screen#${CSS.escape(id)}`);if(!target)return;target.classList.add("active");if(id==="home")renderHome();if(id==="history")renderHistory();if(id==="drums")renderDrums();if(id==="documentation")renderDocumentation();if(id==="sites")renderSites();if(id==="materials")renderCurrentEntries();if(id==="orders")renderOrderForm();if(id==="orderList")renderOrders();if(id==="returns")renderReturnForm();if(id==="returnList")renderReturns();updateStats();window.scrollTo({top:0,left:0,behavior:"auto"});document.documentElement.scrollTop=0;document.body.scrollTop=0}
 unlocked=false;
-function pin(x){if(entered.length<4)entered+=x;updateDots();if(entered.length===4)setTimeout(pinOk,120)}
-function pinClear(){entered=entered.slice(0,-1);updateDots()}
+function pinButtonEffect(el){if(!el)return;el.classList.remove("pin-press");void el.offsetWidth;el.classList.add("pin-press");setTimeout(()=>el.classList.remove("pin-press"),110)}
+function pinDotsEffect(kind){const d=$("pinDots");if(!d)return;d.classList.remove("pin-pop","pin-success","pin-error");void d.offsetWidth;if(kind)d.classList.add(kind);if(kind!=="pin-error")setTimeout(()=>d.classList.remove(kind),220);}
+function pin(x){
+  const btn=[...document.querySelectorAll("#lock .numpad button")].find(b=>b.textContent.trim()===String(x));
+  pinButtonEffect(btn);
+  if(entered.length<4){entered+=x;updateDots();pinDotsEffect("pin-pop");}
+  if(entered.length===4)setTimeout(pinOk,220);
+}
+function pinClear(){
+  const btn=document.querySelector("#lock .numpad button.ghost");pinButtonEffect(btn);
+  if(entered.length){entered=entered.slice(0,-1);updateDots();pinDotsEffect("pin-pop");}
+}
 function updateDots(){$("pinDots").textContent=[0,1,2,3].map(i=>i<entered.length?"●":"○").join(" ")}
-function pinOk(){if(entered===pinCode){unlocked=true;entered="";updateDots();$("pinError").textContent="";show("home")}else{$("pinError").textContent="Falsche PIN";entered="";updateDots()}}
+function pinOk(){
+  const btn=document.querySelector("#lock .numpad button.primary");pinButtonEffect(btn);
+  if(entered===pinCode){
+    pinDotsEffect("pin-success");
+    unlocked=true;
+    entered="";
+    updateDots();
+    $("pinError").textContent="";
+    setTimeout(()=>show("home"),260);
+  }else{
+    pinDotsEffect("pin-error");
+    $("pinError").textContent="Falsche PIN";
+    $("pinError").classList.add("pin-error-text");
+    setTimeout(()=>{entered="";updateDots();$("pinError").classList.remove("pin-error-text");},420);
+  }
+}
 // PC-Tastatur: PIN kann direkt über die Zahlenreihe oder den Ziffernblock eingegeben werden.
 document.addEventListener("keydown",function(e){
   const lock=$("lock");
