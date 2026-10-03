@@ -108,7 +108,7 @@ body{background:#f3f5f7}
 /* V103 PIN effects */
 #lock .pin-dots{transition:transform .18s ease, color .18s ease;}
 #lock .pin-dots.pin-pop{transform:scale(1.10);}
-#lock .pin-dots.pin-success{color:#16a765!important;transform:scale(1.12);}
+#lock .pin-dots.pin-success{color:#ff6b00!important;transform:scale(1.12);}
 #lock .pin-dots.pin-error{color:#d92d20!important;animation:pinShake .34s ease;}
 #lock .numpad button{transition:transform .09s ease, filter .12s ease, background-color .16s ease, box-shadow .16s ease;}
 #lock .numpad button.pin-press{transform:scale(.94);filter:brightness(.96);box-shadow:inset 0 2px 5px rgba(0,0,0,.08);}
@@ -396,6 +396,7 @@ unlocked=false;
 function pinButtonEffect(el){if(!el)return;el.classList.remove("pin-press");void el.offsetWidth;el.classList.add("pin-press");setTimeout(()=>el.classList.remove("pin-press"),110)}
 function pinDotsEffect(kind){const d=$("pinDots");if(!d)return;d.classList.remove("pin-pop","pin-success","pin-error");void d.offsetWidth;if(kind)d.classList.add(kind);if(kind!=="pin-error")setTimeout(()=>d.classList.remove(kind),220);}
 function pin(x){
+  try{if(navigator.vibrate) navigator.vibrate(18);}catch(e){}
   const btn=[...document.querySelectorAll("#lock .numpad button")].find(b=>b.textContent.trim()===String(x));
   pinButtonEffect(btn);
   if(entered.length<4){entered+=x;updateDots();pinDotsEffect("pin-pop");}
