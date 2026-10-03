@@ -970,11 +970,18 @@ function renderPrintReport(item){
     const rows=arr.map(d=>`<tr><td>${esc(d.material)}</td><td>${esc(d.no)}</td><td>${Number(d.total).toLocaleString("de-DE")} m</td><td><b>${Number(d.rest).toLocaleString("de-DE")} m</b></td><td>${d.photo?'<span class="photo-mark">Foto</span>':'—'}</td></tr>`).join("");
     pages.push(page(`${head}<div class="print-title">${idx?'BESTANDSLISTE · FORTSETZUNG':'BESTANDSLISTE'}</div>${idx?'':meta}<h2>Kabel / Trommeln</h2><table class="print-table"><thead><tr><th>Material</th><th>Trommel</th><th>Gesamt</th><th>Rest</th><th>Foto</th></tr></thead><tbody>${rows}</tbody></table>${footer}`));
   });
-  const pieceChunks=chunk(pieces,18), piecePages=pieceChunks.length?pieceChunks:[[]];
-  piecePages.forEach((arr,idx)=>{
+  // Stückmaterial-Seiten nur erzeugen, wenn tatsächlich Stückmaterial erfasst wurde.
+  const pieceChunks=chunk(pieces,18);
+  pieceChunks.forEach((arr,idx)=>{
     const rows=arr.map(p=>`<tr><td>${esc(p.material)}</td><td><b>${Number(p.qty).toLocaleString("de-DE")} ${esc(p.unit)}</b></td></tr>`).join("");
-    pages.push(page(`${head}<div class="print-title">BESTAND &amp; STÜCKMATERIAL${idx?' · FORTSETZUNG':''}</div><h2 class="print-section">Stückmaterial</h2><table class="print-table"><thead><tr><th>Material</th><th>Bestand</th></tr></thead><tbody>${rows||'<tr><td colspan="2">Kein Stückmaterial erfasst.</td></tr>'}</tbody></table>${idx===piecePages.length-1?'<div class="print-complete">✓ Bestandsaufnahme abgeschlossen</div>':''}${footer}`));
+    pages.push(page(`${head}<div class="print-title">BESTAND &amp; STÜCKMATERIAL${idx?' · FORTSETZUNG':''}</div><h2 class="print-section">Stückmaterial</h2><table class="print-table"><thead><tr><th>Material</th><th>Bestand</th></tr></thead><tbody>${rows}</tbody></table>${idx===pieceChunks.length-1?'<div class="print-complete">✓ Bestandsaufnahme abgeschlossen</div>':''}${footer}`));
   });
+  // Wenn kein Stückmaterial vorhanden ist, soll keine leere Seite entstehen.
+  // Die Abschlussmeldung kommt dann auf die letzte tatsächlich vorhandene Seite.
+  if(!pieces.length && pages.length){
+    const last=pages[pages.length-1];
+    pages[pages.length-1]=last.replace(footer, '<div class="print-complete">✓ Bestandsaufnahme abgeschlossen</div>'+footer);
+  }
   // Separate Fotoseiten: Nur Trommeln mit tatsächlich vorhandenem Foto.
   // Stückmaterial wird nicht mehr auf die Fotoseiten übernommen.
   const detailItems=drums.filter(d=>d.photo).map((d,i)=>`<article class="photo-detail"><div class="photo-number">${String(i+1).padStart(2,"0")}</div><div class="photo-info"><h3>${esc(d.material)}</h3><div class="photo-meta">Trommel ${esc(d.no)} · ${Number(d.total).toLocaleString("de-DE")} m gesamt · <b>${Number(d.rest).toLocaleString("de-DE")} m Rest</b></div><img src="${d.photo}" class="pdf-detail-photo" alt="Foto ${esc(d.material)}"></div></article>`);
