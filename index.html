@@ -1380,10 +1380,41 @@ function printLastDocument(){
   if(id) openPdfFor(id); else alert("Noch keine gespeicherte Bestandsaufnahme vorhanden.");
 }
 async function shareText(){let text="Materialbestandsaufnahme – "+$("site").value+" – Lagerplatz: "+$("place").value+", "+$("postalCode").value+" "+$("street").value+" – "+$("invDate").value;if(navigator.share){try{await navigator.share({title:"Materialbestandsaufnahme",text})}catch(e){}}else alert(text+"\n\nAuf diesem Gerät ist kein Teilen-Menü verfügbar.")}
+function materialSortKey(name){
+  const n=String(name||'').trim();
+  const m=n.match(/^(SNRVe|SNR|Gf)[\s-]*(\d+)x(\d+)(?:\s*(.*))?$/i);
+  if(m){
+    const family=m[1].toUpperCase()==='SNRVE'?0:(m[1].toUpperCase()==='SNR'?1:2);
+    const a=Number(m[2]), b=Number(m[3]);
+    const suffix=(m[4]||'').trim().toUpperCase();
+    const suffixOrder={'M':0,'O':1,'O/S':2,'O/W':3,'O/R':4,'M/S':5};
+    return [0,family,a,b,suffixOrder[suffix]??50,suffix];
+  }
+  const normalized=n.toLowerCase().replace(/[^a-z0-9]+/g,' ');
+  const nums=(n.match(/\d+/g)||[]).map(Number);
+  return [1,normalized,...nums];
+}
+function compareMaterialNames(a,b){
+  const ka=materialSortKey(a), kb=materialSortKey(b);
+  const len=Math.max(ka.length,kb.length);
+  for(let i=0;i<len;i++){
+    const va=ka[i], vb=kb[i];
+    if(va===undefined)return -1; if(vb===undefined)return 1;
+    if(typeof va==='number' && typeof vb==='number'){ if(va!==vb)return va-vb; }
+    else { const c=String(va).localeCompare(String(vb),'de-DE',{numeric:true,sensitivity:'base'}); if(c)return c; }
+  }
+  return 0;
+}
+function sortCableMaterials(){ cables.sort(compareMaterialNames); }
+function sortPieceMaterials(){ pieces.sort((a,b)=>compareMaterialNames(a[0],b[0])); }
 function refreshMaterialPickers(){
+  sortCableMaterials();
+  sortPieceMaterials();
   const cs=$("cableSelect"), ps=$("pieceSelect");
   if(cs){ const old=cs.value; cs.innerHTML='<option value="">Material auswählen …</option>'+cables.map((n,i)=>`<option value="${i}">${esc(n)}</option>`).join(''); if([...cs.options].some(o=>o.value===old))cs.value=old; }
   if(ps){ const old=ps.value; ps.innerHTML='<option value="">Material auswählen …</option>'+pieces.map(([n,u],i)=>`<option value="${i}">${esc(n)} · ${esc(u)}</option>`).join(''); if([...ps.options].some(o=>o.value===old))ps.value=old; }
+  localStorage.setItem('mm_custom_cables',JSON.stringify(cables));
+  localStorage.setItem('mm_custom_pieces',JSON.stringify(pieces));
 }
 function chooseCableFromDropdown(){
   const el=$("cableSelect"); if(!el||el.value===''){alert('Bitte zuerst ein Kabelmaterial auswählen.');return;}
@@ -1420,10 +1451,10 @@ function addCustomMaterial(){
   if(!name){alert('Bitte eine Materialbezeichnung eingeben.');$("newMaterialName").focus();return;}
   if(type==='cable'){
     if(cables.some(x=>x.toLowerCase()===name.toLowerCase())){alert('Dieses Kabelmaterial ist bereits vorhanden.');return;}
-    cables.push(name); localStorage.setItem('mm_custom_cables',JSON.stringify(cables));
+    cables.push(name);
   }else{
     if(pieces.some(x=>x[0].toLowerCase()===name.toLowerCase())){alert('Dieses Stückmaterial ist bereits vorhanden.');return;}
-    pieces.push([name,unit]); localStorage.setItem('mm_custom_pieces',JSON.stringify(pieces));
+    pieces.push([name,unit]);
   }
   refreshMaterialPickers();
   renderMaterialManagement();
