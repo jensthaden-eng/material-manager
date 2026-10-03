@@ -27,7 +27,7 @@ button{border:0;border-radius:12px;padding:13px 16px;font-size:16px;font-weight:
 .pinbox{text-align:center;max-width:390px;margin:10vh auto}.pin-dots{font-size:30px;letter-spacing:10px;margin:14px}.numpad{display:grid;grid-template-columns:repeat(3,1fr);gap:9px}.numpad button{background:#edf3f8;font-size:21px;padding:16px}.error{color:#b00020;min-height:22px}
 .nav{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px}.nav button{padding:20px;text-align:left;background:#fff;box-shadow:0 4px 14px #00000012;border:1px solid #e1e5e8}.nav button:first-letter{color:var(--orange)}
 table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px solid #e8edf2;text-align:left;vertical-align:top}.badge{display:inline-block;background:#e8f7ef;color:#087044;border-radius:999px;padding:4px 8px;font-size:12px;font-weight:700}
-.preview{width:100%;max-width:100%;height:190px;border-radius:14px;margin-top:8px;display:none;object-fit:cover;box-shadow:0 3px 12px #10203018}.photo-thumb{width:58px;height:58px;object-fit:cover;border-radius:10px;border:1px solid #d8dee3;vertical-align:middle;margin-right:8px}.photo-box{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:start}.photo-action{min-height:100px;display:flex;align-items:center;justify-content:center;text-align:center;border:1px dashed #c8d1d8;background:#f8fafb}.ocr-status{margin:10px 0 0!important;padding:11px 13px;border-radius:13px;font-size:14px!important;line-height:1.35;font-weight:700}.ocr-status.working{background:#f3f6f8;color:#53616c;border:1px solid #e0e6ea}.ocr-status.success{background:#e8f7ef;color:#087044;border:1px solid #b9e4cb}.ocr-status.error{background:#fff5f3;color:#a43a2f;border:1px solid #f0c8c1}.ocr-status.neutral{background:#f7f9fa;color:#697680;border:1px solid #e1e6ea}.ocr-number{display:block;margin-top:4px;font-size:17px;letter-spacing:.3px;color:#0a7548}.ocr-retry{width:100%;margin-top:8px!important;padding:11px 12px!important;background:#eef3f6!important;border:1px solid #d9e0e5!important;color:#16232d!important}.total{text-align:right;font-weight:800;font-size:20px}
+.preview{width:100%;max-width:100%;height:190px;border-radius:14px;margin-top:8px;display:none;object-fit:cover;box-shadow:0 3px 12px #10203018}.photo-thumb{width:58px;height:58px;object-fit:cover;border-radius:10px;border:1px solid #d8dee3;vertical-align:middle;margin-right:8px}.photo-box{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:start}.photo-action{min-height:100px;display:flex;align-items:center;justify-content:center;text-align:center;border:1px dashed #c8d1d8;background:#f8fafb}.ocr-status{margin:10px 0 0!important;padding:11px 13px;border-radius:13px;font-size:14px!important;line-height:1.35;font-weight:700}.ocr-status.working{background:#f3f6f8;color:#53616c;border:1px solid #e0e6ea}.ocr-status.success{background:#e8f7ef;color:#087044;border:1px solid #b9e4cb}.ocr-status.error{background:#fff5f3;color:#a43a2f;border:1px solid #f0c8c1}.ocr-status.neutral{background:#f7f9fa;color:#697680;border:1px solid #e1e6ea}.ocr-number{display:block;margin-top:4px;font-size:17px;letter-spacing:.3px;color:#0a7548}.ocr-retry{width:100%;margin-top:8px!important;padding:11px 12px!important;background:#eef3f6!important;border:1px solid #d9e0e5!important;color:#16232d!important}.photo-upload-progress{margin:10px 0 0;padding:11px 13px;border:1px solid #cfe7d9;border-radius:13px;background:#f3fbf6}.photo-upload-head{display:flex;justify-content:space-between;gap:10px;align-items:center;color:#087044;font-size:14px;font-weight:750}.photo-upload-head b{font-size:15px;color:#159b60}.photo-upload-track{height:10px;margin-top:8px;background:#dfe9e3;border-radius:999px;overflow:hidden}.photo-upload-fill{height:100%;width:0%;background:linear-gradient(90deg,#159b60,#25b879);border-radius:999px;transition:width .12s ease}.photo-upload-progress.done .photo-upload-fill{background:#159b60}.total{text-align:right;font-weight:800;font-size:20px}
 .history-item{padding:13px;border:1px solid var(--border);border-radius:12px;margin:9px 0;background:#fbfcfe}.history-item-row{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.delete-history{border:1px solid #d7dde2;background:#fff;color:#b42318;border-radius:10px;padding:8px 10px;font-weight:700;white-space:nowrap}
 .empty{padding:20px;text-align:center;color:var(--muted)}
 
@@ -226,7 +226,7 @@ if ('serviceWorker' in navigator){
 <label>Material</label><select id="returnMaterial"></select>
 <label>Trommelnummer</label><input id="returnDrum" type="text" placeholder="z. B. E2557689057">
 <label>Foto der leeren Trommel</label>
-<div class="photo-box"><button type="button" class="ghost photo-action" onclick="document.getElementById('returnPhoto').click()">📷 Foto aufnehmen</button><div><img id="returnPreview" class="preview" alt="Foto der leeren Trommel"><p id="returnPhotoMsg" class="muted"></p><p id="returnOcrMsg" class="ocr-status neutral" aria-live="polite"></p><button id="returnOcrRetry" type="button" class="ghost ocr-retry" style="display:none" onclick="retryReturnOcr()">↻ Nummer erneut erkennen</button></div></div>
+<div class="photo-box"><button type="button" class="ghost photo-action" onclick="document.getElementById('returnPhoto').click()">📷 Foto aufnehmen</button><div><img id="returnPreview" class="preview" alt="Foto der leeren Trommel"><p id="returnPhotoMsg" class="muted"></p><div id="returnPhotoUploadProgress" class="photo-upload-progress" aria-live="polite" style="display:none"><div class="photo-upload-head"><span>📷 Foto wird geladen …</span><b id="returnPhotoUploadPercent">0%</b></div><div class="photo-upload-track"><div id="returnPhotoUploadFill" class="photo-upload-fill"></div></div></div><p id="returnOcrMsg" class="ocr-status neutral" aria-live="polite"></p><button id="returnOcrRetry" type="button" class="ghost ocr-retry" style="display:none" onclick="retryReturnOcr()">↻ Nummer erneut erkennen</button></div></div>
 <input id="returnPhoto" class="screen" type="file" accept="image/*" capture="environment" onchange="returnPhotoChosen()">
 <div class="form-actions"><button class="ghost" onclick="addReturnDrum()">＋ Weitere Trommel hinzufügen</button><button class="green" onclick="saveReturnBatch()">✓ Rücklieferungen speichern</button></div>
 <div id="returnBatchList"></div>
@@ -315,7 +315,7 @@ if ('serviceWorker' in navigator){
 <label>Trommelnummer</label><input id="drumNo" placeholder="z. B. T-2026-00125">
 <button class="ghost photo-action" style="margin-top:8px;width:100%" onclick="document.getElementById('photo').click()">📷 Trommelnummer aufnehmen</button>
 <input id="photo" class="screen" type="file" accept="image/*" capture="environment" onchange="photoChosen()">
-<img id="preview" class="preview"><p id="photoMsg" class="muted"></p><p id="ocrMsg" class="ocr-status neutral" aria-live="polite"></p><button id="ocrRetry" type="button" class="ghost ocr-retry" style="display:none" onclick="retryDrumOcr()">↻ Nummer erneut erkennen</button>
+<img id="preview" class="preview"><p id="photoMsg" class="muted"></p><div id="photoUploadProgress" class="photo-upload-progress" aria-live="polite" style="display:none"><div class="photo-upload-head"><span>📷 Foto wird geladen …</span><b id="photoUploadPercent">0%</b></div><div class="photo-upload-track"><div id="photoUploadFill" class="photo-upload-fill"></div></div></div><p id="ocrMsg" class="ocr-status neutral" aria-live="polite"></p><button id="ocrRetry" type="button" class="ghost ocr-retry" style="display:none" onclick="retryDrumOcr()">↻ Nummer erneut erkennen</button>
 </div><div>
 <label>Gesamtlänge</label><input id="totalLen" type="number" min="0" step="1" placeholder="z. B. 2400"><span class="muted">Meter</span>
 <label>Restbestand</label><input id="restLen" type="number" min="0" step="1" placeholder="z. B. 1850"><span class="muted">Meter</span>
@@ -458,10 +458,12 @@ async function getOcrWorker(){
   try{return await ocrWorkerPromise}catch(e){ocrWorkerPromise=null;throw e}
 }
 
-function loadImageFile(file){
+function loadImageFile(file,onProgress){
   return new Promise((resolve,reject)=>{
     const r=new FileReader();
+    r.onprogress=e=>{if(e.lengthComputable&&typeof onProgress==='function')onProgress(Math.round((e.loaded/e.total)*100));};
     r.onload=()=>{
+      if(typeof onProgress==='function')onProgress(100);
       const img=new Image();
       img.onload=()=>resolve(img);
       img.onerror=()=>reject(new Error("Foto konnte nicht gelesen werden"));
@@ -470,6 +472,16 @@ function loadImageFile(file){
     r.onerror=()=>reject(new Error("Foto konnte nicht geladen werden"));
     r.readAsDataURL(file);
   });
+}
+function setPhotoUploadProgress(prefix,pct,done=false){
+  const box=$(prefix+'PhotoUploadProgress'), fill=$(prefix+'PhotoUploadFill'), label=$(prefix+'PhotoUploadPercent');
+  if(!box||!fill||!label)return;
+  box.style.display='block';
+  const n=Math.max(0,Math.min(100,Math.round(Number(pct)||0)));
+  fill.style.width=n+'%'; label.textContent=n+'%';
+  const title=box.querySelector('.photo-upload-head span');
+  if(done){box.classList.add('done');if(title)title.textContent='✓ Foto vollständig geladen';}
+  else{box.classList.remove('done');if(title)title.textContent='📷 Foto wird geladen …';}
 }
 
 /*
@@ -655,7 +667,9 @@ async function runDrumOcr(file,inputId,statusId){
   try{
     // Erst QR/Barcode prüfen. Das Foto auf dem Etikett enthält häufig
     // einen QR-Code; OCR ist dafür die falsche Methode.
+    setPhotoUploadProgress(inputId==='returnDrum'?'return':'drum',0,false);
     const barcode=await tryBarcodeNumber(file);
+    setPhotoUploadProgress(inputId==='returnDrum'?'return':'drum',100,true);
     if(barcode){
       $(inputId).value=barcode;
       if(status)setOcrStatus(status,"success","✓ Nummer automatisch aus Etikett erkannt",barcode);
@@ -663,7 +677,8 @@ async function runDrumOcr(file,inputId,statusId){
     }
 
     if(status)setOcrStatus(status,"working","🔎 Foto wird vorbereitet …");
-    const img=await loadImageFile(file);
+    const img=await loadImageFile(file,p=>setPhotoUploadProgress(inputId==='returnDrum'?'return':'drum',p,false));
+    setPhotoUploadProgress(inputId==='returnDrum'?'return':'drum',100,true);
     const variants=makeOcrVariants(img);
     const worker=await getOcrWorker();
     const scores=new Map();
@@ -716,9 +731,9 @@ async function runDrumOcr(file,inputId,statusId){
   return null;
 }
 
-function photoChosen(){let f=$("photo").files[0];if(!f)return;$("preview").src=URL.createObjectURL(f);$("preview").style.display="block";$("photoMsg").textContent="Foto aufgenommen. Die Trommelnummer wird automatisch erkannt.";$("ocrRetry").style.display="none";runDrumOcr(f,"drumNo","ocrMsg").then(()=>{if($("ocrMsg").textContent.includes("nicht eindeutig")||$("ocrMsg").textContent.includes("konnte nicht"))$("ocrRetry").style.display="inline-block"})}
+function photoChosen(){let f=$("photo").files[0];if(!f)return;$("preview").src=URL.createObjectURL(f);$("preview").style.display="block";$("photoMsg").textContent="Foto aufgenommen. Die Trommelnummer wird automatisch erkannt.";$("ocrRetry").style.display="none";setPhotoUploadProgress('drum',0,false);runDrumOcr(f,"drumNo","ocrMsg").then(()=>{if($("ocrMsg").textContent.includes("nicht eindeutig")||$("ocrMsg").textContent.includes("konnte nicht"))$("ocrRetry").style.display="inline-block"})}
 function retryDrumOcr(){const f=$("photo").files[0];if(f){$("ocrRetry").style.display="none";runDrumOcr(f,"drumNo","ocrMsg").then(()=>{if($("ocrMsg").textContent.includes("nicht eindeutig")||$("ocrMsg").textContent.includes("konnte nicht"))$("ocrRetry").style.display="inline-block"})}}
-function returnPhotoChosen(){let f=$("returnPhoto").files[0];if(!f)return;$("returnPreview").src=URL.createObjectURL(f);$("returnPreview").style.display="block";$("returnPhotoMsg").textContent="Foto aufgenommen. Die Trommelnummer wird automatisch erkannt.";runDrumOcr(f,"returnDrum","returnOcrMsg")}
+function returnPhotoChosen(){let f=$("returnPhoto").files[0];if(!f)return;$("returnPreview").src=URL.createObjectURL(f);$("returnPreview").style.display="block";$("returnPhotoMsg").textContent="Foto aufgenommen. Die Trommelnummer wird automatisch erkannt.";setPhotoUploadProgress('return',0,false);runDrumOcr(f,"returnDrum","returnOcrMsg")}
 let toastTimer=null;function notifySaved(title="Material erfolgreich gespeichert",message="Die Bestandsaufnahme wurde gespeichert.",action=""){
   $("toastTitle").textContent=title;
   $("toastMessage").textContent=message;
