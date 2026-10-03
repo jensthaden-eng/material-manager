@@ -1,4 +1,4 @@
-const CACHE_NAME = 'tm-material-v112';
+const CACHE_NAME = 'tm-material-v113';
 const APP_SHELL = ['./', './index.html'];
 
 self.addEventListener('install', event => {
