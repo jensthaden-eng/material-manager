@@ -979,8 +979,7 @@ function renderPrintReport(item){
     ...drums.map((d,i)=>`<article class="photo-detail"><div class="photo-number">${String(i+1).padStart(2,"0")}</div><div class="photo-info"><h3>${esc(d.material)}</h3><div class="photo-meta">Trommel ${esc(d.no)} · ${Number(d.total).toLocaleString("de-DE")} m gesamt · <b>${Number(d.rest).toLocaleString("de-DE")} m Rest</b></div>${d.photo?`<img src="${d.photo}" class="pdf-detail-photo" alt="Foto ${esc(d.material)}">`:'<div class="photo-placeholder">Kein Foto hinterlegt</div>'}</div></article>`),
     ...pieces.map((p,i)=>`<article class="piece-detail"><div class="photo-number">${String(i+1).padStart(2,"0")}</div><div><h3>${esc(p.material)}</h3><div class="photo-meta"><b>${Number(p.qty).toLocaleString("de-DE")} ${esc(p.unit)}</b></div></div></article>`)
   ];
-  const detailChunks=chunk(detailItems,4);
-  detailChunks.forEach((arr,idx)=>pages.push(page(`${head}<div class="print-title">BESTANDSDETAILS${idx?' · FORTSETZUNG':''}</div>${idx===0?'<h2>Detailübersicht · Trommeln &amp; Stückmaterial</h2>':''}${arr.join('')}${footer}`,'print-detail-page')));
+  // Die separate Detail-/Fotoseite wird nicht mehr in die Bestandsaufnahme-PDF aufgenommen.
   $("printReport").innerHTML=pages.join("");
 }
 function rebuildDrumStore(){drums=history.flatMap(x=>(x.drums||[]).map(d=>({...d,site:x.site,date:x.date})));localStorage.setItem("mm_drums",JSON.stringify(drums));}
