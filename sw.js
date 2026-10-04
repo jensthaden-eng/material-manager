@@ -1,5 +1,5 @@
-const CACHE_NAME='material-manager-v116';
-const CORE=['./','./index.html'];
-self.addEventListener('install',event=>{self.skipWaiting();event.waitUntil(caches.open(CACHE_NAME).then(c=>c.addAll(CORE).catch(()=>{})))});
-self.addEventListener('activate',event=>{event.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE_NAME).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
-self.addEventListener('fetch',event=>{const req=event.request;if(req.method!=='GET')return;const url=new URL(req.url);if(url.origin!==location.origin)return;if(url.pathname.endsWith('/index.html')||url.pathname==='/'||url.pathname.endsWith('/sw.js')){event.respondWith(fetch(req,{cache:'no-store'}).then(res=>{if(res.ok&&url.pathname.endsWith('/index.html')){caches.open(CACHE_NAME).then(c=>c.put(req,res.clone()))}return res}).catch(()=>caches.match(req).then(r=>r||caches.match('./index.html'))));return}event.respondWith(caches.match(req).then(cached=>cached||fetch(req).then(res=>{if(res.ok){caches.open(CACHE_NAME).then(c=>c.put(req,res.clone()))}return res}).catch(()=>cached)))});
+const CACHE='tm-material-v117';
+const ASSETS=['./','./index.html'];
+self.addEventListener('install',e=>e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)).then(()=>self.skipWaiting())));
+self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(keys=>Promise.all(keys.filter(k=>k!==CACHE).map(k=>caches.delete(k)))).then(()=>self.clients.claim())));
+self.addEventListener('fetch',e=>{ if(e.request.method!=='GET') return; if(e.request.mode==='navigate'){e.respondWith(fetch(e.request).then(r=>{const copy=r.clone(); caches.open(CACHE).then(c=>c.put('./index.html',copy)); return r}).catch(()=>caches.match('./index.html'))); return;} e.respondWith(fetch(e.request).then(r=>{if(r.ok){const copy=r.clone(); caches.open(CACHE).then(c=>c.put(e.request,copy));} return r}).catch(()=>caches.match(e.request))); });
