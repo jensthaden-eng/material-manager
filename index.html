@@ -7,7 +7,7 @@
 <link rel="apple-touch-icon" sizes="180x180" href="./tm-app-icon-180-v70.png">
 <link rel="icon" type="image/png" sizes="192x192" href="./tm-app-icon-192-v70.png">
 <title>THADEN MATERIAL</title>
-<!-- TM MATERIAL V100 – Service-Worker Update-Fix -->
+<!-- TM MATERIAL V122 – echte PDF-Erzeugung ohne Safari-Druckumwandlung -->
 <style>
 :root{--navy:#101820;--orange:#ff6b00;--orange2:#ff7a00;--bg:#f3f5f7;--card:#fff;--text:#16232d;--muted:#697680;--green:#159b60;--border:#d8dee3}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
@@ -30,6 +30,8 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px s
 .preview{width:100%;max-width:100%;height:190px;border-radius:14px;margin-top:8px;display:none;object-fit:cover;box-shadow:0 3px 12px #10203018}.photo-thumb{width:58px;height:58px;object-fit:cover;border-radius:10px;border:1px solid #d8dee3;vertical-align:middle;margin-right:8px}.photo-box{display:grid;grid-template-columns:1fr 1fr;gap:10px;align-items:start}.photo-action{min-height:100px;display:flex;align-items:center;justify-content:center;text-align:center;border:1px dashed #c8d1d8;background:#f8fafb}.ocr-status{margin:10px 0 0!important;padding:11px 13px;border-radius:13px;font-size:14px!important;line-height:1.35;font-weight:700}.ocr-status.working{background:#f3f6f8;color:#53616c;border:1px solid #e0e6ea}.ocr-status.success{background:#e8f7ef;color:#087044;border:1px solid #b9e4cb}.ocr-status.error{background:#fff5f3;color:#a43a2f;border:1px solid #f0c8c1}.ocr-status.neutral{background:#f7f9fa;color:#697680;border:1px solid #e1e6ea}.ocr-number{display:block;margin-top:4px;font-size:17px;letter-spacing:.3px;color:#0a7548}.ocr-retry{width:100%;margin-top:8px!important;padding:11px 12px!important;background:#eef3f6!important;border:1px solid #d9e0e5!important;color:#16232d!important}.photo-upload-progress{margin:10px 0 0;padding:11px 13px;border:1px solid #cfe7d9;border-radius:13px;background:#f3fbf6}.photo-upload-head{display:flex;justify-content:space-between;gap:10px;align-items:center;color:#087044;font-size:14px;font-weight:750}.photo-upload-head b{font-size:15px;color:#159b60}.photo-upload-track{height:10px;margin-top:8px;background:#dfe9e3;border-radius:999px;overflow:hidden}.photo-upload-fill{height:100%;width:0%;background:linear-gradient(90deg,#159b60,#25b879);border-radius:999px;transition:width .12s ease}.photo-upload-progress.done .photo-upload-fill{background:#159b60}.total{text-align:right;font-weight:800;font-size:20px}
 .history-item{padding:13px;border:1px solid var(--border);border-radius:12px;margin:9px 0;background:#fbfcfe}.history-item-row{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.delete-history{border:1px solid #d7dde2;background:#fff;color:#b42318;border-radius:10px;padding:8px 10px;font-weight:700;white-space:nowrap}
 .empty{padding:20px;text-align:center;color:var(--muted)}
+
+
 
 .dashboard{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-top:14px}.dash-tile{min-height:88px;border:0;border-radius:18px;padding:16px;color:#fff;text-align:left;box-shadow:0 5px 16px #10203022;position:relative;overflow:hidden}.dash-tile .ico{font-size:22px;display:block;margin-bottom:8px}.dash-tile b{font-size:16px}.dash-tile small{display:block;margin-top:3px;opacity:.88;font-size:11px}.dash-orange{background:linear-gradient(135deg,#ff6b00,#ff8a21)}.dash-dark{background:linear-gradient(135deg,#18232d,#2a3742)}.dash-green{background:linear-gradient(135deg,#149c62,#25b879)}.dash-purple{background:linear-gradient(135deg,#6636d8,#8058e8)}.dash-blue{background:linear-gradient(135deg,#2366c7,#3c83e8)}.dash-gray{background:linear-gradient(135deg,#52606b,#697782)}.quick{display:flex;gap:10px;overflow:auto;padding:4px 1px 6px}.quick button{min-width:145px;text-align:left;background:#fff;border:1px solid #e2e7eb}.home-hero{background:linear-gradient(135deg,#101820,#1d2a35);color:#fff;border-radius:22px;padding:20px;box-shadow:0 7px 22px #10203022}.home-hero h1{font-size:27px;margin:0}.home-hero p{margin:7px 0 0;color:#d5dde3}.section-title{display:flex;justify-content:space-between;align-items:center;margin:18px 2px 9px}.section-title h3{margin:0}.activity{background:#fff;border-radius:16px;padding:4px 15px;box-shadow:0 3px 14px #0000000b}.activity-row{display:flex;gap:11px;align-items:center;padding:13px 0;border-bottom:1px solid #edf0f2}.activity-row:last-child{border-bottom:0}.activity-dot{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:#eef3f6}.bottom-nav{position:sticky;bottom:0;z-index:10;background:#101820;color:#fff;margin:18px -11px -11px;padding:8px 6px calc(8px + env(safe-area-inset-bottom));display:grid;grid-template-columns:repeat(5,1fr);box-shadow:0 -4px 15px #0003}.bottom-nav button{background:transparent;color:#dbe2e7;padding:7px 2px;font-size:11px;border-radius:10px}.bottom-nav button.active{background:#202e39;color:#ff7a00}.bottom-nav span{display:block;font-size:20px;line-height:22px;margin-bottom:3px}.feature-list{display:grid;gap:9px}.feature-item{display:flex;justify-content:space-between;align-items:center;background:#fff;border:1px solid #e2e7eb;border-radius:14px;padding:13px}.feature-item .left{display:flex;gap:10px;align-items:center}.feature-icon{width:38px;height:38px;border-radius:10px;background:#eef2f5;display:grid;place-items:center;font-size:20px}.back{margin-bottom:12px}.stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.stat{background:#fff;border-radius:15px;padding:15px;border:1px solid #e2e7eb}.stat b{font-size:24px;display:block}@media(min-width:700px){.dashboard{grid-template-columns:repeat(3,1fr)}.bottom-nav{max-width:980px;margin-left:auto;margin-right:auto;border-radius:18px 18px 0 0}}
 @media(max-width:650px){.wrap{padding:11px}.row{grid-template-columns:1fr}header{padding:13px}.card{padding:16px}}
@@ -197,6 +199,10 @@ if ('serviceWorker' in navigator){
     <button class="process-card gray" onclick="show('orders')"><span class="process-ico"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M13 21 32 11l19 10-19 10zM13 21v22l19 10 19-10V21M32 31v22" fill="none" stroke="currentColor" stroke-width="5" stroke-linejoin="round"/><path d="m22 26 10 5 10-5" fill="none" stroke="currentColor" stroke-width="5"/></svg></span><b>3 ·<br>Material-<br>bestellung</b><small>Fehlendes Material melden</small></button>
     <button class="process-card green" onclick="show('returns')"><span class="process-ico"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M17 23a22 22 0 0 1 35 8" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round"/><path d="m49 20 3 11-11-1" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><path d="M47 41a22 22 0 0 1-35-8" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round"/><path d="m15 44-3-11 11 1" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><b>4 · Leere Trommeln</b><small>Rücklieferung ans Lager</small></button>
   </div>
+</div>
+  <div class="storage-track"><div id="storageFill" class="storage-fill"></div></div>
+  <div class="storage-meta"><span id="storageUsed">—</span><span id="storageFree">—</span></div>
+  <div id="storageNote" class="storage-note">Die Bestände und Fotos werden aktuell auf diesem Gerät gespeichert.</div>
 </div>
 <div class="workflow-section">
   <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h3>Letzte Vorgänge</h3><button class="ghost" onclick="show('history')">Historie →</button></div>
@@ -384,6 +390,8 @@ const defaultPieces=[["DN-50 Rohr","Stück"],["Verbinder 12mm","Stück"],["Verbi
 let cables=JSON.parse(localStorage.getItem("mm_custom_cables")||"null")||[...defaultCables];
 let pieces=JSON.parse(localStorage.getItem("mm_custom_pieces")||"null")||JSON.parse(JSON.stringify(defaultPieces));
 let pinCode=localStorage.getItem("mm_pin")||"1234", entered="", unlocked=false, selected="", drums=JSON.parse(localStorage.getItem("mm_drums")||"[]"), history=JSON.parse(localStorage.getItem("mm_history")||"[]"), current={drums:[],pieces:[]}, editingDrumIndex=-1, editingPieceIndex=-1, editingHistoryId=null;
+function compactPersistedDrumCache(){try{const compact=(drums||[]).map(d=>{const x={...d};delete x.photo;return x;});localStorage.removeItem("mm_drums");localStorage.setItem("mm_drums",JSON.stringify(compact));drums=compact;}catch(e){}}
+compactPersistedDrumCache();
 const cableMaterials=cables;
 const pieceMaterials=pieces.map(x=>x[0]);
 window.mmPieceMaster=pieceMaterials;
@@ -391,7 +399,7 @@ const $=x=>document.getElementById(x);
 function today(){return new Date(Date.now()-new Date().getTimezoneOffset()*60000).toISOString().slice(0,10)}
 $("invDate").value=today();
 function show(id){
-  if(id==="summary"){const inline=$("summarySaveConfirm"), actions=$("summaryActions"), btn=$("confirmSaveBtn"); if(inline) inline.classList.remove("show"); if(actions) actions.classList.remove("is-saved"); if(btn){btn.disabled=false;btn.textContent="✓ Aufnahme bestätigen";}}if(id==="home"&&!unlocked)return;document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));const target=document.querySelector(`.screen#${CSS.escape(id)}`);if(!target)return;target.classList.add("active");if(id==="home")renderHome();if(id==="history")renderHistory();if(id==="drums")renderDrums();if(id==="documentation")renderDocumentation();if(id==="sites")renderSites();if(id==="materials")renderCurrentEntries();if(id==="orders")renderOrderForm();if(id==="orderList")renderOrders();if(id==="returns")renderReturnForm();if(id==="returnList")renderReturns();updateStats();window.scrollTo({top:0,left:0,behavior:"auto"});document.documentElement.scrollTop=0;document.body.scrollTop=0}
+  if(id==="summary"){const inline=$("summarySaveConfirm"), actions=$("summaryActions"), btn=$("confirmSaveBtn"); if(inline) inline.classList.remove("show"); if(actions) actions.classList.remove("is-saved"); if(btn){btn.disabled=false;btn.textContent="✓ Aufnahme bestätigen";}}if(id==="home"&&!unlocked)return;document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));const target=document.querySelector(`.screen#${CSS.escape(id)}`);if(!target)return;target.classList.add("active");if(id==="home"){renderHome();updateStorageStatus();}if(id==="history")renderHistory();if(id==="drums")renderDrums();if(id==="documentation")renderDocumentation();if(id==="sites")renderSites();if(id==="materials")renderCurrentEntries();if(id==="orders")renderOrderForm();if(id==="orderList")renderOrders();if(id==="returns")renderReturnForm();if(id==="returnList")renderReturns();updateStats();window.scrollTo({top:0,left:0,behavior:"auto"});document.documentElement.scrollTop=0;document.body.scrollTop=0}
 unlocked=false;
 function pinButtonEffect(el){if(!el)return;el.classList.remove("pin-press");void el.offsetWidth;el.classList.add("pin-press");setTimeout(()=>el.classList.remove("pin-press"),110)}
 function pinDotsEffect(kind){const d=$("pinDots");if(!d)return;d.classList.remove("pin-pop","pin-success","pin-error");void d.offsetWidth;if(kind)d.classList.add(kind);if(kind!=="pin-error")setTimeout(()=>d.classList.remove(kind),220);}
@@ -451,6 +459,39 @@ function deleteCurrentPiece(index){if(!confirm("Dieses Stückmaterial aus der ak
 function showHistory(){show("history")}
 function showDrums(){show("drums")}
 function showSettings(){show("settings")}
+function storageBytesApprox(){
+  let total=0;
+  try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i)||"";const v=localStorage.getItem(k)||"";total+=new Blob([k,v]).size;}}catch(e){}
+  return total;
+}
+function formatBytes(n){if(!Number.isFinite(n)||n<0)return "—";if(n<1024)return n+" B";if(n<1024*1024)return (n/1024).toFixed(0)+" KB";return (n/1024/1024).toFixed(1)+" MB"}
+async function updateStorageStatus(){
+  const status=$("storageStatus"),fill=$("storageFill"),used=$("storageUsed"),free=$("storageFree"),note=$("storageNote");
+  if(!status||!fill)return;
+  let usage=storageBytesApprox(), quota=0;
+  try{if(navigator.storage&&navigator.storage.estimate){const e=await navigator.storage.estimate();if(Number.isFinite(e.usage))usage=Math.max(usage,e.usage);if(Number.isFinite(e.quota))quota=e.quota;}}catch(e){}
+  let ratio=0;
+  if(quota>0) ratio=Math.min(1,usage/quota); else ratio=Math.min(1,usage/(4.5*1024*1024));
+  const pct=Math.round(ratio*100); fill.style.width=pct+"%"; fill.classList.remove("warn","bad"); status.classList.remove("good","warn","bad");
+  if(ratio>=.9){status.textContent="Speicher fast voll";status.classList.add("bad");fill.classList.add("bad");note.textContent="Bitte alte Aufnahmen/Fotos sichern und nicht weiter viele Fotos hinzufügen.";}
+  else if(ratio>=.7){status.textContent="Speicher wird knapp";status.classList.add("warn");fill.classList.add("warn");note.textContent="Noch ausreichend, aber der Speicher sollte im Blick behalten werden.";}
+  else{status.textContent="Speicher ausreichend";status.classList.add("good");note.textContent="Bestände und Fotos werden auf diesem Gerät gespeichert.";}
+  used.textContent="Belegt: "+formatBytes(usage)+(quota?" / "+formatBytes(quota):"");
+  free.textContent=quota?"Frei: "+formatBytes(Math.max(0,quota-usage)):"Lokaler Speicher";
+}
+function localStorageQuotaGuard(extraText=""){
+  const currentBytes=storageBytesApprox();
+  const projected=currentBytes+new Blob([extraText]).size;
+  // iOS/Safari localStorage limits vary. Do not block a save based on an arbitrary
+  // fixed limit; the real localStorage write below is authoritative.
+  // Only warn when the approximate payload becomes unusually large.
+  const warnAt=4.2*1024*1024;
+  if(projected>=warnAt){
+    const ok=confirm("⚠️ Der Gerätespeicher wird knapp. Die App versucht trotzdem zu speichern. Möchtest du fortfahren?");
+    if(!ok)return false;
+  }
+  return true;
+}
 function updateStats(){if($("statDrums"))$("statDrums").textContent=drums.length;if($("statHistory"))$("statHistory").textContent=history.length}
 function compressImage(file,maxSide=900,quality=.72){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>{const img=new Image();img.onload=()=>{const scale=Math.min(1,maxSide/Math.max(img.naturalWidth,img.naturalHeight));const c=document.createElement('canvas');c.width=Math.max(1,Math.round(img.naturalWidth*scale));c.height=Math.max(1,Math.round(img.naturalHeight*scale));const ctx=c.getContext('2d');ctx.drawImage(img,0,0,c.width,c.height);resolve(c.toDataURL('image/jpeg',quality))};img.onerror=reject;img.src=r.result};r.onerror=reject;r.readAsDataURL(file)})}
 let ocrWorkerPromise=null;
@@ -994,14 +1035,28 @@ function renderPrintReport(item){
   }
   $("printReport").innerHTML=pages.join("");
 }
-function rebuildDrumStore(){drums=history.flatMap(x=>(x.drums||[]).map(d=>({...d,site:x.site,date:x.date})));localStorage.setItem("mm_drums",JSON.stringify(drums));}
+function rebuildDrumStore(){drums=history.flatMap(x=>(x.drums||[]).map(d=>({...d,site:x.site,date:x.date})));try{const compact=drums.map(d=>{const x={...d};delete x.photo;return x;});localStorage.removeItem("mm_drums");localStorage.setItem("mm_drums",JSON.stringify(compact));}catch(e){}}
 function completeInventory(){
   let site=$("site").value.trim(),place=$("place").value.trim(),postalCode=$("postalCode").value.trim(),street=$("street").value.trim(),worker=$("worker").value.trim();
   if(!site||!place||!postalCode||!street||!worker){alert("Bitte Baustelle, Ort, PLZ, Straße und Hausnummer sowie Mitarbeiter ausfüllen.");return}
   let item={id:editingHistoryId||Date.now(),site,warehouse:"Lagerplatz",place,postalCode,street,date:$("invDate").value||today(),worker,drums:JSON.parse(JSON.stringify(current.drums)),pieces:JSON.parse(JSON.stringify(current.pieces))};
   const existingIndex=history.findIndex(x=>x.id===item.id);
   if(existingIndex>=0) history[existingIndex]=item; else history.unshift(item);
-  localStorage.setItem("mm_history",JSON.stringify(history)); rebuildDrumStore(); checkLowStockForSavedItem(item);
+  const historyJson=JSON.stringify(history);
+  const drumStorePreview=history.flatMap(x=>(x.drums||[]).map(d=>({...d,site:x.site,date:x.date})));
+  const compactDrumStore=drumStorePreview.map(d=>{const x={...d};delete x.photo;return x;});
+  const drumJson=JSON.stringify(compactDrumStore);
+  if(!localStorageQuotaGuard(historyJson+drumJson)){return;}
+  try{
+    localStorage.setItem("mm_history",historyJson);
+    localStorage.removeItem("mm_drums");
+    localStorage.setItem("mm_drums",drumJson);
+  }catch(e){
+    alert("⚠️ Der Gerätespeicher ist voll. Die Bestandsaufnahme konnte nicht dauerhaft gespeichert werden. Bitte zuerst Speicher freigeben.");
+    updateStorageStatus();
+    return;
+  }
+  drums=drumStorePreview; checkLowStockForSavedItem(item); updateStorageStatus();
   renderPrintReport(item);
   localStorage.setItem("mm_last_documentation_id",String(item.id));
   localStorage.setItem("mm_last_documentation_message","Material erfolgreich gespeichert und als PDF bereit.");
@@ -1012,7 +1067,48 @@ function completeInventory(){
   notifySaved("Material erfolgreich gespeichert","Die Bestandsaufnahme wurde gespeichert.","PDF kann jetzt erstellt werden");
   setTimeout(()=>show("documentation"),2650);
 }
-function printPdfInSeparateWindow(){
+function mmSafeFilename(v){return String(v||'Bestandsaufnahme').replace(/[^\w\-äöüÄÖÜß ]+/g,'').trim().replace(/\s+/g,'_')||'Bestandsaufnahme';}
+function pdfWinAnsi(s){
+  s=String(s??'').replace(/\u2013/g,'-').replace(/\u2014/g,'-').replace(/\u2022/g,'-').replace(/\u2192/g,'>').replace(/\u2190/g,'<').replace(/\u00a0/g,' ');
+  const map={'ä':0xE4,'ö':0xF6,'ü':0xFC,'Ä':0xC4,'Ö':0xD6,'Ü':0xDC,'ß':0xDF,'€':0x80,'·':0xB7,'✓':0x00};
+  let out=''; for(const ch of s){const c=ch.charCodeAt(0); if(map[ch]!=null) out+=String.fromCharCode(map[ch]); else if(c>=32&&c<=126) out+=ch; else if(c>=160&&c<=255) out+=ch; else out+='?';}
+  return out.replace(/\\/g,'\\\\').replace(/\(/g,'\\(').replace(/\)/g,'\\)');
+}
+function pdfAsciiBytes(str){const a=new Uint8Array(str.length);for(let i=0;i<str.length;i++)a[i]=str.charCodeAt(i)&255;return a;}
+function pdfDataBytes(dataUrl){const b64=String(dataUrl).split(',')[1]||'';const bin=atob(b64);const out=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)out[i]=bin.charCodeAt(i);return out;}
+function pdfJpegInfo(bytes){let i=2;while(i<bytes.length){if(bytes[i]!==0xFF){i++;continue;}const marker=bytes[i+1];i+=2;if(marker===0xD8||marker===0xD9)continue;if(i+2>bytes.length)break;const len=(bytes[i]<<8)|bytes[i+1];if(marker>=0xC0&&marker<=0xC3)return{w:(bytes[i+5]<<8)|bytes[i+6],h:(bytes[i+3]<<8)|bytes[i+4]};i+=len;}return{w:1,h:1};}
+async function pdfImageData(url){if(!url)return null;if(/^data:image\/(jpeg|jpg)/i.test(url)){const bytes=pdfDataBytes(url),dim=pdfJpegInfo(bytes);return{bytes,w:dim.w,h:dim.h};}try{const img=new Image();img.src=url;await new Promise((res,rej)=>{img.onload=res;img.onerror=rej;});const max=1200,scale=Math.min(1,max/Math.max(img.naturalWidth||1,img.naturalHeight||1));const c=document.createElement('canvas');c.width=Math.max(1,Math.round((img.naturalWidth||1)*scale));c.height=Math.max(1,Math.round((img.naturalHeight||1)*scale));c.getContext('2d').drawImage(img,0,0,c.width,c.height);const jpg=c.toDataURL('image/jpeg',0.78);const bytes=pdfDataBytes(jpg);return{bytes,w:c.width,h:c.height};}catch(e){return null;}}
+function pdfText(cmd,x,top,size,text,font='F1',color=[0.067,0.094,0.118]){const y=842-top-size;cmd.push(`${color[0]} ${color[1]} ${color[2]} rg BT /${font} ${size} Tf ${x} ${y} Td (${pdfWinAnsi(text)}) Tj ET`);}
+function pdfRect(cmd,x,top,w,h,color){cmd.push(`${color[0]} ${color[1]} ${color[2]} rg ${x} ${842-top-h} ${w} ${h} re f`);}
+function pdfLine(cmd,x1,top1,x2,top2,color=[0.85,0.87,0.89],width=1){cmd.push(`${color[0]} ${color[1]} ${color[2]} RG ${width} w ${x1} ${842-top1} m ${x2} ${842-top2} l S`);}
+function pdfWrap(text,maxChars){const words=String(text||'').split(/\s+/);const lines=[];let line='';for(const w of words){if((line+' '+w).trim().length>maxChars){if(line)lines.push(line);line=w;}else line=(line+' '+w).trim();}if(line)lines.push(line);return lines;}
+async function buildInventoryPdf(item){
+  const W=595,H=842,pages=[];const orange=[1,.42,0],navy=[.063,.094,.118],text=[.067,.094,.118],muted=[.41,.47,.51],border=[.85,.87,.89],white=[1,1,1],green=[.03,.44,.27],paleGreen=[.91,.97,.94];
+  const drums=(item.drums||[]).slice().sort((a,b)=>materialOrderIndex(a.material,cables)-materialOrderIndex(b.material,cables));
+  const pieces=(item.pieces||[]).slice().sort((a,b)=>materialOrderIndex(a.material,window.mmPieceMaster||pieces)-materialOrderIndex(b.material,window.mmPieceMaster||pieces));
+  const date=new Date(item.date+'T00:00').toLocaleDateString('de-DE'),address=[item.place,item.postalCode,item.street].filter(Boolean).join(' · '),imgCache=new Map();
+  async function getImg(d){if(!d.photo)return null;if(imgCache.has(d.photo))return imgCache.get(d.photo);const v=await pdfImageData(d.photo);imgCache.set(d.photo,v);return v;}
+  function header(cmd,title){pdfRect(cmd,0,0,W,90,navy);pdfRect(cmd,0,88,W,3,orange);pdfText(cmd,38,27,11,'DOKUMENTATION','F1',[.84,.88,.90]);pdfText(cmd,38,48,11,'MATERIAL-BESTANDSAUFNAHME','F2',orange);pdfText(cmd,38,111,25,title,'F2',text);}
+  function footer(cmd){pdfLine(cmd,38,800,557,800,border,1);pdfText(cmd,38,816,8,`TM · SMART MATERIAL LOGISTICS · ${item.site} · ${date}`,'F1',muted);}
+  function meta(cmd,top){const boxes=[['BAUSTELLE',item.site],['ORT / LAGERPLATZ',address],['DATUM',date],['MITARBEITER',item.worker]],gap=8,w=(519-gap*3)/4;boxes.forEach((b,i)=>{const x=38+i*(w+gap);pdfRect(cmd,x,top,w,54,white);cmd.push(`${border[0]} ${border[1]} ${border[2]} RG 1 w ${x} ${842-top-54} ${w} 54 re S`);pdfText(cmd,x+8,top+14,7,b[0],'F2',muted);pdfWrap(b[1],22).slice(0,2).forEach((l,j)=>pdfText(cmd,x+8,top+29+j*13,10,l,'F1',text));});}
+  function addPage(cmd,images=[]){pages.push({cmd,images});}
+  const drumChunks=[];for(let i=0;i<Math.max(1,drums.length);i+=10)drumChunks.push(drums.slice(i,i+10));
+  for(let pi=0;pi<drumChunks.length;pi++){const cmd=[];header(cmd,pi?'BESTANDSLISTE · FORTSETZUNG':'BESTANDSLISTE');if(pi===0)meta(cmd,154);let top=pi===0?231:150;pdfText(cmd,38,top,16,'Kabel / Trommeln','F2',text);top+=28;const cols=[38,190,335,440,500],heads=['Material','Trommel','Gesamt','Rest','Foto'];pdfRect(cmd,38,top,519,24,navy);heads.forEach((h,i)=>pdfText(cmd,cols[i]+6,top+16,8,h,'F2',white));top+=24;drumChunks[pi].forEach(d=>{pdfLine(cmd,38,top+31,557,top+31,border,1);pdfText(cmd,44,top+20,8,String(d.material),'F1',text);pdfText(cmd,196,top+20,8,String(d.no),'F1',text);pdfText(cmd,341,top+20,8,`${Number(d.total).toLocaleString('de-DE')} m`,'F1',text);pdfText(cmd,446,top+20,8,`${Number(d.rest).toLocaleString('de-DE')} m`,'F2',text);pdfText(cmd,506,top+20,8,d.photo?'Foto':'-','F2',muted);top+=31;});if(pi===drumChunks.length-1&&!pieces.length&&!drums.some(d=>d.photo)){pdfRect(cmd,38,top+16,519,30,paleGreen);pdfText(cmd,50,top+36,10,'Bestandsaufnahme abgeschlossen','F2',green);}footer(cmd);addPage(cmd);}
+  if(pieces.length){for(let i=0;i<pieces.length;i+=16){const arr=pieces.slice(i,i+16),cmd=[];header(cmd,i?'BESTAND & STÜCKMATERIAL · FORTSETZUNG':'BESTAND & STÜCKMATERIAL');let top=160;pdfText(cmd,38,top,16,'Stückmaterial','F2',text);top+=28;pdfRect(cmd,38,top,519,24,navy);pdfText(cmd,44,top+16,8,'Material','F2',white);pdfText(cmd,440,top+16,8,'Bestand','F2',white);top+=24;arr.forEach(p=>{pdfLine(cmd,38,top+31,557,top+31,border,1);pdfText(cmd,44,top+20,8,String(p.material),'F1',text);pdfText(cmd,440,top+20,8,`${Number(p.qty).toLocaleString('de-DE')} ${p.unit}`,'F2',text);top+=31;});if(i+16>=pieces.length){pdfRect(cmd,38,top+14,519,30,paleGreen);pdfText(cmd,50,top+34,10,'Bestandsaufnahme abgeschlossen','F2',green);}footer(cmd);addPage(cmd);}}
+  const photoDrums=drums.filter(d=>d.photo);for(let i=0;i<photoDrums.length;i+=4){const arr=photoDrums.slice(i,i+4),cmd=[],images=[];header(cmd,i?'FOTODOKUMENTATION · FORTSETZUNG':'FOTODOKUMENTATION');if(i===0)pdfText(cmd,38,160,16,'Fotos der Trommeln','F2',text);let top=i===0?188:160;for(let j=0;j<arr.length;j++){const d=arr[j],num=String(i+j+1).padStart(2,'0');pdfRect(cmd,38,top,519,145,white);cmd.push(`${border[0]} ${border[1]} ${border[2]} RG 1 w 38 ${842-top-145} 519 145 re S`);pdfRect(cmd,50,top+12,30,30,navy);pdfText(cmd,59,top+34,10,num,'F2',white);pdfText(cmd,92,top+25,11,String(d.material),'F2',text);pdfText(cmd,92,top+43,8,`Trommel ${d.no} · ${Number(d.total).toLocaleString('de-DE')} m gesamt · ${Number(d.rest).toLocaleString('de-DE')} m Rest`,'F1',muted);const im=await getImg(d);if(im){const maxW=150,maxH=105,scale=Math.min(maxW/im.w,maxH/im.h),w=im.w*scale,h=im.h*scale;images.push({im,x:390,top:top+20,w,h});}top+=153;}footer(cmd);addPage(cmd,images);}
+  const objects=[null];const obj=v=>(objects.push(v),objects.length-1);const pagesId=obj(null);const font1=obj('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>');const font2=obj('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>');const pageIds=[],contentIds=[],imageRefs=[];
+  for(const p of pages){const imgObjs=[];for(const entry of p.images){const b=entry.im.bytes;const id=obj({dict:`<< /Type /XObject /Subtype /Image /Width ${entry.im.w} /Height ${entry.im.h} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${b.length} >>`,bytes:b});imgObjs.push({id,entry});}let content=p.cmd.slice();imgObjs.forEach((o,k)=>content.push(`q ${o.entry.w} 0 0 ${o.entry.h} ${o.entry.x} ${842-o.entry.top-o.entry.h} cm /Im${k} Do Q`));const stream=content.join('\n')+'\n';contentIds.push(obj({dict:`<< /Length ${stream.length} >>`,bytes:pdfAsciiBytes(`stream\n${stream}endstream\n`)}));imageRefs.push(imgObjs);}
+  for(let i=0;i<pages.length;i++){let xobjs='';imageRefs[i].forEach((o,k)=>xobjs+=` /Im${k} ${o.id} 0 R`);pageIds.push(obj(`<< /Type /Page /Parent ${pagesId} 0 R /MediaBox [0 0 ${W} ${H}] /Resources << /Font << /F1 ${font1} 0 R /F2 ${font2} 0 R >>${xobjs?' /XObject <<'+xobjs+' >>':''} >> /Contents ${contentIds[i]} 0 R >>`));}
+  objects[pagesId]=`<< /Type /Pages /Count ${pageIds.length} /Kids [${pageIds.map(id=>id+' 0 R').join(' ')}] >>`;const catalogId=obj(`<< /Type /Catalog /Pages ${pagesId} 0 R >>`);
+  const chunks=[];let offset=0;const offsets=[0];const pushText=t=>{const b=pdfAsciiBytes(t);chunks.push(b);offset+=b.length;};const pushObj=(id,o)=>{offsets[id]=offset;pushText(`${id} 0 obj\n`);if(typeof o==='string')pushText(o+'\n');else{pushText(o.dict+'\nstream\n');chunks.push(o.bytes);offset+=o.bytes.length;pushText('\nendstream\n');}pushText('endobj\n');};pushText('%PDF-1.4\n%\xFF\xFF\xFF\xFF\n');for(let i=1;i<objects.length;i++)pushObj(i,objects[i]);const xrefOffset=offset;pushText(`xref\n0 ${objects.length}\n0000000000 65535 f \n`);for(let i=1;i<objects.length;i++)pushText(String(offsets[i]||0).padStart(10,'0')+' 00000 n \n');pushText(`trailer\n<< /Size ${objects.length} /Root ${catalogId} 0 R >>\nstartxref\n${xrefOffset}\n%%EOF`);return new Blob(chunks,{type:'application/pdf'});
+}
+async function directPdfFor(item,mode='view'){
+  const filename=`TM-MATERIAL_${mmSafeFilename(item.site)}_${String(item.date||today()).replace(/-/g,'')}.pdf`;const blob=await buildInventoryPdf(item);const file=new File([blob],filename,{type:'application/pdf'});const url=URL.createObjectURL(blob);
+  if(mode==='share'&&navigator.share&&(!navigator.canShare||navigator.canShare({files:[file]}))){try{await navigator.share({title:'THADEN MATERIAL · Bestandsaufnahme',files:[file]});URL.revokeObjectURL(url);return;}catch(e){if(e&&e.name==='AbortError'){URL.revokeObjectURL(url);return;}}}
+  const w=window.open(url,'_blank');if(!w){const a=document.createElement('a');a.href=url;a.download=filename;a.click();}setTimeout(()=>URL.revokeObjectURL(url),60000);
+}
+function printPdfInSeparateWindow(){const id=Number(localStorage.getItem('mm_last_documentation_id'));const item=history.find(x=>x.id===id);if(item)directPdfFor(item,'view');}
+function legacyPrintPdfInSeparateWindow(){
   const report=$('printReport');
   if(!report)return;
   const printWin=window.open('', '_blank');
@@ -1097,11 +1193,7 @@ function printPdfInSeparateWindow(){
 </head><body class="pdf-print-window"><div class="pdf-toolbar no-print"><button class="pdf-close-btn" type="button" onclick="window.close()">✕ PDF schließen</button></div>${report.innerHTML}<script>window.addEventListener('load',()=>{const imgs=[...document.images];Promise.all(imgs.map(img=>img.complete?Promise.resolve():new Promise(r=>{img.onload=img.onerror=r;}))).then(()=>setTimeout(()=>window.print(),450));});<\/script></body></html>`);
   printWin.document.close();
 }
-function openPdfFor(id){
-  const item=history.find(x=>x.id===id); if(!item)return;
-  renderPrintReport(item);
-  printPdfInSeparateWindow();
-}
+function openPdfFor(id){const item=history.find(x=>x.id===id);if(!item)return;directPdfFor(item,'view');}
 function deleteDocumentation(id){
   const item=history.find(x=>x.id===id); if(!item)return;
   const date=new Date(item.date+"T00:00").toLocaleDateString("de-DE");
@@ -1130,12 +1222,7 @@ function renderDocumentation(){
     return `<div class="workflow-card"><div class="top"><div><b>${esc(item.site)}</b><div class="meta">${esc(item.place||"")} · ${date} · ${st.drums} Trommeln · ${st.pieces} Materialarten</div><span class="status-pill">● gespeichert</span></div></div><div class="workflow-actions" style="grid-template-columns:1fr 1fr 1fr"><button class="primary" type="button" onclick="openPdfFor(${item.id})">📄 PDF erstellen</button><button class="ghost" type="button" onclick="shareDocument(${item.id})">📤 Teilen</button><button class="danger" type="button" onclick="deleteDocumentation(${item.id})">🗑 Löschen</button></div></div>`;
   }).join("");
 }
-async function shareDocument(id){
-  const item=history.find(x=>x.id===id); if(!item)return;
-  const text=`Material-Bestandsaufnahme\nBaustelle: ${item.site}\nDatum: ${new Date(item.date+"T00:00").toLocaleDateString("de-DE")}\nMitarbeiter: ${item.worker}\nTrommeln: ${(item.drums||[]).length}\nStückmaterialien: ${(item.pieces||[]).length}`;
-  if(navigator.share){try{await navigator.share({title:"THADEN MATERIAL · Bestandsliste",text})}catch(e){}}
-  else alert(text);
-}
+async function shareDocument(id){const item=history.find(x=>x.id===id);if(!item)return;await directPdfFor(item,'share');}
 function siteOptions(){
   return latestProjects().map(x=>`<option value="${esc(x.site)}">${esc(x.site)}</option>`).join("");
 }
@@ -1242,11 +1329,11 @@ function renderGroupedOrderPrintReport(site, orders, date=''){
 }
 function printOrderPdf(id){
   const list=JSON.parse(localStorage.getItem('mm_orders')||'[]'); const order=list.find(x=>x.id===id); if(!order)return;
-  const orders=getGroupedOrders(order.site,order.date); renderGroupedOrderPrintReport(order.site,orders,order.date); printPdfInSeparateWindow();
+  const orders=getGroupedOrders(order.site,order.date); renderGroupedOrderPrintReport(order.site,orders,order.date); legacyPrintPdfInSeparateWindow();
 }
 function printGroupedOrderPdf(site,date=''){
   const orders=getGroupedOrders(site,date); if(!orders.length)return;
-  renderGroupedOrderPrintReport(site,orders,date); printPdfInSeparateWindow();
+  renderGroupedOrderPrintReport(site,orders,date); legacyPrintPdfInSeparateWindow();
 }
 async function shareOrder(id){
   const list=JSON.parse(localStorage.getItem('mm_orders')||'[]'); const order=list.find(x=>x.id===id); if(!order)return;
@@ -1259,7 +1346,7 @@ async function shareGroupedOrder(site,date=''){
   // Auf iPhone/iPad wird zunächst die gemeinsame PDF-Druckansicht geöffnet.
   // Von dort kann die PDF über das iOS-Teilen-Symbol verschickt werden.
   renderGroupedOrderPrintReport(site,orders,dateValue);
-  printPdfInSeparateWindow();
+  legacyPrintPdfInSeparateWindow();
   setTimeout(()=>{
     if(confirm(`Die Sammel-PDF für ${site} · ${new Date(dateValue+'T00:00').toLocaleDateString('de-DE')} wurde zur Erstellung geöffnet.\n\nWenn du sie über das Teilen-Symbol verschickt hast, sollen die Bestellungen von dieser Seite entfernt werden?`)){
       markOrderGroupDone(site,dateValue,false);
@@ -1369,11 +1456,11 @@ function renderReturnPrintReport(list){
 }
 function printReturnPdf(id){
   const list=JSON.parse(localStorage.getItem('mm_returns')||'[]'); const item=list.find(x=>x.id==id); if(!item)return;
-  renderReturnPrintReport([item]); printPdfInSeparateWindow();
+  renderReturnPrintReport([item]); legacyPrintPdfInSeparateWindow();
 }
 function shareReturnList(){
   const list=JSON.parse(localStorage.getItem('mm_returns')||'[]'); if(!list.length){alert('Noch keine leeren Trommeln gemeldet.');return}
-  renderReturnPrintReport(list); printPdfInSeparateWindow();
+  renderReturnPrintReport(list); legacyPrintPdfInSeparateWindow();
 }
 function deleteReturn(id){
   const list=JSON.parse(localStorage.getItem('mm_returns')||'[]'); const item=list.find(x=>x.id==id); if(!item)return;
