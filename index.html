@@ -392,6 +392,8 @@ const defaultPieces=[["DN-50 Rohr","Stück"],["Verbinder 12mm","Stück"],["Verbi
 let cables=JSON.parse(localStorage.getItem("mm_custom_cables")||"null")||[...defaultCables];
 let pieces=JSON.parse(localStorage.getItem("mm_custom_pieces")||"null")||JSON.parse(JSON.stringify(defaultPieces));
 let pinCode=localStorage.getItem("mm_pin")||"1234", entered="", unlocked=false, selected="", drums=JSON.parse(localStorage.getItem("mm_drums")||"[]"), history=JSON.parse(localStorage.getItem("mm_history")||"[]"), current={drums:[],pieces:[]}, editingDrumIndex=-1, editingPieceIndex=-1, editingHistoryId=null;
+function compactPersistedDrumCache(){try{const compact=(drums||[]).map(d=>{const x={...d};delete x.photo;return x;});localStorage.removeItem("mm_drums");localStorage.setItem("mm_drums",JSON.stringify(compact));drums=compact;}catch(e){}}
+compactPersistedDrumCache();
 const cableMaterials=cables;
 const pieceMaterials=pieces.map(x=>x[0]);
 window.mmPieceMaster=pieceMaterials;
@@ -482,9 +484,14 @@ async function updateStorageStatus(){
 function localStorageQuotaGuard(extraText=""){
   const currentBytes=storageBytesApprox();
   const projected=currentBytes+new Blob([extraText]).size;
-  const hard=4.75*1024*1024, soft=4.0*1024*1024;
-  if(projected>=hard){alert("⚠️ Gerätespeicher fast voll. Die Bestandsaufnahme wurde nicht gespeichert. Bitte zuerst alte Aufnahmen/Fotos sichern oder löschen.");updateStorageStatus();return false;}
-  if(projected>=soft){const ok=confirm("⚠️ Der Gerätespeicher wird knapp. Möchtest du die Bestandsaufnahme trotzdem speichern?");if(!ok)return false;}
+  // iOS/Safari localStorage limits vary. Do not block a save based on an arbitrary
+  // fixed limit; the real localStorage write below is authoritative.
+  // Only warn when the approximate payload becomes unusually large.
+  const warnAt=4.2*1024*1024;
+  if(projected>=warnAt){
+    const ok=confirm("⚠️ Der Gerätespeicher wird knapp. Die App versucht trotzdem zu speichern. Möchtest du fortfahren?");
+    if(!ok)return false;
+  }
   return true;
 }
 function updateStats(){if($("statDrums"))$("statDrums").textContent=drums.length;if($("statHistory"))$("statHistory").textContent=history.length}
@@ -1030,7 +1037,7 @@ function renderPrintReport(item){
   }
   $("printReport").innerHTML=pages.join("");
 }
-function rebuildDrumStore(){drums=history.flatMap(x=>(x.drums||[]).map(d=>({...d,site:x.site,date:x.date})));localStorage.setItem("mm_drums",JSON.stringify(drums));}
+function rebuildDrumStore(){drums=history.flatMap(x=>(x.drums||[]).map(d=>({...d,site:x.site,date:x.date})));try{const compact=drums.map(d=>{const x={...d};delete x.photo;return x;});localStorage.removeItem("mm_drums");localStorage.setItem("mm_drums",JSON.stringify(compact));}catch(e){}}
 function completeInventory(){
   let site=$("site").value.trim(),place=$("place").value.trim(),postalCode=$("postalCode").value.trim(),street=$("street").value.trim(),worker=$("worker").value.trim();
   if(!site||!place||!postalCode||!street||!worker){alert("Bitte Baustelle, Ort, PLZ, Straße und Hausnummer sowie Mitarbeiter ausfüllen.");return}
@@ -1039,10 +1046,12 @@ function completeInventory(){
   if(existingIndex>=0) history[existingIndex]=item; else history.unshift(item);
   const historyJson=JSON.stringify(history);
   const drumStorePreview=history.flatMap(x=>(x.drums||[]).map(d=>({...d,site:x.site,date:x.date})));
-  const drumJson=JSON.stringify(drumStorePreview);
+  const compactDrumStore=drumStorePreview.map(d=>{const x={...d};delete x.photo;return x;});
+  const drumJson=JSON.stringify(compactDrumStore);
   if(!localStorageQuotaGuard(historyJson+drumJson)){return;}
   try{
     localStorage.setItem("mm_history",historyJson);
+    localStorage.removeItem("mm_drums");
     localStorage.setItem("mm_drums",drumJson);
   }catch(e){
     alert("⚠️ Der Gerätespeicher ist voll. Die Bestandsaufnahme konnte nicht dauerhaft gespeichert werden. Bitte zuerst Speicher freigeben.");
