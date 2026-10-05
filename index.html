@@ -31,8 +31,6 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px s
 .history-item{padding:13px;border:1px solid var(--border);border-radius:12px;margin:9px 0;background:#fbfcfe}.history-item-row{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}.delete-history{border:1px solid #d7dde2;background:#fff;color:#b42318;border-radius:10px;padding:8px 10px;font-weight:700;white-space:nowrap}
 .empty{padding:20px;text-align:center;color:var(--muted)}
 
-
-
 .dashboard{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-top:14px}.dash-tile{min-height:88px;border:0;border-radius:18px;padding:16px;color:#fff;text-align:left;box-shadow:0 5px 16px #10203022;position:relative;overflow:hidden}.dash-tile .ico{font-size:22px;display:block;margin-bottom:8px}.dash-tile b{font-size:16px}.dash-tile small{display:block;margin-top:3px;opacity:.88;font-size:11px}.dash-orange{background:linear-gradient(135deg,#ff6b00,#ff8a21)}.dash-dark{background:linear-gradient(135deg,#18232d,#2a3742)}.dash-green{background:linear-gradient(135deg,#149c62,#25b879)}.dash-purple{background:linear-gradient(135deg,#6636d8,#8058e8)}.dash-blue{background:linear-gradient(135deg,#2366c7,#3c83e8)}.dash-gray{background:linear-gradient(135deg,#52606b,#697782)}.quick{display:flex;gap:10px;overflow:auto;padding:4px 1px 6px}.quick button{min-width:145px;text-align:left;background:#fff;border:1px solid #e2e7eb}.home-hero{background:linear-gradient(135deg,#101820,#1d2a35);color:#fff;border-radius:22px;padding:20px;box-shadow:0 7px 22px #10203022}.home-hero h1{font-size:27px;margin:0}.home-hero p{margin:7px 0 0;color:#d5dde3}.section-title{display:flex;justify-content:space-between;align-items:center;margin:18px 2px 9px}.section-title h3{margin:0}.activity{background:#fff;border-radius:16px;padding:4px 15px;box-shadow:0 3px 14px #0000000b}.activity-row{display:flex;gap:11px;align-items:center;padding:13px 0;border-bottom:1px solid #edf0f2}.activity-row:last-child{border-bottom:0}.activity-dot{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:#eef3f6}.bottom-nav{position:sticky;bottom:0;z-index:10;background:#101820;color:#fff;margin:18px -11px -11px;padding:8px 6px calc(8px + env(safe-area-inset-bottom));display:grid;grid-template-columns:repeat(5,1fr);box-shadow:0 -4px 15px #0003}.bottom-nav button{background:transparent;color:#dbe2e7;padding:7px 2px;font-size:11px;border-radius:10px}.bottom-nav button.active{background:#202e39;color:#ff7a00}.bottom-nav span{display:block;font-size:20px;line-height:22px;margin-bottom:3px}.feature-list{display:grid;gap:9px}.feature-item{display:flex;justify-content:space-between;align-items:center;background:#fff;border:1px solid #e2e7eb;border-radius:14px;padding:13px}.feature-item .left{display:flex;gap:10px;align-items:center}.feature-icon{width:38px;height:38px;border-radius:10px;background:#eef2f5;display:grid;place-items:center;font-size:20px}.back{margin-bottom:12px}.stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.stat{background:#fff;border-radius:15px;padding:15px;border:1px solid #e2e7eb}.stat b{font-size:24px;display:block}@media(min-width:700px){.dashboard{grid-template-columns:repeat(3,1fr)}.bottom-nav{max-width:980px;margin-left:auto;margin-right:auto;border-radius:18px 18px 0 0}}
 @media(max-width:650px){.wrap{padding:11px}.row{grid-template-columns:1fr}header{padding:13px}.card{padding:16px}}
 @media print{header,.no-print{display:none!important}body{background:#fff}.card{box-shadow:none;border:0}.wrap{max-width:none}}
@@ -199,10 +197,6 @@ if ('serviceWorker' in navigator){
     <button class="process-card gray" onclick="show('orders')"><span class="process-ico"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M13 21 32 11l19 10-19 10zM13 21v22l19 10 19-10V21M32 31v22" fill="none" stroke="currentColor" stroke-width="5" stroke-linejoin="round"/><path d="m22 26 10 5 10-5" fill="none" stroke="currentColor" stroke-width="5"/></svg></span><b>3 ·<br>Material-<br>bestellung</b><small>Fehlendes Material melden</small></button>
     <button class="process-card green" onclick="show('returns')"><span class="process-ico"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M17 23a22 22 0 0 1 35 8" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round"/><path d="m49 20 3 11-11-1" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><path d="M47 41a22 22 0 0 1-35-8" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round"/><path d="m15 44-3-11 11 1" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><b>4 · Leere Trommeln</b><small>Rücklieferung ans Lager</small></button>
   </div>
-</div>
-  <div class="storage-track"><div id="storageFill" class="storage-fill"></div></div>
-  <div class="storage-meta"><span id="storageUsed">—</span><span id="storageFree">—</span></div>
-  <div id="storageNote" class="storage-note">Die Bestände und Fotos werden aktuell auf diesem Gerät gespeichert.</div>
 </div>
 <div class="workflow-section">
   <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h3>Letzte Vorgänge</h3><button class="ghost" onclick="show('history')">Historie →</button></div>
@@ -390,8 +384,6 @@ const defaultPieces=[["DN-50 Rohr","Stück"],["Verbinder 12mm","Stück"],["Verbi
 let cables=JSON.parse(localStorage.getItem("mm_custom_cables")||"null")||[...defaultCables];
 let pieces=JSON.parse(localStorage.getItem("mm_custom_pieces")||"null")||JSON.parse(JSON.stringify(defaultPieces));
 let pinCode=localStorage.getItem("mm_pin")||"1234", entered="", unlocked=false, selected="", drums=JSON.parse(localStorage.getItem("mm_drums")||"[]"), history=JSON.parse(localStorage.getItem("mm_history")||"[]"), current={drums:[],pieces:[]}, editingDrumIndex=-1, editingPieceIndex=-1, editingHistoryId=null;
-function compactPersistedDrumCache(){try{const compact=(drums||[]).map(d=>{const x={...d};delete x.photo;return x;});localStorage.removeItem("mm_drums");localStorage.setItem("mm_drums",JSON.stringify(compact));drums=compact;}catch(e){}}
-compactPersistedDrumCache();
 const cableMaterials=cables;
 const pieceMaterials=pieces.map(x=>x[0]);
 window.mmPieceMaster=pieceMaterials;
@@ -399,7 +391,7 @@ const $=x=>document.getElementById(x);
 function today(){return new Date(Date.now()-new Date().getTimezoneOffset()*60000).toISOString().slice(0,10)}
 $("invDate").value=today();
 function show(id){
-  if(id==="summary"){const inline=$("summarySaveConfirm"), actions=$("summaryActions"), btn=$("confirmSaveBtn"); if(inline) inline.classList.remove("show"); if(actions) actions.classList.remove("is-saved"); if(btn){btn.disabled=false;btn.textContent="✓ Aufnahme bestätigen";}}if(id==="home"&&!unlocked)return;document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));const target=document.querySelector(`.screen#${CSS.escape(id)}`);if(!target)return;target.classList.add("active");if(id==="home"){renderHome();updateStorageStatus();}if(id==="history")renderHistory();if(id==="drums")renderDrums();if(id==="documentation")renderDocumentation();if(id==="sites")renderSites();if(id==="materials")renderCurrentEntries();if(id==="orders")renderOrderForm();if(id==="orderList")renderOrders();if(id==="returns")renderReturnForm();if(id==="returnList")renderReturns();updateStats();window.scrollTo({top:0,left:0,behavior:"auto"});document.documentElement.scrollTop=0;document.body.scrollTop=0}
+  if(id==="summary"){const inline=$("summarySaveConfirm"), actions=$("summaryActions"), btn=$("confirmSaveBtn"); if(inline) inline.classList.remove("show"); if(actions) actions.classList.remove("is-saved"); if(btn){btn.disabled=false;btn.textContent="✓ Aufnahme bestätigen";}}if(id==="home"&&!unlocked)return;document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));const target=document.querySelector(`.screen#${CSS.escape(id)}`);if(!target)return;target.classList.add("active");if(id==="home")renderHome();if(id==="history")renderHistory();if(id==="drums")renderDrums();if(id==="documentation")renderDocumentation();if(id==="sites")renderSites();if(id==="materials")renderCurrentEntries();if(id==="orders")renderOrderForm();if(id==="orderList")renderOrders();if(id==="returns")renderReturnForm();if(id==="returnList")renderReturns();updateStats();window.scrollTo({top:0,left:0,behavior:"auto"});document.documentElement.scrollTop=0;document.body.scrollTop=0}
 unlocked=false;
 function pinButtonEffect(el){if(!el)return;el.classList.remove("pin-press");void el.offsetWidth;el.classList.add("pin-press");setTimeout(()=>el.classList.remove("pin-press"),110)}
 function pinDotsEffect(kind){const d=$("pinDots");if(!d)return;d.classList.remove("pin-pop","pin-success","pin-error");void d.offsetWidth;if(kind)d.classList.add(kind);if(kind!=="pin-error")setTimeout(()=>d.classList.remove(kind),220);}
@@ -459,39 +451,6 @@ function deleteCurrentPiece(index){if(!confirm("Dieses Stückmaterial aus der ak
 function showHistory(){show("history")}
 function showDrums(){show("drums")}
 function showSettings(){show("settings")}
-function storageBytesApprox(){
-  let total=0;
-  try{for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i)||"";const v=localStorage.getItem(k)||"";total+=new Blob([k,v]).size;}}catch(e){}
-  return total;
-}
-function formatBytes(n){if(!Number.isFinite(n)||n<0)return "—";if(n<1024)return n+" B";if(n<1024*1024)return (n/1024).toFixed(0)+" KB";return (n/1024/1024).toFixed(1)+" MB"}
-async function updateStorageStatus(){
-  const status=$("storageStatus"),fill=$("storageFill"),used=$("storageUsed"),free=$("storageFree"),note=$("storageNote");
-  if(!status||!fill)return;
-  let usage=storageBytesApprox(), quota=0;
-  try{if(navigator.storage&&navigator.storage.estimate){const e=await navigator.storage.estimate();if(Number.isFinite(e.usage))usage=Math.max(usage,e.usage);if(Number.isFinite(e.quota))quota=e.quota;}}catch(e){}
-  let ratio=0;
-  if(quota>0) ratio=Math.min(1,usage/quota); else ratio=Math.min(1,usage/(4.5*1024*1024));
-  const pct=Math.round(ratio*100); fill.style.width=pct+"%"; fill.classList.remove("warn","bad"); status.classList.remove("good","warn","bad");
-  if(ratio>=.9){status.textContent="Speicher fast voll";status.classList.add("bad");fill.classList.add("bad");note.textContent="Bitte alte Aufnahmen/Fotos sichern und nicht weiter viele Fotos hinzufügen.";}
-  else if(ratio>=.7){status.textContent="Speicher wird knapp";status.classList.add("warn");fill.classList.add("warn");note.textContent="Noch ausreichend, aber der Speicher sollte im Blick behalten werden.";}
-  else{status.textContent="Speicher ausreichend";status.classList.add("good");note.textContent="Bestände und Fotos werden auf diesem Gerät gespeichert.";}
-  used.textContent="Belegt: "+formatBytes(usage)+(quota?" / "+formatBytes(quota):"");
-  free.textContent=quota?"Frei: "+formatBytes(Math.max(0,quota-usage)):"Lokaler Speicher";
-}
-function localStorageQuotaGuard(extraText=""){
-  const currentBytes=storageBytesApprox();
-  const projected=currentBytes+new Blob([extraText]).size;
-  // iOS/Safari localStorage limits vary. Do not block a save based on an arbitrary
-  // fixed limit; the real localStorage write below is authoritative.
-  // Only warn when the approximate payload becomes unusually large.
-  const warnAt=4.2*1024*1024;
-  if(projected>=warnAt){
-    const ok=confirm("⚠️ Der Gerätespeicher wird knapp. Die App versucht trotzdem zu speichern. Möchtest du fortfahren?");
-    if(!ok)return false;
-  }
-  return true;
-}
 function updateStats(){if($("statDrums"))$("statDrums").textContent=drums.length;if($("statHistory"))$("statHistory").textContent=history.length}
 function compressImage(file,maxSide=900,quality=.72){return new Promise((resolve,reject)=>{const r=new FileReader();r.onload=()=>{const img=new Image();img.onload=()=>{const scale=Math.min(1,maxSide/Math.max(img.naturalWidth,img.naturalHeight));const c=document.createElement('canvas');c.width=Math.max(1,Math.round(img.naturalWidth*scale));c.height=Math.max(1,Math.round(img.naturalHeight*scale));const ctx=c.getContext('2d');ctx.drawImage(img,0,0,c.width,c.height);resolve(c.toDataURL('image/jpeg',quality))};img.onerror=reject;img.src=r.result};r.onerror=reject;r.readAsDataURL(file)})}
 let ocrWorkerPromise=null;
@@ -1035,28 +994,14 @@ function renderPrintReport(item){
   }
   $("printReport").innerHTML=pages.join("");
 }
-function rebuildDrumStore(){drums=history.flatMap(x=>(x.drums||[]).map(d=>({...d,site:x.site,date:x.date})));try{const compact=drums.map(d=>{const x={...d};delete x.photo;return x;});localStorage.removeItem("mm_drums");localStorage.setItem("mm_drums",JSON.stringify(compact));}catch(e){}}
+function rebuildDrumStore(){drums=history.flatMap(x=>(x.drums||[]).map(d=>({...d,site:x.site,date:x.date})));localStorage.setItem("mm_drums",JSON.stringify(drums));}
 function completeInventory(){
   let site=$("site").value.trim(),place=$("place").value.trim(),postalCode=$("postalCode").value.trim(),street=$("street").value.trim(),worker=$("worker").value.trim();
   if(!site||!place||!postalCode||!street||!worker){alert("Bitte Baustelle, Ort, PLZ, Straße und Hausnummer sowie Mitarbeiter ausfüllen.");return}
   let item={id:editingHistoryId||Date.now(),site,warehouse:"Lagerplatz",place,postalCode,street,date:$("invDate").value||today(),worker,drums:JSON.parse(JSON.stringify(current.drums)),pieces:JSON.parse(JSON.stringify(current.pieces))};
   const existingIndex=history.findIndex(x=>x.id===item.id);
   if(existingIndex>=0) history[existingIndex]=item; else history.unshift(item);
-  const historyJson=JSON.stringify(history);
-  const drumStorePreview=history.flatMap(x=>(x.drums||[]).map(d=>({...d,site:x.site,date:x.date})));
-  const compactDrumStore=drumStorePreview.map(d=>{const x={...d};delete x.photo;return x;});
-  const drumJson=JSON.stringify(compactDrumStore);
-  if(!localStorageQuotaGuard(historyJson+drumJson)){return;}
-  try{
-    localStorage.setItem("mm_history",historyJson);
-    localStorage.removeItem("mm_drums");
-    localStorage.setItem("mm_drums",drumJson);
-  }catch(e){
-    alert("⚠️ Der Gerätespeicher ist voll. Die Bestandsaufnahme konnte nicht dauerhaft gespeichert werden. Bitte zuerst Speicher freigeben.");
-    updateStorageStatus();
-    return;
-  }
-  drums=drumStorePreview; checkLowStockForSavedItem(item); updateStorageStatus();
+  localStorage.setItem("mm_history",JSON.stringify(history)); rebuildDrumStore(); checkLowStockForSavedItem(item);
   renderPrintReport(item);
   localStorage.setItem("mm_last_documentation_id",String(item.id));
   localStorage.setItem("mm_last_documentation_message","Material erfolgreich gespeichert und als PDF bereit.");
