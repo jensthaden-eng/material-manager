@@ -315,6 +315,58 @@ body{background:#f3f5f7}
   #returns .form-actions{grid-template-columns:1fr 1fr}
 }
 </style>
+
+<style id="tm-return-anthracite-orange-v123">
+/* V123 – Anthrazit/Orange UI-Refresh für Rücklieferung. Nur CSS. */
+#returns{background:linear-gradient(180deg,#eef1f3 0%,#f7f8f9 100%);padding-bottom:18px}
+#returns > .card{background:transparent;box-shadow:none;padding:10px 12px 20px;margin:0}
+#returns .back{background:#27313a;color:#fff;border:0;border-radius:12px;padding:10px 14px;margin-bottom:10px;box-shadow:0 3px 10px rgba(16,24,32,.16)}
+#returns h2{font-size:27px;line-height:1.08;margin:4px 2px 4px;font-weight:900;letter-spacing:-.7px;color:#17232c}
+#returns > .card > .muted{margin:0 2px 14px;color:#687680;font-size:14px;line-height:1.4}
+#returns .form-card{background:#fff;border:1px solid #d9dfe3;border-radius:20px;padding:17px 15px 15px;box-shadow:0 7px 24px rgba(16,24,32,.08)}
+#returns .form-card h3{font-size:21px;line-height:1.15;margin:0 0 12px;color:#17232c;font-weight:900;display:flex;align-items:center;gap:9px}
+#returns .form-card h3:before{content:"1";width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:#ff6b00;color:#fff;font-size:14px;font-weight:900;box-shadow:0 3px 8px rgba(255,107,0,.25)}
+#returns .form-card > label{font-size:14px;margin:11px 0 5px;color:#27333c;font-weight:800}
+#returns #returnSite,#returns #returnMaterial,#returns #returnDrum{min-height:48px;padding:11px 13px;border:1px solid #ccd4da;border-radius:12px;background:#fff;color:#17232c;font-size:16px;box-shadow:inset 0 1px 2px rgba(16,24,32,.03)}
+#returns #returnSite:focus,#returns #returnMaterial:focus,#returns #returnDrum:focus{outline:3px solid rgba(255,107,0,.17);border-color:#ff6b00}
+#returns #returnDrum{font-weight:800;letter-spacing:.3px}
+#returns .photo-box{display:grid;grid-template-columns:minmax(0,.82fr) minmax(0,1.18fr);gap:10px;align-items:start;margin-top:8px}
+#returns .photo-action{min-height:168px;border:2px dashed #aeb9c1;border-radius:16px;background:#f4f6f7;color:#25313a;font-size:15px;font-weight:850;line-height:1.2;padding:14px;transition:.15s ease}
+#returns .photo-action:active{transform:scale(.985);border-color:#ff6b00;background:#fff6ef}
+#returns #returnPreview{height:168px;width:100%;margin:0;border-radius:16px;object-fit:cover;background:#101820;box-shadow:0 5px 14px rgba(16,24,32,.16)}
+#returns #returnPhotoMsg{font-size:12.5px;line-height:1.35;margin:7px 0 0;color:#687680}
+#returns #returnPhotoUploadProgress{margin-top:8px;padding:9px 10px;border-radius:12px;background:#f2faf5;border:1px solid #c9e7d6}
+#returns #returnPhotoUploadProgress .photo-upload-head{font-size:12px;color:#176f49}
+#returns #returnPhotoUploadProgress .photo-upload-head b{font-size:13px;color:#159b60}
+#returns #returnPhotoUploadProgress .photo-upload-track{height:7px;margin-top:6px}
+#returns #returnOcrMsg{margin-top:9px!important;padding:12px 13px;border-radius:14px;font-size:13px!important;line-height:1.3;font-weight:800}
+#returns #returnOcrMsg.success{background:#e7f7ef;border-color:#b7e4cd;color:#126f47}
+#returns #returnOcrMsg .ocr-number{font-size:20px;letter-spacing:.4px;color:#0d7549;margin-top:5px}
+#returns .ocr-retry{padding:9px 10px!important;font-size:13px!important;border-radius:11px;background:#edf1f3!important;color:#27333c!important;border:1px solid #d4dce1!important}
+#returns #deleteReturnPhotoBtn{background:#2d3740!important;color:#fff!important;border-color:#2d3740!important;font-weight:800}
+#returns .form-actions{margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+#returns .form-actions button{min-height:48px;border-radius:12px;font-size:14px;padding:10px 8px;font-weight:850}
+#returns .form-actions .primary{background:#ff6b00;box-shadow:0 4px 12px rgba(255,107,0,.22)}
+#returns .form-actions .green{background:#27313a;color:#fff}
+#returns #returnBatchList{margin-top:11px}
+#returns #returnBatchList .history-item{background:#f7f9fa;border:1px solid #dce2e6;padding:10px 11px;border-radius:13px;margin:7px 0}
+#returns #returnBatchList .history-item-row{gap:8px;align-items:center}
+#returns #returnBatchList .photo-thumb{width:42px;height:42px;border-radius:8px}
+#returns #returnBatchList .delete-history{padding:6px 8px;font-size:12px;border-radius:8px;background:#fff}
+#returns .actions{margin-top:10px;gap:8px}
+#returns .actions button{width:100%;padding:11px 12px;border-radius:12px;font-size:13px}
+#returns .actions .ghost{background:#fff;border:1px solid #d3dbe0;color:#27313a}
+#returns .notice-success{border-radius:14px;margin-bottom:12px}
+@media(max-width:430px){
+  #returns > .card{padding:8px 9px 16px}
+  #returns .form-card{padding:15px 12px 13px;border-radius:18px}
+  #returns .photo-box{grid-template-columns:1fr 1.12fr;gap:8px}
+  #returns .photo-action,#returns #returnPreview{min-height:146px;height:146px}
+  #returns .photo-action{font-size:13.5px;padding:10px}
+  #returns .form-actions button{font-size:13px}
+}
+</style>
+
 </head>
 <body>
 <header class="app-header"><img class="header-logo" src="./thaden-logo-v87.png" alt="THADEN MATERIAL"></header>
@@ -1294,6 +1346,58 @@ function printPdfInSeparateWindow(){
   background:#fff !important;
 }
 </style>
+
+<style id="tm-return-anthracite-orange-v123">
+/* V123 – Anthrazit/Orange UI-Refresh für Rücklieferung. Nur CSS. */
+#returns{background:linear-gradient(180deg,#eef1f3 0%,#f7f8f9 100%);padding-bottom:18px}
+#returns > .card{background:transparent;box-shadow:none;padding:10px 12px 20px;margin:0}
+#returns .back{background:#27313a;color:#fff;border:0;border-radius:12px;padding:10px 14px;margin-bottom:10px;box-shadow:0 3px 10px rgba(16,24,32,.16)}
+#returns h2{font-size:27px;line-height:1.08;margin:4px 2px 4px;font-weight:900;letter-spacing:-.7px;color:#17232c}
+#returns > .card > .muted{margin:0 2px 14px;color:#687680;font-size:14px;line-height:1.4}
+#returns .form-card{background:#fff;border:1px solid #d9dfe3;border-radius:20px;padding:17px 15px 15px;box-shadow:0 7px 24px rgba(16,24,32,.08)}
+#returns .form-card h3{font-size:21px;line-height:1.15;margin:0 0 12px;color:#17232c;font-weight:900;display:flex;align-items:center;gap:9px}
+#returns .form-card h3:before{content:"1";width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:#ff6b00;color:#fff;font-size:14px;font-weight:900;box-shadow:0 3px 8px rgba(255,107,0,.25)}
+#returns .form-card > label{font-size:14px;margin:11px 0 5px;color:#27333c;font-weight:800}
+#returns #returnSite,#returns #returnMaterial,#returns #returnDrum{min-height:48px;padding:11px 13px;border:1px solid #ccd4da;border-radius:12px;background:#fff;color:#17232c;font-size:16px;box-shadow:inset 0 1px 2px rgba(16,24,32,.03)}
+#returns #returnSite:focus,#returns #returnMaterial:focus,#returns #returnDrum:focus{outline:3px solid rgba(255,107,0,.17);border-color:#ff6b00}
+#returns #returnDrum{font-weight:800;letter-spacing:.3px}
+#returns .photo-box{display:grid;grid-template-columns:minmax(0,.82fr) minmax(0,1.18fr);gap:10px;align-items:start;margin-top:8px}
+#returns .photo-action{min-height:168px;border:2px dashed #aeb9c1;border-radius:16px;background:#f4f6f7;color:#25313a;font-size:15px;font-weight:850;line-height:1.2;padding:14px;transition:.15s ease}
+#returns .photo-action:active{transform:scale(.985);border-color:#ff6b00;background:#fff6ef}
+#returns #returnPreview{height:168px;width:100%;margin:0;border-radius:16px;object-fit:cover;background:#101820;box-shadow:0 5px 14px rgba(16,24,32,.16)}
+#returns #returnPhotoMsg{font-size:12.5px;line-height:1.35;margin:7px 0 0;color:#687680}
+#returns #returnPhotoUploadProgress{margin-top:8px;padding:9px 10px;border-radius:12px;background:#f2faf5;border:1px solid #c9e7d6}
+#returns #returnPhotoUploadProgress .photo-upload-head{font-size:12px;color:#176f49}
+#returns #returnPhotoUploadProgress .photo-upload-head b{font-size:13px;color:#159b60}
+#returns #returnPhotoUploadProgress .photo-upload-track{height:7px;margin-top:6px}
+#returns #returnOcrMsg{margin-top:9px!important;padding:12px 13px;border-radius:14px;font-size:13px!important;line-height:1.3;font-weight:800}
+#returns #returnOcrMsg.success{background:#e7f7ef;border-color:#b7e4cd;color:#126f47}
+#returns #returnOcrMsg .ocr-number{font-size:20px;letter-spacing:.4px;color:#0d7549;margin-top:5px}
+#returns .ocr-retry{padding:9px 10px!important;font-size:13px!important;border-radius:11px;background:#edf1f3!important;color:#27333c!important;border:1px solid #d4dce1!important}
+#returns #deleteReturnPhotoBtn{background:#2d3740!important;color:#fff!important;border-color:#2d3740!important;font-weight:800}
+#returns .form-actions{margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px}
+#returns .form-actions button{min-height:48px;border-radius:12px;font-size:14px;padding:10px 8px;font-weight:850}
+#returns .form-actions .primary{background:#ff6b00;box-shadow:0 4px 12px rgba(255,107,0,.22)}
+#returns .form-actions .green{background:#27313a;color:#fff}
+#returns #returnBatchList{margin-top:11px}
+#returns #returnBatchList .history-item{background:#f7f9fa;border:1px solid #dce2e6;padding:10px 11px;border-radius:13px;margin:7px 0}
+#returns #returnBatchList .history-item-row{gap:8px;align-items:center}
+#returns #returnBatchList .photo-thumb{width:42px;height:42px;border-radius:8px}
+#returns #returnBatchList .delete-history{padding:6px 8px;font-size:12px;border-radius:8px;background:#fff}
+#returns .actions{margin-top:10px;gap:8px}
+#returns .actions button{width:100%;padding:11px 12px;border-radius:12px;font-size:13px}
+#returns .actions .ghost{background:#fff;border:1px solid #d3dbe0;color:#27313a}
+#returns .notice-success{border-radius:14px;margin-bottom:12px}
+@media(max-width:430px){
+  #returns > .card{padding:8px 9px 16px}
+  #returns .form-card{padding:15px 12px 13px;border-radius:18px}
+  #returns .photo-box{grid-template-columns:1fr 1.12fr;gap:8px}
+  #returns .photo-action,#returns #returnPreview{min-height:146px;height:146px}
+  #returns .photo-action{font-size:13.5px;padding:10px}
+  #returns .form-actions button{font-size:13px}
+}
+</style>
+
 </head><body class="pdf-print-window"><div class="pdf-toolbar no-print"><button class="pdf-close-btn" type="button" onclick="window.close()">✕ PDF schließen</button></div>${report.innerHTML}<script>window.addEventListener('load',()=>{const imgs=[...document.images];Promise.all(imgs.map(img=>img.complete?Promise.resolve():new Promise(r=>{img.onload=img.onerror=r;}))).then(()=>setTimeout(()=>window.print(),450));});<\/script></body></html>`);
   printWin.document.close();
 }
