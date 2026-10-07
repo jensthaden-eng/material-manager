@@ -32,7 +32,7 @@ table{width:100%;border-collapse:collapse}th,td{padding:10px;border-bottom:1px s
 .empty{padding:20px;text-align:center;color:var(--muted)}
 
 
-
+.storage-card{margin-top:14px;background:#fff;border:1px solid #e2e7eb;border-radius:18px;padding:14px 15px;box-shadow:0 3px 14px #0000000b}.storage-head{display:flex;justify-content:space-between;align-items:center;gap:12px}.storage-title{font-weight:800;font-size:15px}.storage-status{font-weight:800;font-size:13px}.storage-status.good{color:#15915b}.storage-status.warn{color:#d66a00}.storage-status.bad{color:#c83b32}.storage-track{height:8px;background:#edf1f3;border-radius:99px;overflow:hidden;margin:10px 0 7px}.storage-fill{height:100%;width:0;border-radius:99px;background:#15915b;transition:width .3s ease,background .3s ease}.storage-fill.warn{background:#ff7900}.storage-fill.bad{background:#c83b32}.storage-meta{display:flex;justify-content:space-between;gap:10px;color:#6b7882;font-size:12px}.storage-note{margin-top:7px;color:#7b8790;font-size:11px;line-height:1.35}
 .dashboard{display:grid;grid-template-columns:repeat(2,1fr);gap:9px;margin-top:14px}.dash-tile{min-height:88px;border:0;border-radius:18px;padding:16px;color:#fff;text-align:left;box-shadow:0 5px 16px #10203022;position:relative;overflow:hidden}.dash-tile .ico{font-size:22px;display:block;margin-bottom:8px}.dash-tile b{font-size:16px}.dash-tile small{display:block;margin-top:3px;opacity:.88;font-size:11px}.dash-orange{background:linear-gradient(135deg,#ff6b00,#ff8a21)}.dash-dark{background:linear-gradient(135deg,#18232d,#2a3742)}.dash-green{background:linear-gradient(135deg,#149c62,#25b879)}.dash-purple{background:linear-gradient(135deg,#6636d8,#8058e8)}.dash-blue{background:linear-gradient(135deg,#2366c7,#3c83e8)}.dash-gray{background:linear-gradient(135deg,#52606b,#697782)}.quick{display:flex;gap:10px;overflow:auto;padding:4px 1px 6px}.quick button{min-width:145px;text-align:left;background:#fff;border:1px solid #e2e7eb}.home-hero{background:linear-gradient(135deg,#101820,#1d2a35);color:#fff;border-radius:22px;padding:20px;box-shadow:0 7px 22px #10203022}.home-hero h1{font-size:27px;margin:0}.home-hero p{margin:7px 0 0;color:#d5dde3}.section-title{display:flex;justify-content:space-between;align-items:center;margin:18px 2px 9px}.section-title h3{margin:0}.activity{background:#fff;border-radius:16px;padding:4px 15px;box-shadow:0 3px 14px #0000000b}.activity-row{display:flex;gap:11px;align-items:center;padding:13px 0;border-bottom:1px solid #edf0f2}.activity-row:last-child{border-bottom:0}.activity-dot{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:#eef3f6}.bottom-nav{position:sticky;bottom:0;z-index:10;background:#101820;color:#fff;margin:18px -11px -11px;padding:8px 6px calc(8px + env(safe-area-inset-bottom));display:grid;grid-template-columns:repeat(5,1fr);box-shadow:0 -4px 15px #0003}.bottom-nav button{background:transparent;color:#dbe2e7;padding:7px 2px;font-size:11px;border-radius:10px}.bottom-nav button.active{background:#202e39;color:#ff7a00}.bottom-nav span{display:block;font-size:20px;line-height:22px;margin-bottom:3px}.feature-list{display:grid;gap:9px}.feature-item{display:flex;justify-content:space-between;align-items:center;background:#fff;border:1px solid #e2e7eb;border-radius:14px;padding:13px}.feature-item .left{display:flex;gap:10px;align-items:center}.feature-icon{width:38px;height:38px;border-radius:10px;background:#eef2f5;display:grid;place-items:center;font-size:20px}.back{margin-bottom:12px}.stat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}.stat{background:#fff;border-radius:15px;padding:15px;border:1px solid #e2e7eb}.stat b{font-size:24px;display:block}@media(min-width:700px){.dashboard{grid-template-columns:repeat(3,1fr)}.bottom-nav{max-width:980px;margin-left:auto;margin-right:auto;border-radius:18px 18px 0 0}}
 @media(max-width:650px){.wrap{padding:11px}.row{grid-template-columns:1fr}header{padding:13px}.card{padding:16px}}
 @media print{header,.no-print{display:none!important}body{background:#fff}.card{box-shadow:none;border:0}.wrap{max-width:none}}
@@ -118,16 +118,6 @@ body{background:#f3f5f7}
 @keyframes pinShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-9px)}40%{transform:translateX(8px)}60%{transform:translateX(-6px)}80%{transform:translateX(5px)}}
 #pinError.pin-error-text{color:#d92d20!important;font-weight:700;}
 
-
-/* V123 live scanner – no inline worksheet bar */
-.scanner-overlay{position:fixed;inset:0;background:rgba(5,10,14,.86);z-index:2000;display:none;align-items:center;justify-content:center;padding:16px;box-sizing:border-box}
-.scanner-overlay.show{display:flex}
-.scanner-card{width:min(560px,100%);background:#fff;border-radius:22px;padding:16px;box-shadow:0 20px 60px rgba(0,0,0,.45)}
-.scanner-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}.scanner-head h3{margin:0;font-size:21px;color:#16232d}.scanner-close{border:0;background:#eef2f5;color:#16232d;border-radius:50%;width:42px;height:42px;font-size:26px;line-height:1}
-.scanner-video-wrap{position:relative;background:#0b1116;border-radius:16px;overflow:hidden;aspect-ratio:4/3}.scanner-video{width:100%;height:100%;object-fit:cover;display:block}.scanner-frame{position:absolute;left:10%;right:10%;top:28%;height:44%;border:3px solid #ff6b00;border-radius:16px;box-shadow:0 0 0 999px rgba(0,0,0,.20);pointer-events:none}.scanner-status{margin:11px 0 0;color:#53616c;text-align:center;min-height:22px;font-weight:700}.scanner-hint{font-size:13px;color:#71808a;text-align:center;margin:7px 0 0}.scanner-fallback{margin-top:11px;width:100%}
-@media(max-width:650px){.scanner-card{padding:13px;border-radius:18px}.scanner-video-wrap{aspect-ratio:3/4}.scanner-frame{left:7%;right:7%;top:32%;height:36%}}
-.scan-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}.scan-actions button{margin:0!important;width:100%!important;min-height:72px}.scan-action{border:1px solid #dbe2e7;background:#fff;color:#16232d;border-radius:14px;padding:12px 10px;font-weight:800;font-size:15px}.scan-action:active{background:#ff6b00;color:#fff;transform:scale(.985)}
-.scan-result{margin-top:8px;padding:10px 12px;border-radius:12px;background:#e8f7ef;border:1px solid #b9e4cb;color:#087044;font-weight:750;font-size:14px}
 </style>
 <style>/* V72: Workflow-Karten im Referenzdesign – Symbole sichtbar */
 .process-card .process-ico{display:flex!important;visibility:visible!important;opacity:1!important;}
@@ -210,6 +200,8 @@ if ('serviceWorker' in navigator){
     <button class="process-card green" onclick="show('returns')"><span class="process-ico"><svg viewBox="0 0 64 64" aria-hidden="true"><path d="M17 23a22 22 0 0 1 35 8" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round"/><path d="m49 20 3 11-11-1" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/><path d="M47 41a22 22 0 0 1-35-8" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round"/><path d="m15 44-3-11 11 1" fill="none" stroke="currentColor" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg></span><b>4 · Leere Trommeln</b><small>Rücklieferung ans Lager</small></button>
   </div>
 </div>
+<div class="storage-card" aria-live="polite">
+  <div class="storage-head"><span class="storage-title">Gerätespeicher</span><span id="storageStatus" class="storage-status good">Speicher wird geprüft …</span></div>
   <div class="storage-track"><div id="storageFill" class="storage-fill"></div></div>
   <div class="storage-meta"><span id="storageUsed">—</span><span id="storageFree">—</span></div>
   <div id="storageNote" class="storage-note">Die Bestände und Fotos werden aktuell auf diesem Gerät gespeichert.</div>
@@ -341,7 +333,7 @@ if ('serviceWorker' in navigator){
 <section id="drum" class="screen"><div class="card">
 <h2 id="drumTitle">Trommel erfassen</h2><div class="row"><div>
 <label>Trommelnummer</label><input id="drumNo" placeholder="z. B. T-2026-00125">
-<div class="scan-actions"><button type="button" class="scan-action" onclick="openDrumScanner()">▣ Trommelnummer scannen<br><small style="font-weight:650;color:#71808a">ohne Foto</small></button><button type="button" class="ghost photo-action" onclick="document.getElementById('photo').click()">📷 Foto aufnehmen<br><small style="font-weight:650;color:#71808a">mit Dokumentation</small></button></div>
+<button class="ghost photo-action" style="margin-top:8px;width:100%" onclick="document.getElementById('photo').click()">📷 Trommelnummer aufnehmen</button>
 <input id="photo" class="screen" type="file" accept="image/*" capture="environment" onchange="photoChosen()">
 <img id="preview" class="preview"><p id="photoMsg" class="muted"></p><div id="photoUploadProgress" class="photo-upload-progress" aria-live="polite" style="display:none"><div class="photo-upload-head"><span>📷 Foto wird geladen …</span><b id="photoUploadPercent">0%</b></div><div class="photo-upload-track"><div id="photoUploadFill" class="photo-upload-fill"></div></div></div><p id="ocrMsg" class="ocr-status neutral" aria-live="polite"></p><button id="ocrRetry" type="button" class="ghost ocr-retry" style="display:none" onclick="retryDrumOcr()">↻ Nummer erneut erkennen</button>
 </div><div>
@@ -820,43 +812,6 @@ async function runDrumOcr(file,inputId,statusId){
   return null;
 }
 
-let drumScannerControls=null;
-async function openDrumScanner(){
-  const overlay=$("drumScannerOverlay"), video=$("drumScannerVideo"), status=$("drumScannerStatus");
-  if(!overlay||!video)return;
-  overlay.classList.add("show"); status.textContent="Kamera wird gestartet …";
-  try{
-    await ensureQrReaderLoaded();
-    const Reader=window.ZXingBrowser?.BrowserMultiFormatReader||window.ZXingBrowser?.BrowserQRCodeReader;
-    if(!Reader)throw new Error("Scanner-Bibliothek nicht verfügbar");
-    const reader=new Reader();
-    drumScannerControls=await reader.decodeFromVideoDevice(undefined,video,(result)=>{
-      if(!result)return;
-      const raw=result.getText?.()||result.text||"";
-      const number=candidateFromQrPayload(raw);
-      if(number)finishDrumScan(number);
-      else status.textContent="Code erkannt – keine passende Trommelnummer gefunden.";
-    });
-    status.textContent="Bereit – QR-Code oder Barcode vor die Kamera halten.";
-  }catch(e){
-    console.warn("Scanner konnte nicht gestartet werden",e);
-    status.textContent="Kamera/Scanner konnte nicht gestartet werden. Bitte Kamerazugriff erlauben.";
-  }
-}
-function finishDrumScan(number){
-  $("drumNo").value=number;
-  $("photo").value="";
-  $("preview").style.display="none"; $("preview").removeAttribute("src");
-  $("photoMsg").textContent="Trommelnummer per Scan erfasst – kein Foto gespeichert.";
-  if($("ocrMsg"))setOcrStatus($("ocrMsg"),"success","✓ Trommelnummer gescannt – kein Foto gespeichert",number);
-  closeDrumScanner();
-}
-function closeDrumScanner(){
-  try{if(drumScannerControls?.stop)drumScannerControls.stop();}catch(e){}
-  drumScannerControls=null;
-  const v=$("drumScannerVideo"); if(v){try{v.pause();}catch(e){} v.srcObject=null;}
-  $("drumScannerOverlay")?.classList.remove("show");
-}
 function photoChosen(){let f=$("photo").files[0];if(!f)return;$("preview").src=URL.createObjectURL(f);$("preview").style.display="block";$("photoMsg").textContent="Foto aufgenommen. Die Trommelnummer wird automatisch erkannt.";$("ocrRetry").style.display="none";setPhotoUploadProgress('drum',0,false);runDrumOcr(f,"drumNo","ocrMsg").then(()=>{if($("ocrMsg").textContent.includes("nicht eindeutig")||$("ocrMsg").textContent.includes("konnte nicht"))$("ocrRetry").style.display="inline-block"})}
 function retryDrumOcr(){const f=$("photo").files[0];if(f){$("ocrRetry").style.display="none";runDrumOcr(f,"drumNo","ocrMsg").then(()=>{if($("ocrMsg").textContent.includes("nicht eindeutig")||$("ocrMsg").textContent.includes("konnte nicht"))$("ocrRetry").style.display="inline-block"})}}
 function returnPhotoChosen(){let f=$("returnPhoto").files[0];if(!f)return;$("returnPreview").src=URL.createObjectURL(f);$("returnPreview").style.display="block";$("returnPhotoMsg").textContent="Foto aufgenommen. Die Trommelnummer wird automatisch erkannt.";setPhotoUploadProgress('return',0,false);runDrumOcr(f,"returnDrum","returnOcrMsg")}
@@ -949,7 +904,7 @@ function showDuplicateNotice(no){
   if(o)o.classList.add("show");
 }
 function closeDuplicateNotice(){const o=$("duplicateOverlay");if(o)o.classList.remove("show");}
-async function saveDrum(){let no=$("drumNo").value.trim(),total=Number($("totalLen").value),rest=Number($("restLen").value);if(!no||!Number.isFinite(total)||!Number.isFinite(rest)||total<=0||rest<0||rest>total){alert("Bitte Trommelnummer sowie gültige Gesamtlänge und Restbestand eingeben.");return}const duplicate=findDuplicateDrumNo(no);if(duplicate){showDuplicateNotice(no);return}let old=editingDrumIndex>=0?current.drums[editingDrumIndex]:null;let photo=old?.photo||"";if($("photo").files[0]){try{photo=await compressImage($("photo").files[0])}catch(e){alert("Das Foto konnte nicht verarbeitet werden.");return}}const data={material:selected,no,total,rest,photo,scanOnly:!photo};if(editingDrumIndex>=0)current.drums[editingDrumIndex]=data;else current.drums.push(data);editingDrumIndex=-1;$("photo").value="";show("materials");notifySaved(photo?"Trommel + Foto erfolgreich gespeichert":"Trommel erfolgreich gespeichert","Die Trommel wurde in der aktuellen Bestandsaufnahme gespeichert.");const item={site:$("site").value.trim(),street:$("street").value.trim(),id:editingHistoryId||0};if(data.total>0&&data.rest<=data.total/2&&shouldWarnLowStock(item,data.material,"drum",data.rest,data.total,data.no))requestLowStockPrompt(data.material,"drum",data.rest,"m",item);}
+async function saveDrum(){let no=$("drumNo").value.trim(),total=Number($("totalLen").value),rest=Number($("restLen").value);if(!no||!Number.isFinite(total)||!Number.isFinite(rest)||total<=0||rest<0||rest>total){alert("Bitte Trommelnummer sowie gültige Gesamtlänge und Restbestand eingeben.");return}const duplicate=findDuplicateDrumNo(no);if(duplicate){showDuplicateNotice(no);return}let old=editingDrumIndex>=0?current.drums[editingDrumIndex]:null;let photo=old?.photo||"";if($("photo").files[0]){try{photo=await compressImage($("photo").files[0])}catch(e){alert("Das Foto konnte nicht verarbeitet werden.");return}}const data={material:selected,no,total,rest,photo};if(editingDrumIndex>=0)current.drums[editingDrumIndex]=data;else current.drums.push(data);editingDrumIndex=-1;$("photo").value="";show("materials");notifySaved(photo?"Trommel + Foto erfolgreich gespeichert":"Trommel erfolgreich gespeichert","Die Trommel wurde in der aktuellen Bestandsaufnahme gespeichert.");const item={site:$("site").value.trim(),street:$("street").value.trim(),id:editingHistoryId||0};if(data.total>0&&data.rest<=data.total/2&&shouldWarnLowStock(item,data.material,"drum",data.rest,data.total,data.no))requestLowStockPrompt(data.material,"drum",data.rest,"m",item);}
 function savePiece(){let q=+$('pieceQty').value;if(q<0){alert("Ungültige Menge.");return}let p=current.pieces.find(x=>x.material===selected);let baseline=p?Number(p.baselineQty)||Number(p.qty)||0:0;if(editingPieceIndex>=0){const target=current.pieces[editingPieceIndex];baseline=Number(target.baselineQty)||Number(target.qty)||0;target.qty=q;target.baselineQty=baseline;editingPieceIndex=-1}else if(p){p.qty=q;p.baselineQty=baseline||q}else{const previous=latestSavedItemFor($('site').value.trim(),$('street').value.trim());const old=previous?.pieces?.find(x=>x.material===selected);baseline=Number(old?.baselineQty)||Number(old?.qty)||q;current.pieces.push({material:selected,qty:q,unit:pieces.find(x=>x[0]===selected)[1],baselineQty:baseline})}show("materials");notifySaved("Material erfolgreich gespeichert","Das Stückmaterial wurde in der aktuellen Bestandsaufnahme gespeichert.");const item={site:$('site').value.trim(),street:$('street').value.trim(),id:editingHistoryId||0};if(baseline>0&&q<=baseline/2&&shouldWarnLowStock(item,selected,"piece",q,baseline,pieces.find(x=>x[0]===selected)?.[1]||"Stück"))requestLowStockPrompt(selected,"piece",q,pieces.find(x=>x[0]===selected)?.[1]||"Stück",item);}
 function materialOrderIndex(name, list){
   const n=String(name||"").trim().toLowerCase();
@@ -1114,79 +1069,96 @@ function completeInventory(){
   notifySaved("Material erfolgreich gespeichert","Die Bestandsaufnahme wurde gespeichert.","PDF kann jetzt erstellt werden");
   setTimeout(()=>show("documentation"),2650);
 }
-function mmSafeFilename(v){return String(v||'Bestandsaufnahme').replace(/[^\w\-äöüÄÖÜß ]+/g,'').trim().replace(/\s+/g,'_')||'Bestandsaufnahme';}
-function pdfWinAnsi(s){
-  s=String(s??'').replace(/\u2013/g,'-').replace(/\u2014/g,'-').replace(/\u2022/g,'-').replace(/\u2192/g,'>').replace(/\u2190/g,'<').replace(/\u00a0/g,' ');
-  const map={'ä':0xE4,'ö':0xF6,'ü':0xFC,'Ä':0xC4,'Ö':0xD6,'Ü':0xDC,'ß':0xDF,'€':0x80,'·':0xB7,'✓':0x00};
-  let out=''; for(const ch of s){const c=ch.charCodeAt(0); if(map[ch]!=null) out+=String.fromCharCode(map[ch]); else if(c>=32&&c<=126) out+=ch; else if(c>=160&&c<=255) out+=ch; else out+='?';}
-  return out.replace(/\\/g,'\\\\').replace(/\(/g,'\\(').replace(/\)/g,'\\)');
-}
-function pdfAsciiBytes(str){const a=[];for(let i=0;i<str.length;i++)a.push(str.charCodeAt(i)&255);return new Uint8Array(a);}
-function pdfDataBytes(dataUrl){const b64=String(dataUrl).split(',')[1]||'';const bin=atob(b64);const out=new Uint8Array(bin.length);for(let i=0;i<bin.length;i++)out[i]=bin.charCodeAt(i);return out;}
-function pdfJpegInfo(bytes){
-  let i=2; while(i<bytes.length){ if(bytes[i]!==0xFF){i++;continue;} const marker=bytes[i+1]; i+=2; if(marker===0xD8||marker===0xD9)continue; if(i+2>bytes.length)break; const len=(bytes[i]<<8)|bytes[i+1]; if(marker>=0xC0&&marker<=0xC3){return {w:(bytes[i+5]<<8)|bytes[i+6],h:(bytes[i+3]<<8)|bytes[i+4]};} i+=len; }
-  return {w:1,h:1};
-}
-async function pdfImageData(url){
-  if(!url)return null;
-  if(/^data:image\/jpeg/i.test(url)||/^data:image\/jpg/i.test(url)){const bytes=pdfDataBytes(url);const dim=pdfJpegInfo(bytes);return {bytes,w:dim.w,h:dim.h};}
-  try{
-    const img=new Image(); img.src=url; await new Promise((res,rej)=>{img.onload=res;img.onerror=rej;});
-    const max=1200, scale=Math.min(1,max/Math.max(img.naturalWidth||1,img.naturalHeight||1));
-    const c=document.createElement('canvas');c.width=Math.max(1,Math.round((img.naturalWidth||1)*scale));c.height=Math.max(1,Math.round((img.naturalHeight||1)*scale));
-    const ctx=c.getContext('2d');ctx.drawImage(img,0,0,c.width,c.height);const jpg=c.toDataURL('image/jpeg',0.78);const bytes=pdfDataBytes(jpg);return {bytes,w:c.width,h:c.height};
-  }catch(e){return null;}
-}
-function pdfText(cmd,x,top,size,text,font='F1',color=[0.067,0.094,0.118]){const y=842-top-size;cmd.push(`${color[0]} ${color[1]} ${color[2]} rg BT /${font} ${size} Tf ${x} ${y} Td (${pdfWinAnsi(text)}) Tj ET`);}
-function pdfRect(cmd,x,top,w,h,color){cmd.push(`${color[0]} ${color[1]} ${color[2]} rg ${x} ${842-top-h} ${w} ${h} re f`);}
-function pdfLine(cmd,x1,top1,x2,top2,color=[0.85,0.87,0.89],width=1){cmd.push(`${color[0]} ${color[1]} ${color[2]} RG ${width} w ${x1} ${842-top1} m ${x2} ${842-top2} l S`);}
-function pdfImage(cmd,img,x,top,w,h,name){if(!img)return;cmd.push(`q ${w} 0 0 ${h} ${x} ${842-top-h} cm /${name} Do Q`);}
-function pdfWrap(text,maxChars){const words=String(text||'').split(/\s+/);const lines=[];let line='';for(const w of words){if((line+' '+w).trim().length>maxChars){if(line)lines.push(line);line=w;}else line=(line+' '+w).trim();}if(line)lines.push(line);return lines;}
-async function buildInventoryPdf(item){
-  const W=595,H=842, pages=[]; const orange=[1,.42,0], navy=[.063,.094,.118], text=[.067,.094,.118], muted=[.41,.47,.51], border=[.85,.87,.89], white=[1,1,1], green=[.03,.44,.27], paleGreen=[.91,.97,.94];
-  const drums=(item.drums||[]).slice().sort((a,b)=>materialOrderIndex(a.material,cables)-materialOrderIndex(b.material,cables));
-  const pieces=(item.pieces||[]).slice().sort((a,b)=>materialOrderIndex(a.material,window.mmPieceMaster||pieces)-materialOrderIndex(b.material,window.mmPieceMaster||pieces));
-  const date=new Date(item.date+'T00:00').toLocaleDateString('de-DE');
-  const address=[item.place,item.postalCode,item.street].filter(Boolean).join(' · ');
-  const imgCache=new Map();
-  async function getImg(d){if(!d.photo)return null;if(imgCache.has(d.photo))return imgCache.get(d.photo);const v=await pdfImageData(d.photo);imgCache.set(d.photo,v);return v;}
-  function header(cmd,title){pdfRect(cmd,0,0,W,90,navy);pdfRect(cmd,0,88,W,3,orange);pdfText(cmd,38,27,11,'DOKUMENTATION','F1',[.84,.88,.90]);pdfText(cmd,38,48,11,'MATERIAL-BESTANDSAUFNAHME','F2',orange);pdfText(cmd,38,111,25,title,'F2',text);}
-  function footer(cmd){pdfLine(cmd,38,800,557,800,border,1);pdfText(cmd,38,816,8,`TM · SMART MATERIAL LOGISTICS · ${item.site} · ${date}`,'F1',muted);}
-  function meta(cmd,top){const boxes=[['BAUSTELLE',item.site],['ORT / LAGERPLATZ',address],['DATUM',date],['MITARBEITER',item.worker]];const gap=8,w=(519-gap*3)/4;boxes.forEach((b,i)=>{const x=38+i*(w+gap);pdfRect(cmd,x,top,w,54,white);cmd.push(`${border[0]} ${border[1]} ${border[2]} RG 1 w ${x} ${842-top-54} ${w} 54 re S`);pdfText(cmd,x+8,top+14,7,b[0],'F2',muted);const ls=pdfWrap(b[1],22);ls.slice(0,2).forEach((l,j)=>pdfText(cmd,x+8,top+29+j*13,10,l,'F1',text));});}
-  function addPage(cmd,images=[]){pages.push({cmd,images});}
-  const drumChunks=[];for(let i=0;i<Math.max(1,drums.length);i+=10)drumChunks.push(drums.slice(i,i+10));
-  for(let pi=0;pi<drumChunks.length;pi++){
-    const cmd=[];header(cmd,pi?'BESTANDSLISTE · FORTSETZUNG':'BESTANDSLISTE');if(pi===0)meta(cmd,128);let top=pi===0?205:150;pdfText(cmd,38,top,16,'Kabel / Trommeln','F2',text);top+=28;
-    const cols=[38,190,335,440,500], heads=['Material','Trommel','Gesamt','Rest','Foto'];const widths=[152,145,105,60,57];pdfRect(cmd,38,top,519,24,navy);heads.forEach((h,i)=>pdfText(cmd,cols[i]+6,top+16,8,h,'F2',white));top+=24;
-    drumChunks[pi].forEach(d=>{pdfLine(cmd,38,top+31,557,top+31,border,1);pdfText(cmd,cols[0]+6,top+20,8,String(d.material),'F1',text);pdfText(cmd,cols[1]+6,top+20,8,String(d.no),'F1',text);pdfText(cmd,cols[2]+6,top+20,8,`${Number(d.total).toLocaleString('de-DE')} m`,'F1',text);pdfText(cmd,cols[3]+6,top+20,8,`${Number(d.rest).toLocaleString('de-DE')} m`,'F2',text);pdfText(cmd,cols[4]+6,top+20,8,d.photo?'Foto':d.scanOnly?'Scan':'-','F2',muted);top+=31;});
-    if(pi===drumChunks.length-1 && !pieces.length && !(drums.some(d=>d.photo))){pdfRect(cmd,38,top+16,519,30,paleGreen);pdfText(cmd,50,top+36,10,'✓ Bestandsaufnahme abgeschlossen','F2',green);}
-    footer(cmd);addPage(cmd);
-  }
-  if(pieces.length){for(let i=0;i<pieces.length;i+=16){const arr=pieces.slice(i,i+16),cmd=[];header(cmd,i?'BESTAND & STÜCKMATERIAL · FORTSETZUNG':'BESTAND & STÜCKMATERIAL');let top=160;pdfText(cmd,38,top,16,'Stückmaterial','F2',text);top+=28;pdfRect(cmd,38,top,519,24,navy);pdfText(cmd,44,top+16,8,'Material','F2',white);pdfText(cmd,440,top+16,8,'Bestand','F2',white);top+=24;arr.forEach(p=>{pdfLine(cmd,38,top+31,557,top+31,border,1);pdfText(cmd,44,top+20,8,String(p.material),'F1',text);pdfText(cmd,440,top+20,8,`${Number(p.qty).toLocaleString('de-DE')} ${p.unit}`,'F2',text);top+=31;});if(i+16>=pieces.length){pdfRect(cmd,38,top+14,519,30,paleGreen);pdfText(cmd,50,top+34,10,'✓ Bestandsaufnahme abgeschlossen','F2',green);}footer(cmd);addPage(cmd);}}
-  const photoDrums=drums.filter(d=>d.photo);for(let i=0;i<photoDrums.length;i+=4){const arr=photoDrums.slice(i,i+4),cmd=[],images=[];header(cmd,i?'FOTODOKUMENTATION · FORTSETZUNG':'FOTODOKUMENTATION');if(i===0)pdfText(cmd,38,160,16,'Fotos der Trommeln','F2',text);let top=i===0?188:160;for(let j=0;j<arr.length;j++){const d=arr[j],num=String(i+j+1).padStart(2,'0');pdfRect(cmd,38,top,519,145,white);cmd.push(`${border[0]} ${border[1]} ${border[2]} RG 1 w 38 ${842-top-145} 519 145 re S`);pdfRect(cmd,50,top+12,30,30,navy);pdfText(cmd,59,top+34,10,num,'F2',white);pdfText(cmd,92,top+25,11,String(d.material),'F2',text);pdfText(cmd,92,top+43,8,`Trommel ${d.no} · ${Number(d.total).toLocaleString('de-DE')} m gesamt · ${Number(d.rest).toLocaleString('de-DE')} m Rest`,'F1',muted);const im=await getImg(d);if(im){const maxW=150,maxH=105,scale=Math.min(maxW/im.w,maxH/im.h),w=im.w*scale,h=im.h*scale;images.push({im,x:390,top:top+20,w,h});}top+=153;}footer(cmd);addPage(cmd,images);}
-  // Abschlussseite ist nie leer: Jede erzeugte Seite enthält bereits Inhalt.
-  const objects=[];function obj(data){objects.push(data);return objects.length;}
-  const font1=obj('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>');const font2=obj('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>');
-  const pageIds=[]; const contentIds=[]; const imageRefs=[];
-  for(const p of pages){const imgObjs=[];for(const entry of p.images){const b=entry.im.bytes;const id=obj(`<< /Type /XObject /Subtype /Image /Width ${entry.im.w} /Height ${entry.im.h} /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ${b.length} >>\nstream\n`+String.fromCharCode(...b)+'\nendstream');imgObjs.push({id,entry});}let content=p.cmd.slice();imgObjs.forEach((o,k)=>{content.push(`q ${o.entry.w} 0 0 ${o.entry.h} ${o.entry.x} ${842-o.entry.top-o.entry.h} cm /Im${k} Do Q`);});const stream=content.join('\n')+'\n';const cid=obj(`<< /Length ${stream.length} >>\nstream\n${stream}endstream`);contentIds.push(cid);imageRefs.push(imgObjs);}
-  for(let i=0;i<pages.length;i++){let xobjs='';imageRefs[i].forEach((o,k)=>{xobjs+=` /Im${k} ${o.id} 0 R`;});pageIds.push(obj(`<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${W} ${H}] /Resources << /Font << /F1 ${font1} 0 R /F2 ${font2} 0 R >>${xobjs?' /XObject <<'+xobjs+' >>':''} >> /Contents ${contentIds[i]} 0 R >>`));}
-  objects[1]=`<< /Type /Pages /Count ${pageIds.length} /Kids [${pageIds.map(id=>id+' 0 R').join(' ')}] >>`;const catalogId=obj(`<< /Type /Catalog /Pages 2 0 R >>`);
-  let pdf='%PDF-1.4\n%\xFF\xFF\xFF\xFF\n';const offsets=[0];for(let i=0;i<objects.length;i++){offsets[i+1]=pdf.length;pdf+=`${i+1} 0 obj\n${objects[i]}\nendobj\n`;}const xref=pdf.length;pdf+=`xref\n0 ${objects.length+1}\n0000000000 65535 f \n`;for(let i=1;i<=objects.length;i++)pdf+=String(offsets[i]).padStart(10,'0')+' 00000 n \n';pdf+=`trailer\n<< /Size ${objects.length+1} /Root ${catalogId} 0 R >>\nstartxref\n${xref}\n%%EOF`;
-  return new Blob([pdfAsciiBytes(pdf)],{type:'application/pdf'});
-}
-async function directPdfFor(item,mode='view'){
-  const filename=`TM-MATERIAL_${mmSafeFilename(item.site)}_${String(item.date||today()).replace(/-/g,'')}.pdf`;
-  const blob=await buildInventoryPdf(item);const file=new File([blob],filename,{type:'application/pdf'});const url=URL.createObjectURL(blob);
-  if(mode==='share'){
-    if(navigator.share && (!navigator.canShare || navigator.canShare({files:[file]}))){try{await navigator.share({title:'THADEN MATERIAL · Bestandsaufnahme',files:[file]});URL.revokeObjectURL(url);return;}catch(e){if(e&&e.name==='AbortError'){URL.revokeObjectURL(url);return;}}}
-  }
-  const w=window.open(url,'_blank');if(!w){const a=document.createElement('a');a.href=url;a.download=filename;a.click();setTimeout(()=>URL.revokeObjectURL(url),60000);}else setTimeout(()=>URL.revokeObjectURL(url),60000);
-}
 function printPdfInSeparateWindow(){
-  // V123: Keine HTML-Druckvorschau mehr. Für die Bestandsaufnahme wird eine echte PDF-Datei erzeugt.
-  const id=Number(localStorage.getItem('mm_last_documentation_id'));const item=history.find(x=>x.id===id);if(item)directPdfFor(item,'view');
+  const report=$('printReport');
+  if(!report)return;
+  const printWin=window.open('', '_blank');
+  if(!printWin){
+    setTimeout(()=>window.print(),50);
+    return;
+  }
+  const styles=[...document.querySelectorAll('style')].map(s=>s.textContent).join('\n');
+  printWin.document.open();
+  printWin.document.write(`<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>THADEN MATERIAL · PDF</title><style>${styles}
+/* V85: Materialbestellung auf der Startseite kompakter */
+@media(max-width:650px){
+  .process-card:nth-child(3) b{font-size:15.5px;line-height:1.12;max-width:calc(100% - 42px);white-space:normal;}
+  .process-card:nth-child(3) small{font-size:11.5px;max-width:calc(100% - 42px);}
 }
-function openPdfFor(id){const item=history.find(x=>x.id===id);if(!item)return;directPdfFor(item,'view');}
+</style>
+<style id="v91-material-style">
+/* V91 – Material erweitern: dunkler THADEN-MATERIAL Block */
+.add-material-box{
+  background:#2b333b !important;
+  border:1px solid #3c4650 !important;
+  color:#fff !important;
+  box-shadow:0 6px 18px rgba(16,32,48,.10);
+}
+.add-material-box h3{
+  color:#fff !important;
+  font-size:18px !important;
+  font-weight:800 !important;
+  letter-spacing:0 !important;
+}
+.add-material-box > .muted{
+  color:#d6dce1 !important;
+  font-size:13px !important;
+  font-weight:500 !important;
+}
+.add-material-box label{
+  color:#fff !important;
+  font-size:14px !important;
+  font-weight:750 !important;
+}
+.add-material-box input,
+.add-material-box .material-select{
+  background:#fff !important;
+  color:#16202a !important;
+  border-color:#d7dce2 !important;
+}
+.add-material-box .green{
+  background:var(--orange) !important;
+  color:#fff !important;
+}
+.material-manage-dropdown{
+  border-top:0 !important;
+  padding-top:12px !important;
+}
+.material-manage-dropdown summary{
+  background:#252d35 !important;
+  border:1px solid #3d4852 !important;
+  color:#fff !important;
+  font-size:16px !important;
+  font-weight:750 !important;
+  min-height:48px;
+  box-sizing:border-box;
+}
+.material-manage-chevron{color:#fff !important}
+.material-manage-inner{
+  color:#fff;
+}
+.material-manage-inner > .muted{
+  color:#d6dce1 !important;
+}
+.material-manage-row{
+  background:#343d46 !important;
+  border-color:#4a5661 !important;
+  color:#fff !important;
+}
+.material-manage-name{color:#fff !important}
+.material-manage-name small{color:#c4cbd1 !important}
+.material-remove{
+  background:#fff !important;
+}
+</style>
+</head><body class="pdf-print-window"><div class="pdf-toolbar no-print"><button class="pdf-close-btn" type="button" onclick="window.close()">✕ PDF schließen</button></div>${report.innerHTML}<script>window.addEventListener('load',()=>{const imgs=[...document.images];Promise.all(imgs.map(img=>img.complete?Promise.resolve():new Promise(r=>{img.onload=img.onerror=r;}))).then(()=>setTimeout(()=>window.print(),450));});<\/script></body></html>`);
+  printWin.document.close();
+}
+function openPdfFor(id){
+  const item=history.find(x=>x.id===id); if(!item)return;
+  renderPrintReport(item);
+  printPdfInSeparateWindow();
+}
 function deleteDocumentation(id){
   const item=history.find(x=>x.id===id); if(!item)return;
   const date=new Date(item.date+"T00:00").toLocaleDateString("de-DE");
@@ -1215,7 +1187,12 @@ function renderDocumentation(){
     return `<div class="workflow-card"><div class="top"><div><b>${esc(item.site)}</b><div class="meta">${esc(item.place||"")} · ${date} · ${st.drums} Trommeln · ${st.pieces} Materialarten</div><span class="status-pill">● gespeichert</span></div></div><div class="workflow-actions" style="grid-template-columns:1fr 1fr 1fr"><button class="primary" type="button" onclick="openPdfFor(${item.id})">📄 PDF erstellen</button><button class="ghost" type="button" onclick="shareDocument(${item.id})">📤 Teilen</button><button class="danger" type="button" onclick="deleteDocumentation(${item.id})">🗑 Löschen</button></div></div>`;
   }).join("");
 }
-async function shareDocument(id){const item=history.find(x=>x.id===id);if(!item)return;await directPdfFor(item,'share');}
+async function shareDocument(id){
+  const item=history.find(x=>x.id===id); if(!item)return;
+  const text=`Material-Bestandsaufnahme\nBaustelle: ${item.site}\nDatum: ${new Date(item.date+"T00:00").toLocaleDateString("de-DE")}\nMitarbeiter: ${item.worker}\nTrommeln: ${(item.drums||[]).length}\nStückmaterialien: ${(item.pieces||[]).length}`;
+  if(navigator.share){try{await navigator.share({title:"THADEN MATERIAL · Bestandsliste",text})}catch(e){}}
+  else alert(text);
+}
 function siteOptions(){
   return latestProjects().map(x=>`<option value="${esc(x.site)}">${esc(x.site)}</option>`).join("");
 }
@@ -1555,5 +1532,4 @@ function addCustomMaterial(){
 refreshMaterialPickers();
 renderMaterialManagement();
 </script>
-<div id="drumScannerOverlay" class="scanner-overlay" role="dialog" aria-modal="true" aria-labelledby="drumScannerTitle"><div class="scanner-card"><div class="scanner-head"><h3 id="drumScannerTitle">Trommelnummer scannen</h3><button type="button" class="scanner-close" aria-label="Scanner schließen" onclick="closeDrumScanner()">×</button></div><div class="scanner-video-wrap"><video id="drumScannerVideo" class="scanner-video" autoplay playsinline muted></video><div class="scanner-frame"></div></div><div id="drumScannerStatus" class="scanner-status">Kamera wird gestartet …</div><div class="scanner-hint">QR-Code oder Barcode in den orangefarbenen Rahmen halten. <b>Es wird kein Foto gespeichert.</b></div><button type="button" class="ghost scanner-fallback" onclick="document.getElementById('photo').click();closeDrumScanner()">Stattdessen Foto aufnehmen</button></div></div>
 </body></html>
