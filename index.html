@@ -363,7 +363,7 @@ if ('serviceWorker' in navigator){
 <label>Material</label><select id="returnMaterial"></select>
 <label>Trommelnummer</label><input id="returnDrum" type="text" placeholder="z. B. E2557689057">
 <label>Foto der leeren Trommel</label>
-<div class="photo-box"><button type="button" class="ghost photo-action" onclick="document.getElementById('returnPhoto').click()">📷 Foto aufnehmen</button><div><img id="returnPreview" class="preview" alt="Foto der leeren Trommel"><p id="returnPhotoMsg" class="muted"></p><div id="returnPhotoUploadProgress" class="photo-upload-progress" aria-live="polite" style="display:none"><div class="photo-upload-head"><span>📷 Foto wird geladen …</span><b id="returnPhotoUploadPercent">0%</b></div><div class="photo-upload-track"><div id="returnPhotoUploadFill" class="photo-upload-fill"></div></div></div><p id="returnOcrMsg" class="ocr-status neutral" aria-live="polite"></p><button id="returnOcrRetry" type="button" class="ghost ocr-retry" style="display:none" onclick="retryReturnOcr()">↻ Nummer erneut erkennen</button></div></div>
+<div class="photo-box"><button type="button" class="ghost photo-action" onclick="document.getElementById('returnPhoto').click()">📷 Foto aufnehmen</button><div><img id="returnPreview" class="preview" alt="Foto der leeren Trommel"><p id="returnPhotoMsg" class="muted"></p><div id="returnPhotoUploadProgress" class="photo-upload-progress" aria-live="polite" style="display:none"><div class="photo-upload-head"><span>📷 Foto wird geladen …</span><b id="returnPhotoUploadPercent">0%</b></div><div class="photo-upload-track"><div id="returnPhotoUploadFill" class="photo-upload-fill"></div></div></div><p id="returnOcrMsg" class="ocr-status neutral" aria-live="polite"></p><button id="returnOcrRetry" type="button" class="ghost ocr-retry" style="display:none" onclick="retryReturnOcr()">↻ Nummer erneut erkennen</button><button id="deleteReturnPhotoBtn" type="button" class="ghost ocr-retry" style="display:none;margin-top:8px" onclick="deleteReturnPhoto()">🗑 Foto löschen · Nummer behalten</button></div></div>
 <input id="returnPhoto" class="screen" type="file" accept="image/*" capture="environment" onchange="returnPhotoChosen()">
 <div class="form-actions"><button class="ghost" onclick="addReturnDrum()">＋ Weitere Trommel hinzufügen</button><button class="green" onclick="saveReturnBatch()">✓ Rücklieferungen speichern</button></div>
 <div id="returnBatchList"></div>
@@ -1468,7 +1468,18 @@ function clearReturnFields(){
   if($('returnDrum')) $('returnDrum').value='';
   if($('returnPhoto')) $('returnPhoto').value='';
   if($('returnPreview')) { $('returnPreview').style.display='none'; $('returnPreview').removeAttribute('src'); }
-  if($('returnPhotoMsg')) $('returnPhotoMsg').textContent=''; if($('returnOcrMsg')) $('returnOcrMsg').textContent=''; if($('returnOcrRetry')) $('returnOcrRetry').style.display='none';
+  if($('returnPhotoMsg')) $('returnPhotoMsg').textContent='';
+  if($('returnOcrMsg')) $('returnOcrMsg').textContent='';
+  if($('returnOcrRetry')) $('returnOcrRetry').style.display='none';
+  if($('deleteReturnPhotoBtn')) $('deleteReturnPhotoBtn').style.display='none';
+}
+function deleteReturnPhoto(){
+  const no=$('returnDrum')?.value.trim()||'';
+  if($('returnPhoto')) $('returnPhoto').value='';
+  if($('returnPreview')) { $('returnPreview').style.display='none'; $('returnPreview').removeAttribute('src'); }
+  if($('returnPhotoMsg')) $('returnPhotoMsg').textContent=no?'Foto gelöscht – die erkannte Trommelnummer bleibt erhalten.':'Foto gelöscht.';
+  if($('returnOcrRetry')) $('returnOcrRetry').style.display='none';
+  if($('deleteReturnPhotoBtn')) $('deleteReturnPhotoBtn').style.display='none';
 }
 function renderPendingReturns(){
   const el=$('returnBatchList'); if(!el)return;
@@ -1477,6 +1488,7 @@ function renderPendingReturns(){
 function returnPhotoChosen(){
   const f=$('returnPhoto').files[0]; if(!f)return;
   $('returnPreview').src=URL.createObjectURL(f); $('returnPreview').style.display='block'; $('returnPhotoMsg').textContent='Foto aufgenommen. Die Trommelnummer wird automatisch erkannt.';
+  if($('deleteReturnPhotoBtn'))$('deleteReturnPhotoBtn').style.display='inline-block';
   if($('returnOcrRetry'))$('returnOcrRetry').style.display='none';
   runDrumOcr(f,'returnDrum','returnOcrMsg').then(()=>{if($('returnOcrMsg').textContent.includes('nicht eindeutig')||$('returnOcrMsg').textContent.includes('konnte nicht'))$('returnOcrRetry').style.display='inline-block'});
 }
