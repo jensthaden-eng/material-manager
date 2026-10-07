@@ -330,10 +330,10 @@ body{background:#f3f5f7}
 #returns #returnSite,#returns #returnMaterial,#returns #returnDrum{min-height:48px;padding:11px 13px;border:1px solid #ccd4da;border-radius:12px;background:#fff;color:#17232c;font-size:16px;box-shadow:inset 0 1px 2px rgba(16,24,32,.03)}
 #returns #returnSite:focus,#returns #returnMaterial:focus,#returns #returnDrum:focus{outline:3px solid rgba(255,107,0,.17);border-color:#ff6b00}
 #returns #returnDrum{font-weight:800;letter-spacing:.3px}
-#returns .photo-box{display:grid;grid-template-columns:minmax(0,.82fr) minmax(0,1.18fr);gap:10px;align-items:start;margin-top:8px}
-#returns .photo-action{min-height:168px;border:2px dashed #aeb9c1;border-radius:16px;background:#f4f6f7;color:#25313a;font-size:15px;font-weight:850;line-height:1.2;padding:14px;transition:.15s ease}
+#returns .photo-box{display:block;margin-top:8px}
+#returns .photo-action{width:100%;min-height:150px;border:2px dashed #aeb9c1;border-radius:16px;background:#f4f6f7;color:#25313a;font-size:15px;font-weight:850;line-height:1.2;padding:14px;transition:.15s ease}
 #returns .photo-action:active{transform:scale(.985);border-color:#ff6b00;background:#fff6ef}
-#returns #returnPreview{height:168px;width:100%;margin:0;border-radius:16px;object-fit:cover;background:#101820;box-shadow:0 5px 14px rgba(16,24,32,.16)}
+#returns #returnPreview{height:220px;width:100%;margin:0;border-radius:16px;object-fit:cover;background:#101820;box-shadow:0 5px 14px rgba(16,24,32,.16)}
 #returns #returnPhotoMsg{font-size:12.5px;line-height:1.35;margin:7px 0 0;color:#687680}
 #returns #returnPhotoUploadProgress{margin-top:8px;padding:9px 10px;border-radius:12px;background:#f2faf5;border:1px solid #c9e7d6}
 #returns #returnPhotoUploadProgress .photo-upload-head{font-size:12px;color:#176f49}
@@ -360,8 +360,9 @@ body{background:#f3f5f7}
 @media(max-width:430px){
   #returns > .card{padding:8px 9px 16px}
   #returns .form-card{padding:15px 12px 13px;border-radius:18px}
-  #returns .photo-box{grid-template-columns:1fr 1.12fr;gap:8px}
-  #returns .photo-action,#returns #returnPreview{min-height:146px;height:146px}
+  #returns .photo-box{display:block}
+  #returns .photo-action{min-height:142px;height:142px}
+  #returns #returnPreview{min-height:210px;height:210px}
   #returns .photo-action{font-size:13.5px;padding:10px}
   #returns .form-actions button{font-size:13px}
 }
@@ -1361,10 +1362,10 @@ function printPdfInSeparateWindow(){
 #returns #returnSite,#returns #returnMaterial,#returns #returnDrum{min-height:48px;padding:11px 13px;border:1px solid #ccd4da;border-radius:12px;background:#fff;color:#17232c;font-size:16px;box-shadow:inset 0 1px 2px rgba(16,24,32,.03)}
 #returns #returnSite:focus,#returns #returnMaterial:focus,#returns #returnDrum:focus{outline:3px solid rgba(255,107,0,.17);border-color:#ff6b00}
 #returns #returnDrum{font-weight:800;letter-spacing:.3px}
-#returns .photo-box{display:grid;grid-template-columns:minmax(0,.82fr) minmax(0,1.18fr);gap:10px;align-items:start;margin-top:8px}
-#returns .photo-action{min-height:168px;border:2px dashed #aeb9c1;border-radius:16px;background:#f4f6f7;color:#25313a;font-size:15px;font-weight:850;line-height:1.2;padding:14px;transition:.15s ease}
+#returns .photo-box{display:block;margin-top:8px}
+#returns .photo-action{width:100%;min-height:150px;border:2px dashed #aeb9c1;border-radius:16px;background:#f4f6f7;color:#25313a;font-size:15px;font-weight:850;line-height:1.2;padding:14px;transition:.15s ease}
 #returns .photo-action:active{transform:scale(.985);border-color:#ff6b00;background:#fff6ef}
-#returns #returnPreview{height:168px;width:100%;margin:0;border-radius:16px;object-fit:cover;background:#101820;box-shadow:0 5px 14px rgba(16,24,32,.16)}
+#returns #returnPreview{height:220px;width:100%;margin:0;border-radius:16px;object-fit:cover;background:#101820;box-shadow:0 5px 14px rgba(16,24,32,.16)}
 #returns #returnPhotoMsg{font-size:12.5px;line-height:1.35;margin:7px 0 0;color:#687680}
 #returns #returnPhotoUploadProgress{margin-top:8px;padding:9px 10px;border-radius:12px;background:#f2faf5;border:1px solid #c9e7d6}
 #returns #returnPhotoUploadProgress .photo-upload-head{font-size:12px;color:#176f49}
@@ -1391,8 +1392,9 @@ function printPdfInSeparateWindow(){
 @media(max-width:430px){
   #returns > .card{padding:8px 9px 16px}
   #returns .form-card{padding:15px 12px 13px;border-radius:18px}
-  #returns .photo-box{grid-template-columns:1fr 1.12fr;gap:8px}
-  #returns .photo-action,#returns #returnPreview{min-height:146px;height:146px}
+  #returns .photo-box{display:block}
+  #returns .photo-action{min-height:142px;height:142px}
+  #returns #returnPreview{min-height:210px;height:210px}
   #returns .photo-action{font-size:13.5px;padding:10px}
   #returns .form-actions button{font-size:13px}
 }
