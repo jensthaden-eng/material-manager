@@ -7,7 +7,7 @@
 <link rel="apple-touch-icon" sizes="180x180" href="./tm-app-icon-180-v70.png">
 <link rel="icon" type="image/png" sizes="192x192" href="./tm-app-icon-192-v70.png">
 <title>THADEN MATERIAL</title>
-<!-- TM MATERIAL V122 – echte PDF-Erzeugung ohne Safari-Druckumwandlung -->
+<!-- TM MATERIAL V100 – Service-Worker Update-Fix -->
 <style>
 :root{--navy:#101820;--orange:#ff6b00;--orange2:#ff7a00;--bg:#f3f5f7;--card:#fff;--text:#16232d;--muted:#697680;--green:#159b60;--border:#d8dee3}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
@@ -331,7 +331,8 @@ if ('serviceWorker' in navigator){
 <section id="drum" class="screen"><div class="card">
 <h2 id="drumTitle">Trommel erfassen</h2><div class="row"><div>
 <label>Trommelnummer</label><input id="drumNo" placeholder="z. B. T-2026-00125">
-<button class="ghost photo-action" style="margin-top:8px;width:100%" onclick="document.getElementById('photo').click()">📷 Trommelnummer aufnehmen</button>
+<button type="button" class="scan-action" onclick="openDrumScanner()">▣ Trommelnummer scannen</button>
+<button class="ghost photo-action" style="margin-top:8px;width:100%" onclick="document.getElementById('photo').click()">📷 Foto aufnehmen</button>
 <input id="photo" class="screen" type="file" accept="image/*" capture="environment" onchange="photoChosen()">
 <img id="preview" class="preview"><p id="photoMsg" class="muted"></p><div id="photoUploadProgress" class="photo-upload-progress" aria-live="polite" style="display:none"><div class="photo-upload-head"><span>📷 Foto wird geladen …</span><b id="photoUploadPercent">0%</b></div><div class="photo-upload-track"><div id="photoUploadFill" class="photo-upload-fill"></div></div></div><p id="ocrMsg" class="ocr-status neutral" aria-live="polite"></p><button id="ocrRetry" type="button" class="ghost ocr-retry" style="display:none" onclick="retryDrumOcr()">↻ Nummer erneut erkennen</button>
 </div><div>
@@ -371,8 +372,20 @@ if ('serviceWorker' in navigator){
 .lowstock-text{margin-top:9px;color:#697680;font-size:16px;line-height:1.4}
 .lowstock-actions{display:flex;gap:10px;margin-top:20px}
 .lowstock-actions button{flex:1;min-height:50px}
+
+/* V123 – Kamera-Scanner ohne Fotos */
+.scan-action{background:#fff;border:1px solid #dbe2e7;color:#16232d;border-radius:14px;padding:14px 16px;font-weight:700;width:100%;margin-top:8px;font-size:16px}
+.scan-action:active{background:#ff6b00;color:#fff;transform:scale(.985)}
+.scanned-note{display:inline-block;margin-top:8px;padding:6px 10px;border-radius:999px;background:#eef7f2;color:#087443;font-weight:700;font-size:13px}
+.scanner-overlay{position:fixed;inset:0;background:rgba(5,10,14,.82);z-index:1000;display:none;align-items:center;justify-content:center;padding:18px;box-sizing:border-box}
+.scanner-overlay.show{display:flex}
+.scanner-card{width:min(560px,100%);background:#fff;border-radius:24px;padding:18px;box-shadow:0 18px 50px rgba(0,0,0,.35)}
+.scanner-head{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}.scanner-head h3{margin:0;font-size:21px;color:#16232d}.scanner-close{border:0;background:#eef2f5;color:#16232d;border-radius:50%;width:44px;height:44px;font-size:25px}
+.scanner-video-wrap{position:relative;background:#0b1116;border-radius:18px;overflow:hidden;aspect-ratio:4/3}.scanner-video{width:100%;height:100%;object-fit:cover;display:block}.scanner-frame{position:absolute;left:12%;right:12%;top:28%;height:44%;border:3px solid #ff6b00;border-radius:18px;box-shadow:0 0 0 999px rgba(0,0,0,.18)}
+.scanner-status{margin:12px 0 0;color:#53616b;text-align:center;min-height:22px;font-weight:600}.scanner-hint{font-size:13px;color:#71808a;text-align:center;margin:8px 0 0}.scanner-fallback{margin-top:12px;width:100%}
+@media(max-width:650px){.scanner-card{padding:14px;border-radius:20px}.scanner-video-wrap{aspect-ratio:3/4}.scanner-frame{left:8%;right:8%;top:32%;height:36%}}
 </style>
-<div id="duplicateOverlay" class="duplicate-overlay" role="dialog" aria-modal="true" aria-labelledby="duplicateTitle"><div class="duplicate-card"><div class="duplicate-icon">!</div><div id="duplicateTitle" class="duplicate-title">Trommel bereits aufgenommen</div><div class="duplicate-message">Diese Trommelnummer wurde bereits erfasst und kann nicht noch einmal gespeichert werden.</div><span id="duplicateNumber" class="duplicate-number"></span><button type="button" class="duplicate-close" onclick="closeDuplicateNotice()">Okay</button></div></div><div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true"><div class="toast-card"><div class="toast-check">✓</div><div id="toastTitle" class="toast-title">Material erfolgreich gespeichert</div><div id="toastMessage" class="toast-message">Die Bestandsaufnahme wurde gespeichert.</div><div id="toastAction" class="toast-action"></div></div></div><div id="lowStockPrompt" class="lowstock-overlay" role="dialog" aria-modal="true" aria-labelledby="lowStockTitle">
+<div id="drumScannerOverlay" class="scanner-overlay" role="dialog" aria-modal="true" aria-labelledby="drumScannerTitle"><div class="scanner-card"><div class="scanner-head"><h3 id="drumScannerTitle">Trommelnummer scannen</h3><button type="button" class="scanner-close" onclick="closeDrumScanner()">×</button></div><div class="scanner-video-wrap"><video id="drumScannerVideo" class="scanner-video" autoplay playsinline muted></video><div class="scanner-frame"></div></div><div id="drumScannerStatus" class="scanner-status">Kamera wird gestartet …</div><div class="scanner-hint">QR-Code oder Barcode der Trommelnummer in den orangefarbenen Rahmen halten. Es wird <b>kein Foto gespeichert</b>.</div><button type="button" class="ghost scanner-fallback" onclick="document.getElementById('photo').click();closeDrumScanner()">Stattdessen Foto aufnehmen</button></div></div><div id="duplicateOverlay" class="duplicate-overlay" role="dialog" aria-modal="true" aria-labelledby="duplicateTitle"><div class="duplicate-card"><div class="duplicate-icon">!</div><div id="duplicateTitle" class="duplicate-title">Trommel bereits aufgenommen</div><div class="duplicate-message">Diese Trommelnummer wurde bereits erfasst und kann nicht noch einmal gespeichert werden.</div><span id="duplicateNumber" class="duplicate-number"></span><button type="button" class="duplicate-close" onclick="closeDuplicateNotice()">Okay</button></div></div><div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true"><div class="toast-card"><div class="toast-check">✓</div><div id="toastTitle" class="toast-title">Material erfolgreich gespeichert</div><div id="toastMessage" class="toast-message">Die Bestandsaufnahme wurde gespeichert.</div><div id="toastAction" class="toast-action"></div></div></div><div id="lowStockPrompt" class="lowstock-overlay" role="dialog" aria-modal="true" aria-labelledby="lowStockTitle">
   <div class="lowstock-card">
     <div class="lowstock-icon">!</div>
     <div id="lowStockTitle" class="lowstock-title">Material ist fast leer</div>
@@ -389,7 +402,7 @@ const defaultCables=["SNRVe 7x12 M","SNRVe 7x12 O","SNRVe 7x12 O/S","SNRVe 7x12 
 const defaultPieces=[["DN-50 Rohr","Stück"],["Verbinder 12mm","Stück"],["Verbinder 7mm","Stück"],["Endkappe 12mm","Stück"],["Endkappe 7mm","Stück"],["Trassenwarnband Telekom","Rollen"]];
 let cables=JSON.parse(localStorage.getItem("mm_custom_cables")||"null")||[...defaultCables];
 let pieces=JSON.parse(localStorage.getItem("mm_custom_pieces")||"null")||JSON.parse(JSON.stringify(defaultPieces));
-let pinCode=localStorage.getItem("mm_pin")||"1234", entered="", unlocked=false, selected="", drums=JSON.parse(localStorage.getItem("mm_drums")||"[]"), history=JSON.parse(localStorage.getItem("mm_history")||"[]"), current={drums:[],pieces:[]}, editingDrumIndex=-1, editingPieceIndex=-1, editingHistoryId=null;
+let pinCode=localStorage.getItem("mm_pin")||"1234", entered="", unlocked=false, selected="", drums=JSON.parse(localStorage.getItem("mm_drums")||"[]"), history=JSON.parse(localStorage.getItem("mm_history")||"[]"), current={drums:[],pieces:[]}, editingDrumIndex=-1, editingPieceIndex=-1, editingHistoryId=null, drumScanUsed=false, drumScannerControls=null, drumScannerStream=null;
 function compactPersistedDrumCache(){try{const compact=(drums||[]).map(d=>{const x={...d};delete x.photo;return x;});localStorage.removeItem("mm_drums");localStorage.setItem("mm_drums",JSON.stringify(compact));drums=compact;}catch(e){}}
 compactPersistedDrumCache();
 const cableMaterials=cables;
@@ -450,9 +463,8 @@ function continueProject(id){
   $("site").value=item.site||""; $("place").value=item.place||""; $("postalCode").value=item.postalCode||""; $("street").value=item.street||""; $("worker").value=item.worker||""; $("invDate").value=today();
   show("setup");
 }
-function selectCable(n){selected=n;editingDrumIndex=-1;$("drumTitle").textContent=n+" – Trommel erfassen";$("drumNo").value="";$("totalLen").value="";$("restLen").value="";$("photo").value="";$("preview").style.display="none";$("preview").removeAttribute("src");$("photoMsg").textContent="";show("drum")} 
-function editDrum(index){const d=current.drums[index];if(!d)return;selected=d.material;editingDrumIndex=index;$("drumTitle").textContent=d.material+" – Trommel bearbeiten";$("drumNo").value=d.no||"";$("totalLen").value=d.total??"";$("restLen").value=d.rest??"";$("photo").value="";if(d.photo){$("preview").src=d.photo;$("preview").style.display="block";$("photoMsg").textContent="Vorhandenes Foto gespeichert."}else{$("preview").style.display="none";$("preview").removeAttribute("src");$("photoMsg").textContent=""}show("drum")} 
-function deleteCurrentDrum(index){if(!confirm("Diese Trommel aus der aktuellen Aufnahme entfernen?"))return;current.drums.splice(index,1);renderCurrentEntries();}
+function selectCable(n){selected=n;editingDrumIndex=-1;$("drumTitle").textContent=n+" – Trommel erfassen";$("drumNo").value="";$("totalLen").value="";$("restLen").value="";$("photo").value="";$("preview").style.display="none";$("preview").removeAttribute("src");$("photoMsg").textContent="";drumScanUsed=false;show("drum")} 
+function editDrum(index){const d=current.drums[index];if(!d)return;selected=d.material;editingDrumIndex=index;$('drumTitle').textContent=d.material+" – Trommel bearbeiten";$('drumNo').value=d.no||"";$('totalLen').value=d.total??"";$('restLen').value=d.rest??"";$('photo').value="";drumScanUsed=!!d.scanOnly&&!d.photo;if(d.photo){$('preview').src=d.photo;$('preview').style.display="block";$('photoMsg').textContent="Vorhandenes Foto gespeichert."}else{$('preview').style.display="none";$('preview').removeAttribute("src");$('photoMsg').textContent=drumScanUsed?"Trommelnummer per Scan erfasst – kein Foto gespeichert.":""}show("drum")}
 function selectPiece(n){selected=n;editingPieceIndex=-1;$("pieceTitle").textContent=n;let old=current.pieces.find(x=>x.material===n);$("pieceQty").value=old?old.qty:0;show("piece")} 
 function editPiece(index){const p=current.pieces[index];if(!p)return;selected=p.material;editingPieceIndex=index;$("pieceTitle").textContent=p.material+" – bearbeiten";$("pieceQty").value=p.qty??0;show("piece")} 
 function deleteCurrentPiece(index){if(!confirm("Dieses Stückmaterial aus der aktuellen Aufnahme entfernen?"))return;current.pieces.splice(index,1);renderCurrentEntries();}
@@ -810,7 +822,42 @@ async function runDrumOcr(file,inputId,statusId){
   return null;
 }
 
-function photoChosen(){let f=$("photo").files[0];if(!f)return;$("preview").src=URL.createObjectURL(f);$("preview").style.display="block";$("photoMsg").textContent="Foto aufgenommen. Die Trommelnummer wird automatisch erkannt.";$("ocrRetry").style.display="none";setPhotoUploadProgress('drum',0,false);runDrumOcr(f,"drumNo","ocrMsg").then(()=>{if($("ocrMsg").textContent.includes("nicht eindeutig")||$("ocrMsg").textContent.includes("konnte nicht"))$("ocrRetry").style.display="inline-block"})}
+let drumScanLoop=null;
+async function openDrumScanner(){
+  const overlay=$('drumScannerOverlay'),video=$('drumScannerVideo'),status=$('drumScannerStatus');
+  overlay.classList.add('show');status.textContent='Kamera wird gestartet …';
+  try{
+    await ensureQrReaderLoaded();
+    const Reader=window.ZXingBrowser?.BrowserMultiFormatReader||window.ZXingBrowser?.BrowserQRCodeReader;
+    if(!Reader)throw new Error('Scanner-Bibliothek nicht verfügbar');
+    const reader=new Reader();
+    drumScannerControls=await reader.decodeFromVideoDevice(undefined,video,(result,err)=>{
+      if(!result)return;
+      const raw=result.getText?.()||result.text||'';
+      const number=candidateFromQrPayload(raw);
+      if(number){finishDrumScan(number);}
+      else status.textContent='Code erkannt, aber keine passende Trommelnummer gefunden …';
+    });
+    status.textContent='Bereit – QR-Code oder Barcode vor die Kamera halten.';
+  }catch(e){
+    console.warn('Scanner konnte nicht gestartet werden',e);
+    status.textContent='Kamera/Scanner konnte nicht gestartet werden. Bitte Kamerazugriff erlauben oder ein Foto aufnehmen.';
+  }
+}
+function finishDrumScan(number){
+  $('drumNo').value=number;drumScanUsed=true;
+  $('photo').value='';$('preview').style.display='none';$('preview').removeAttribute('src');$('photoMsg').textContent='Trommelnummer per Scan erfasst – kein Foto gespeichert.';
+  if($('ocrMsg'))setOcrStatus($('ocrMsg'),'success','✓ Trommelnummer gescannt – kein Foto gespeichert',number);
+  closeDrumScanner();
+}
+function closeDrumScanner(){
+  try{if(drumScannerControls?.stop)drumScannerControls.stop();}catch(e){}
+  drumScannerControls=null;
+  const v=$('drumScannerVideo');if(v){try{v.pause();}catch(e){}v.srcObject=null;}
+  $('drumScannerOverlay')?.classList.remove('show');
+}
+
+function photoChosen(){let f=$("photo").files[0];if(!f)return;drumScanUsed=false;$("preview").src=URL.createObjectURL(f);$("preview").style.display="block";$("photoMsg").textContent="Foto aufgenommen. Die Trommelnummer wird automatisch erkannt.";$("ocrRetry").style.display="none";setPhotoUploadProgress('drum',0,false);runDrumOcr(f,"drumNo","ocrMsg").then(()=>{if($("ocrMsg").textContent.includes("nicht eindeutig")||$("ocrMsg").textContent.includes("konnte nicht"))$("ocrRetry").style.display="inline-block"})}
 function retryDrumOcr(){const f=$("photo").files[0];if(f){$("ocrRetry").style.display="none";runDrumOcr(f,"drumNo","ocrMsg").then(()=>{if($("ocrMsg").textContent.includes("nicht eindeutig")||$("ocrMsg").textContent.includes("konnte nicht"))$("ocrRetry").style.display="inline-block"})}}
 function returnPhotoChosen(){let f=$("returnPhoto").files[0];if(!f)return;$("returnPreview").src=URL.createObjectURL(f);$("returnPreview").style.display="block";$("returnPhotoMsg").textContent="Foto aufgenommen. Die Trommelnummer wird automatisch erkannt.";setPhotoUploadProgress('return',0,false);runDrumOcr(f,"returnDrum","returnOcrMsg")}
 let toastTimer=null;function notifySaved(title="Material erfolgreich gespeichert",message="Die Bestandsaufnahme wurde gespeichert.",action=""){
@@ -902,13 +949,7 @@ function showDuplicateNotice(no){
   if(o)o.classList.add("show");
 }
 function closeDuplicateNotice(){const o=$("duplicateOverlay");if(o)o.classList.remove("show");}
-async function saveDrum(){let no=$("drumNo").value.trim(),total=Number($("totalLen").value),rest=Number($("restLen").value);if(!no||!Number.isFinite(total)||!Number.isFinite(rest)||total<=0||rest<0||rest>total){alert("Bitte Trommelnummer sowie gültige Gesamtlänge und Restbestand eingeben.");return}const duplicate=findDuplicateDrumNo(no);if(duplicate){showDuplicateNotice(no);return}let old=editingDrumIndex>=0?current.drums[editingDrumIndex]:null;let photo=old?.photo||"";if($("photo").files[0]){try{photo=await compressImage($("photo").files[0])}catch(e){alert("Das Foto konnte nicht verarbeitet werden.");return}}const data={material:selected,no,total,rest,photo};if(editingDrumIndex>=0)current.drums[editingDrumIndex]=data;else current.drums.push(data);editingDrumIndex=-1;$("photo").value="";show("materials");notifySaved(photo?"Trommel + Foto erfolgreich gespeichert":"Trommel erfolgreich gespeichert","Die Trommel wurde in der aktuellen Bestandsaufnahme gespeichert.");const item={site:$("site").value.trim(),street:$("street").value.trim(),id:editingHistoryId||0};if(data.total>0&&data.rest<=data.total/2&&shouldWarnLowStock(item,data.material,"drum",data.rest,data.total,data.no))requestLowStockPrompt(data.material,"drum",data.rest,"m",item);}
-function savePiece(){let q=+$('pieceQty').value;if(q<0){alert("Ungültige Menge.");return}let p=current.pieces.find(x=>x.material===selected);let baseline=p?Number(p.baselineQty)||Number(p.qty)||0:0;if(editingPieceIndex>=0){const target=current.pieces[editingPieceIndex];baseline=Number(target.baselineQty)||Number(target.qty)||0;target.qty=q;target.baselineQty=baseline;editingPieceIndex=-1}else if(p){p.qty=q;p.baselineQty=baseline||q}else{const previous=latestSavedItemFor($('site').value.trim(),$('street').value.trim());const old=previous?.pieces?.find(x=>x.material===selected);baseline=Number(old?.baselineQty)||Number(old?.qty)||q;current.pieces.push({material:selected,qty:q,unit:pieces.find(x=>x[0]===selected)[1],baselineQty:baseline})}show("materials");notifySaved("Material erfolgreich gespeichert","Das Stückmaterial wurde in der aktuellen Bestandsaufnahme gespeichert.");const item={site:$('site').value.trim(),street:$('street').value.trim(),id:editingHistoryId||0};if(baseline>0&&q<=baseline/2&&shouldWarnLowStock(item,selected,"piece",q,baseline,pieces.find(x=>x[0]===selected)?.[1]||"Stück"))requestLowStockPrompt(selected,"piece",q,pieces.find(x=>x[0]===selected)?.[1]||"Stück",item);}
-function materialOrderIndex(name, list){
-  const n=String(name||"").trim().toLowerCase();
-  const idx=list.findIndex(x=>String(Array.isArray(x)?x[0]:x||"").trim().toLowerCase()===n);
-  return idx<0?999999:idx;
-}
+async function saveDrum(){let no=$('drumNo').value.trim(),total=Number($('totalLen').value),rest=Number($('restLen').value);if(!no||!Number.isFinite(total)||!Number.isFinite(rest)||total<=0||rest<0||rest>total){alert("Bitte Trommelnummer sowie gültige Gesamtlänge und Restbestand eingeben.");return}const duplicate=findDuplicateDrumNo(no);if(duplicate){showDuplicateNotice(no);return}let old=editingDrumIndex>=0?current.drums[editingDrumIndex]:null;let photo=old?.photo||"";if($('photo').files[0]){try{photo=await compressImage($('photo').files[0])}catch(e){alert("Das Foto konnte nicht verarbeitet werden.");return}}const scanOnly=!photo&&(drumScanUsed||old?.scanOnly);const data={material:selected,no,total,rest,photo,scanOnly};if(editingDrumIndex>=0)current.drums[editingDrumIndex]=data;else current.drums.push(data);editingDrumIndex=-1;drumScanUsed=false;$('photo').value="";$('preview').style.display="none";$('preview').removeAttribute("src");show("materials");notifySaved(scanOnly?"Trommelnummer erfolgreich gescannt":photo?"Trommel + Foto erfolgreich gespeichert":"Trommel erfolgreich gespeichert",scanOnly?"Kein Foto wurde gespeichert – dadurch wird Gerätespeicher gespart.":"Die Trommel wurde in der aktuellen Bestandsaufnahme gespeichert.");const item={site:$('site').value.trim(),street:$('street').value.trim(),id:editingHistoryId||0};if(data.total>0&&data.rest<=data.total/2&&shouldWarnLowStock(item,data.material,"drum",data.rest,data.total,data.no))requestLowStockPrompt(data.material,"drum",data.rest,"m",item);}
 function sortedCurrentDrums(){
   return current.drums.map((x,index)=>({x,index})).sort((a,b)=>{
     const ma=materialOrderIndex(a.x.material,cables), mb=materialOrderIndex(b.x.material,cables);
@@ -1093,7 +1134,7 @@ async function buildInventoryPdf(item){
   function meta(cmd,top){const boxes=[['BAUSTELLE',item.site],['ORT / LAGERPLATZ',address],['DATUM',date],['MITARBEITER',item.worker]],gap=8,w=(519-gap*3)/4;boxes.forEach((b,i)=>{const x=38+i*(w+gap);pdfRect(cmd,x,top,w,54,white);cmd.push(`${border[0]} ${border[1]} ${border[2]} RG 1 w ${x} ${842-top-54} ${w} 54 re S`);pdfText(cmd,x+8,top+14,7,b[0],'F2',muted);pdfWrap(b[1],22).slice(0,2).forEach((l,j)=>pdfText(cmd,x+8,top+29+j*13,10,l,'F1',text));});}
   function addPage(cmd,images=[]){pages.push({cmd,images});}
   const drumChunks=[];for(let i=0;i<Math.max(1,drums.length);i+=10)drumChunks.push(drums.slice(i,i+10));
-  for(let pi=0;pi<drumChunks.length;pi++){const cmd=[];header(cmd,pi?'BESTANDSLISTE · FORTSETZUNG':'BESTANDSLISTE');if(pi===0)meta(cmd,154);let top=pi===0?231:150;pdfText(cmd,38,top,16,'Kabel / Trommeln','F2',text);top+=28;const cols=[38,190,335,440,500],heads=['Material','Trommel','Gesamt','Rest','Foto'];pdfRect(cmd,38,top,519,24,navy);heads.forEach((h,i)=>pdfText(cmd,cols[i]+6,top+16,8,h,'F2',white));top+=24;drumChunks[pi].forEach(d=>{pdfLine(cmd,38,top+31,557,top+31,border,1);pdfText(cmd,44,top+20,8,String(d.material),'F1',text);pdfText(cmd,196,top+20,8,String(d.no),'F1',text);pdfText(cmd,341,top+20,8,`${Number(d.total).toLocaleString('de-DE')} m`,'F1',text);pdfText(cmd,446,top+20,8,`${Number(d.rest).toLocaleString('de-DE')} m`,'F2',text);pdfText(cmd,506,top+20,8,d.photo?'Foto':'-','F2',muted);top+=31;});if(pi===drumChunks.length-1&&!pieces.length&&!drums.some(d=>d.photo)){pdfRect(cmd,38,top+16,519,30,paleGreen);pdfText(cmd,50,top+36,10,'Bestandsaufnahme abgeschlossen','F2',green);}footer(cmd);addPage(cmd);}
+  for(let pi=0;pi<drumChunks.length;pi++){const cmd=[];header(cmd,pi?'BESTANDSLISTE · FORTSETZUNG':'BESTANDSLISTE');if(pi===0)meta(cmd,128);let top=pi===0?205:150;pdfText(cmd,38,top,16,'Kabel / Trommeln','F2',text);top+=28;const cols=[38,190,335,440,500],heads=['Material','Trommel','Gesamt','Rest','Foto'];pdfRect(cmd,38,top,519,24,navy);heads.forEach((h,i)=>pdfText(cmd,cols[i]+6,top+16,8,h,'F2',white));top+=24;drumChunks[pi].forEach(d=>{pdfLine(cmd,38,top+31,557,top+31,border,1);pdfText(cmd,44,top+20,8,String(d.material),'F1',text);pdfText(cmd,196,top+20,8,String(d.no),'F1',text);pdfText(cmd,341,top+20,8,`${Number(d.total).toLocaleString('de-DE')} m`,'F1',text);pdfText(cmd,446,top+20,8,`${Number(d.rest).toLocaleString('de-DE')} m`,'F2',text);pdfText(cmd,506,top+20,8,d.photo?'Foto':d.scanOnly?'Scan':'-','F2',muted);top+=31;});if(pi===drumChunks.length-1&&!pieces.length&&!drums.some(d=>d.photo)){pdfRect(cmd,38,top+16,519,30,paleGreen);pdfText(cmd,50,top+36,10,'Bestandsaufnahme abgeschlossen','F2',green);}footer(cmd);addPage(cmd);}
   if(pieces.length){for(let i=0;i<pieces.length;i+=16){const arr=pieces.slice(i,i+16),cmd=[];header(cmd,i?'BESTAND & STÜCKMATERIAL · FORTSETZUNG':'BESTAND & STÜCKMATERIAL');let top=160;pdfText(cmd,38,top,16,'Stückmaterial','F2',text);top+=28;pdfRect(cmd,38,top,519,24,navy);pdfText(cmd,44,top+16,8,'Material','F2',white);pdfText(cmd,440,top+16,8,'Bestand','F2',white);top+=24;arr.forEach(p=>{pdfLine(cmd,38,top+31,557,top+31,border,1);pdfText(cmd,44,top+20,8,String(p.material),'F1',text);pdfText(cmd,440,top+20,8,`${Number(p.qty).toLocaleString('de-DE')} ${p.unit}`,'F2',text);top+=31;});if(i+16>=pieces.length){pdfRect(cmd,38,top+14,519,30,paleGreen);pdfText(cmd,50,top+34,10,'Bestandsaufnahme abgeschlossen','F2',green);}footer(cmd);addPage(cmd);}}
   const photoDrums=drums.filter(d=>d.photo);for(let i=0;i<photoDrums.length;i+=4){const arr=photoDrums.slice(i,i+4),cmd=[],images=[];header(cmd,i?'FOTODOKUMENTATION · FORTSETZUNG':'FOTODOKUMENTATION');if(i===0)pdfText(cmd,38,160,16,'Fotos der Trommeln','F2',text);let top=i===0?188:160;for(let j=0;j<arr.length;j++){const d=arr[j],num=String(i+j+1).padStart(2,'0');pdfRect(cmd,38,top,519,145,white);cmd.push(`${border[0]} ${border[1]} ${border[2]} RG 1 w 38 ${842-top-145} 519 145 re S`);pdfRect(cmd,50,top+12,30,30,navy);pdfText(cmd,59,top+34,10,num,'F2',white);pdfText(cmd,92,top+25,11,String(d.material),'F2',text);pdfText(cmd,92,top+43,8,`Trommel ${d.no} · ${Number(d.total).toLocaleString('de-DE')} m gesamt · ${Number(d.rest).toLocaleString('de-DE')} m Rest`,'F1',muted);const im=await getImg(d);if(im){const maxW=150,maxH=105,scale=Math.min(maxW/im.w,maxH/im.h),w=im.w*scale,h=im.h*scale;images.push({im,x:390,top:top+20,w,h});}top+=153;}footer(cmd);addPage(cmd,images);}
   const objects=[null];const obj=v=>(objects.push(v),objects.length-1);const pagesId=obj(null);const font1=obj('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>');const font2=obj('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica-Bold /Encoding /WinAnsiEncoding >>');const pageIds=[],contentIds=[],imageRefs=[];
@@ -1108,91 +1149,6 @@ async function directPdfFor(item,mode='view'){
   const w=window.open(url,'_blank');if(!w){const a=document.createElement('a');a.href=url;a.download=filename;a.click();}setTimeout(()=>URL.revokeObjectURL(url),60000);
 }
 function printPdfInSeparateWindow(){const id=Number(localStorage.getItem('mm_last_documentation_id'));const item=history.find(x=>x.id===id);if(item)directPdfFor(item,'view');}
-function legacyPrintPdfInSeparateWindow(){
-  const report=$('printReport');
-  if(!report)return;
-  const printWin=window.open('', '_blank');
-  if(!printWin){
-    setTimeout(()=>window.print(),50);
-    return;
-  }
-  const styles=[...document.querySelectorAll('style')].map(s=>s.textContent).join('\n');
-  printWin.document.open();
-  printWin.document.write(`<!doctype html><html lang="de"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>THADEN MATERIAL · PDF</title><style>${styles}
-/* V85: Materialbestellung auf der Startseite kompakter */
-@media(max-width:650px){
-  .process-card:nth-child(3) b{font-size:15.5px;line-height:1.12;max-width:calc(100% - 42px);white-space:normal;}
-  .process-card:nth-child(3) small{font-size:11.5px;max-width:calc(100% - 42px);}
-}
-</style>
-<style id="v91-material-style">
-/* V91 – Material erweitern: dunkler THADEN-MATERIAL Block */
-.add-material-box{
-  background:#2b333b !important;
-  border:1px solid #3c4650 !important;
-  color:#fff !important;
-  box-shadow:0 6px 18px rgba(16,32,48,.10);
-}
-.add-material-box h3{
-  color:#fff !important;
-  font-size:18px !important;
-  font-weight:800 !important;
-  letter-spacing:0 !important;
-}
-.add-material-box > .muted{
-  color:#d6dce1 !important;
-  font-size:13px !important;
-  font-weight:500 !important;
-}
-.add-material-box label{
-  color:#fff !important;
-  font-size:14px !important;
-  font-weight:750 !important;
-}
-.add-material-box input,
-.add-material-box .material-select{
-  background:#fff !important;
-  color:#16202a !important;
-  border-color:#d7dce2 !important;
-}
-.add-material-box .green{
-  background:var(--orange) !important;
-  color:#fff !important;
-}
-.material-manage-dropdown{
-  border-top:0 !important;
-  padding-top:12px !important;
-}
-.material-manage-dropdown summary{
-  background:#252d35 !important;
-  border:1px solid #3d4852 !important;
-  color:#fff !important;
-  font-size:16px !important;
-  font-weight:750 !important;
-  min-height:48px;
-  box-sizing:border-box;
-}
-.material-manage-chevron{color:#fff !important}
-.material-manage-inner{
-  color:#fff;
-}
-.material-manage-inner > .muted{
-  color:#d6dce1 !important;
-}
-.material-manage-row{
-  background:#343d46 !important;
-  border-color:#4a5661 !important;
-  color:#fff !important;
-}
-.material-manage-name{color:#fff !important}
-.material-manage-name small{color:#c4cbd1 !important}
-.material-remove{
-  background:#fff !important;
-}
-</style>
-</head><body class="pdf-print-window"><div class="pdf-toolbar no-print"><button class="pdf-close-btn" type="button" onclick="window.close()">✕ PDF schließen</button></div>${report.innerHTML}<script>window.addEventListener('load',()=>{const imgs=[...document.images];Promise.all(imgs.map(img=>img.complete?Promise.resolve():new Promise(r=>{img.onload=img.onerror=r;}))).then(()=>setTimeout(()=>window.print(),450));});<\/script></body></html>`);
-  printWin.document.close();
-}
 function openPdfFor(id){const item=history.find(x=>x.id===id);if(!item)return;directPdfFor(item,'view');}
 function deleteDocumentation(id){
   const item=history.find(x=>x.id===id); if(!item)return;
@@ -1329,11 +1285,11 @@ function renderGroupedOrderPrintReport(site, orders, date=''){
 }
 function printOrderPdf(id){
   const list=JSON.parse(localStorage.getItem('mm_orders')||'[]'); const order=list.find(x=>x.id===id); if(!order)return;
-  const orders=getGroupedOrders(order.site,order.date); renderGroupedOrderPrintReport(order.site,orders,order.date); legacyPrintPdfInSeparateWindow();
+  const orders=getGroupedOrders(order.site,order.date); renderGroupedOrderPrintReport(order.site,orders,order.date); printPdfInSeparateWindow();
 }
 function printGroupedOrderPdf(site,date=''){
   const orders=getGroupedOrders(site,date); if(!orders.length)return;
-  renderGroupedOrderPrintReport(site,orders,date); legacyPrintPdfInSeparateWindow();
+  renderGroupedOrderPrintReport(site,orders,date); printPdfInSeparateWindow();
 }
 async function shareOrder(id){
   const list=JSON.parse(localStorage.getItem('mm_orders')||'[]'); const order=list.find(x=>x.id===id); if(!order)return;
@@ -1346,7 +1302,7 @@ async function shareGroupedOrder(site,date=''){
   // Auf iPhone/iPad wird zunächst die gemeinsame PDF-Druckansicht geöffnet.
   // Von dort kann die PDF über das iOS-Teilen-Symbol verschickt werden.
   renderGroupedOrderPrintReport(site,orders,dateValue);
-  legacyPrintPdfInSeparateWindow();
+  printPdfInSeparateWindow();
   setTimeout(()=>{
     if(confirm(`Die Sammel-PDF für ${site} · ${new Date(dateValue+'T00:00').toLocaleDateString('de-DE')} wurde zur Erstellung geöffnet.\n\nWenn du sie über das Teilen-Symbol verschickt hast, sollen die Bestellungen von dieser Seite entfernt werden?`)){
       markOrderGroupDone(site,dateValue,false);
@@ -1456,11 +1412,11 @@ function renderReturnPrintReport(list){
 }
 function printReturnPdf(id){
   const list=JSON.parse(localStorage.getItem('mm_returns')||'[]'); const item=list.find(x=>x.id==id); if(!item)return;
-  renderReturnPrintReport([item]); legacyPrintPdfInSeparateWindow();
+  renderReturnPrintReport([item]); printPdfInSeparateWindow();
 }
 function shareReturnList(){
   const list=JSON.parse(localStorage.getItem('mm_returns')||'[]'); if(!list.length){alert('Noch keine leeren Trommeln gemeldet.');return}
-  renderReturnPrintReport(list); legacyPrintPdfInSeparateWindow();
+  renderReturnPrintReport(list); printPdfInSeparateWindow();
 }
 function deleteReturn(id){
   const list=JSON.parse(localStorage.getItem('mm_returns')||'[]'); const item=list.find(x=>x.id==id); if(!item)return;
@@ -1472,7 +1428,7 @@ function deleteReturn(id){
 function renderHistory(){let h=history.map((x,i)=>`<div class="history-item"><div class="history-item-row"><div><b>${esc(x.site)}</b> <span class="badge">${new Date(x.date+"T00:00").toLocaleDateString("de-DE")}</span><br><span class="muted">${esc(x.worker)} · ${esc(x.place||"")} · ${x.drums.length} Trommeln · ${x.pieces.length} Stückmaterialien</span></div><div style="display:flex;gap:8px;flex-wrap:wrap"><button type="button" class="primary" onclick="continueProject(${x.id})">Fortsetzen</button><button type="button" class="delete-history" onclick="deleteHistory(${i})">Löschen</button></div></div></div>`).join("");$("historyList").innerHTML=h||'<div class="empty">Noch keine Aufnahmen gespeichert.</div>'}
 
 function deleteHistory(index){const item=history[index];if(!item)return;const date=new Date(item.date+"T00:00").toLocaleDateString("de-DE");if(!confirm(`Aufnahme von ${item.site} vom ${date} wirklich löschen?`))return;history.splice(index,1);localStorage.setItem("mm_history",JSON.stringify(history));rebuildDrumStore();renderHistory();renderHome();updateStats()}
-function renderDrums(){let h=drums.map((d,i)=>`<div class="history-item"><b>${d.material}</b><br>Trommel: <b>${d.no}</b> · Rest: <b>${d.rest.toLocaleString("de-DE")} m</b><br><span class="muted">Gesamtlänge: ${d.total.toLocaleString("de-DE")} m ${d.photo?"· Foto vorhanden":""}</span></div>`).join("");$("drumList").innerHTML=h||'<div class="empty">Noch keine Trommeln gespeichert.</div>'}
+function renderDrums(){let h=drums.map((d,i)=>`<div class="history-item"><b>${d.material}</b><br>Trommel: <b>${d.no}</b> · Rest: <b>${d.rest.toLocaleString("de-DE")} m</b><br><span class="muted">Gesamtlänge: ${d.total.toLocaleString("de-DE")} m ${d.photo?"· Foto vorhanden":d.scanOnly?"· Scan gespeichert":""}</span></div>`).join("");$("drumList").innerHTML=h||'<div class="empty">Noch keine Trommeln gespeichert.</div>'}
 function printLastDocument(){
   const id=Number(localStorage.getItem("mm_last_documentation_id"));
   if(id) openPdfFor(id); else alert("Noch keine gespeicherte Bestandsaufnahme vorhanden.");
