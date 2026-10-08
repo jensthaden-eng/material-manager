@@ -425,10 +425,10 @@ body{background:#f3f5f7}
   #returns .photo-action{min-height:72px !important;height:72px}
 }
 
-/* V127.1 – einfache Mitarbeiter-Anmeldung statt PIN */
-.loginbox{max-width:620px!important;text-align:left}.login-subtitle{color:var(--muted);margin:-14px 0 22px;line-height:1.45}.login-select{min-height:54px;font-size:18px;margin-bottom:6px}.login-button{width:100%;margin-top:14px;min-height:54px}.loginbox label{margin-top:0}
+/* V127.2 – Mitarbeiter + PIN + Push-Test */
+.loginbox{max-width:620px!important;text-align:left}.login-subtitle{color:var(--muted);margin:-14px 0 22px;line-height:1.45}.login-select{min-height:54px;font-size:18px;margin-bottom:6px}.login-button{width:100%;margin-top:14px;min-height:54px}.loginbox label{margin-top:0}.pin-input{width:100%;box-sizing:border-box;min-height:54px;border:1px solid #ccd5db;border-radius:12px;padding:0 16px;font-size:22px;letter-spacing:7px;text-align:center;background:#fff}.pin-input:focus{outline:3px solid rgba(255,107,0,.16);border-color:#ff6b00}.push-row{display:flex;gap:10px;align-items:center;margin-top:16px}.push-button{flex:1;min-height:48px}.push-state{font-size:12px;color:var(--muted)}
 .user-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:12px 0 18px;padding:11px 13px;background:#eef3f6;border-radius:13px}.user-bar small{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.7px}.user-bar b{font-size:15px}.user-bar button{padding:9px 11px;font-size:13px}
-@media(max-width:650px){.loginbox{padding:30px 20px 24px!important}.login-select{min-height:56px}.login-button{min-height:56px}}
+@media(max-width:650px){.loginbox{padding:30px 20px 24px!important}.login-select{min-height:56px}.login-button{min-height:56px}.push-row{display:block}.push-button{width:100%;margin-bottom:7px}}
 </style>
 
 </head>
@@ -455,15 +455,17 @@ if ('serviceWorker' in navigator){
 <h2 class="pin-title">Wer nutzt die App?</h2>
 <p class="login-subtitle">Einmal auswählen – beim nächsten Start bleibt die Anmeldung gespeichert.</p>
 <label for="loginUser">Mitarbeiter</label>
-<select id="loginUser" class="login-select">
+<select id="loginUser" class="login-select" onchange="clearLoginError()">
 <option value="">Bitte auswählen …</option>
 <option value="Mitarbeiter 1">Mitarbeiter 1</option>
 <option value="Mitarbeiter 2">Mitarbeiter 2</option>
 <option value="Mitarbeiter 3">Mitarbeiter 3</option>
 <option value="Mitarbeiter 4">Mitarbeiter 4</option>
 </select>
+<label for="loginPin">PIN</label>
+<input id="loginPin" class="pin-input" type="password" inputmode="numeric" autocomplete="one-time-code" maxlength="4" placeholder="••••" onkeydown="if(event.key==='Enter')loginUser()" oninput="this.value=this.value.replace(/\D/g,'').slice(0,4);clearLoginError()">
 <div id="loginError" class="error"></div>
-<button class="primary login-button" onclick="loginUser()">Weiter →</button>
+<button class="primary login-button" onclick="loginUser()">Anmelden →</button>
 </div>
 </section>
 
@@ -473,7 +475,7 @@ if ('serviceWorker' in navigator){
   <p>Material im Blick. Prozesse im Griff.</p>
   <button class="primary workflow-primary" onclick="newInventory()">＋ Neue Bestandsaufnahme</button>
 </div>
-<div class="user-bar"><div><small>Angemeldet als</small><b id="currentUserLabel">–</b></div><button class="ghost" onclick="switchUser()">Benutzer wechseln</button></div>
+<div class="user-bar"><div><small>Angemeldet als</small><b id="currentUserLabel">–</b></div><div style="display:flex;gap:8px;align-items:center"><button class="ghost" onclick="enablePushNotifications()">🔔 Push</button><button class="ghost" onclick="switchUser()">Benutzer wechseln</button></div></div>
 <div class="workflow-section">
   <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h3>Meine Lagerplätze</h3><button class="ghost" onclick="show('sites')">Alle →</button></div>
   <div id="homeSites"></div>
@@ -685,7 +687,16 @@ $("invDate").value=today();
 function show(id){
   if(id==="summary"){const inline=$("summarySaveConfirm"), actions=$("summaryActions"), btn=$("confirmSaveBtn"); if(inline) inline.classList.remove("show"); if(actions) actions.classList.remove("is-saved"); if(btn){btn.disabled=false;btn.textContent="✓ Aufnahme bestätigen";}}if(id==="home"&&!unlocked)return;document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));const target=document.querySelector(`.screen#${CSS.escape(id)}`);if(!target)return;target.classList.add("active");if(id==="home")renderHome();if(id==="history")renderHistory();if(id==="drums")renderDrums();if(id==="documentation")renderDocumentation();if(id==="sites")renderSites();if(id==="materials"){refreshMaterialPickers();renderCurrentEntries();}if(id==="orders")renderOrderForm();if(id==="orderList")renderOrders();if(id==="returns")renderReturnForm();if(id==="returnList")renderReturns();updateStats();window.scrollTo({top:0,left:0,behavior:"auto"});document.documentElement.scrollTop=0;document.body.scrollTop=0}
 function renderLoggedInUser(){const el=$("currentUserLabel");if(el)el.textContent=currentUser||"–";}
-function loginUser(){const sel=$("loginUser");const name=(sel&&sel.value||"").trim();if(!name){$("loginError").textContent="Bitte zuerst einen Mitarbeiter auswählen.";return}currentUser=name;localStorage.setItem("mm_user",name);unlocked=true;$("loginError").textContent="";renderLoggedInUser();show("home");}
+function clearLoginError(){const e=$("loginError");if(e)e.textContent=""}
+function loginUser(){const sel=$("loginUser");const pinEl=$("loginPin");const name=(sel&&sel.value||"").trim();const pin=(pinEl&&pinEl.value||"").trim();if(!name){$("loginError").textContent="Bitte zuerst einen Mitarbeiter auswählen.";return}if(!/^\d{4}$/.test(pin)||loginPins[name]!==pin){$("loginError").textContent="PIN ist nicht korrekt.";if(pinEl){pinEl.value="";pinEl.focus()}return}currentUser=name;localStorage.setItem("mm_user",name);unlocked=true;$("loginError").textContent="";if(pinEl)pinEl.value="";renderLoggedInUser();show("home");}
+async function enablePushNotifications(){
+  if(!('Notification' in window)){alert('Push-Benachrichtigungen werden auf diesem Gerät/Browser nicht unterstützt.');return;}
+  try{const permission=await Notification.requestPermission();
+    if(permission==='granted'){localStorage.setItem('mm_push_enabled','1');new Notification('THADEN MATERIAL',{body:'Push-Benachrichtigungen sind aktiviert.'});}
+    else alert('Push-Benachrichtigungen wurden nicht freigegeben.');
+  }catch(e){alert('Push-Aktivierung konnte nicht gestartet werden.');}
+}
+function sendLocalPush(title,message){if(localStorage.getItem('mm_push_enabled')==='1' && 'Notification' in window && Notification.permission==='granted'){try{new Notification(title,{body:message,icon:'./icon-192.png'});}catch(e){}}}
 function switchUser(){unlocked=false;currentUser="";localStorage.removeItem("mm_user");const sel=$("loginUser");if(sel)sel.value="";show("lock");}
 if(currentUser){renderLoggedInUser();setTimeout(()=>show("home"),0);}
 function newInventory(){current={drums:[],pieces:[]};editingDrumIndex=-1;editingPieceIndex=-1;editingHistoryId=null;$("site").value="";$("place").value="";$("postalCode").value="";$("street").value="";$("worker").value=currentUser||"";$("invDate").value=today();show("setup")}
@@ -1051,6 +1062,7 @@ let toastTimer=null;function notifySaved(title="Material erfolgreich gespeichert
   if(toastTimer) clearTimeout(toastTimer);
   try{navigator.vibrate?.(35)}catch(e){}
   toastTimer=setTimeout(()=>t.classList.remove("show"),2600);
+  sendLocalPush(title,message);
 }
 let pendingLowStock=null, lowStockQueue=[];
 function lowStockKey(item, material, type, id=''){return `${item.site||''}|${item.street||''}|${type}|${material}|${id}`.toLowerCase()}
@@ -1430,10 +1442,10 @@ function printPdfInSeparateWindow(){
   #returns .form-actions button{font-size:13px}
 }
 
-/* V127.1 – einfache Mitarbeiter-Anmeldung statt PIN */
-.loginbox{max-width:620px!important;text-align:left}.login-subtitle{color:var(--muted);margin:-14px 0 22px;line-height:1.45}.login-select{min-height:54px;font-size:18px;margin-bottom:6px}.login-button{width:100%;margin-top:14px;min-height:54px}.loginbox label{margin-top:0}
+/* V127.2 – Mitarbeiter + PIN + Push-Test */
+.loginbox{max-width:620px!important;text-align:left}.login-subtitle{color:var(--muted);margin:-14px 0 22px;line-height:1.45}.login-select{min-height:54px;font-size:18px;margin-bottom:6px}.login-button{width:100%;margin-top:14px;min-height:54px}.loginbox label{margin-top:0}.pin-input{width:100%;box-sizing:border-box;min-height:54px;border:1px solid #ccd5db;border-radius:12px;padding:0 16px;font-size:22px;letter-spacing:7px;text-align:center;background:#fff}.pin-input:focus{outline:3px solid rgba(255,107,0,.16);border-color:#ff6b00}.push-row{display:flex;gap:10px;align-items:center;margin-top:16px}.push-button{flex:1;min-height:48px}.push-state{font-size:12px;color:var(--muted)}
 .user-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:12px 0 18px;padding:11px 13px;background:#eef3f6;border-radius:13px}.user-bar small{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.7px}.user-bar b{font-size:15px}.user-bar button{padding:9px 11px;font-size:13px}
-@media(max-width:650px){.loginbox{padding:30px 20px 24px!important}.login-select{min-height:56px}.login-button{min-height:56px}}
+@media(max-width:650px){.loginbox{padding:30px 20px 24px!important}.login-select{min-height:56px}.login-button{min-height:56px}.push-row{display:block}.push-button{width:100%;margin-bottom:7px}}
 </style>
 
 </head><body class="pdf-print-window"><div class="pdf-toolbar no-print"><button class="pdf-close-btn" type="button" onclick="window.close()">✕ PDF schließen</button></div>${report.innerHTML}<script>window.addEventListener('load',()=>{const imgs=[...document.images];Promise.all(imgs.map(img=>img.complete?Promise.resolve():new Promise(r=>{img.onload=img.onerror=r;}))).then(()=>setTimeout(()=>window.print(),450));});<\/script></body></html>`);
