@@ -1,160 +1,262 @@
-/* THADEN MATERIAL V128 – Supabase Login
-   Dieses Script wird NACH dem bestehenden index.html-Script eingebunden. */
-(async function(){
-  const SUPABASE_URL="https://qspgaueygcmcxbkbscfn.supabase.co";
-  const SUPABASE_KEY="sb_publishable_4C-rY5PdKl5yWv7wChEu_g_Mi9fbTBj";
+/* THADEN MATERIAL V128 – Supabase Mitarbeiter-Login
+   Läuft als Ergänzung zur bestehenden v127 index.html.
+   Keine Service-Role-/Secret-Key-Daten im Browser.
+*/
+(function () {
+  const SUPABASE_URL = "https://qspgaueygcmcxbkbscfn.supabase.co";
+  const SUPABASE_KEY = atob("c2JfcHVibGlzaGFibGVfNEMtclk1UGRLbDV5V3Y3d0NoRXVfZ19NaTlmYlRCag==");
+  const state = {
+    selectedEmployeeId: "",
+    profile: null,
+    authReady: false,
+    entered: ""
+  };
 
-  function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[m]))}
-  function ensureSupabase(){
-    return new Promise((resolve,reject)=>{
-      if(window.supabase){resolve();return}
-      const s=document.createElement("script");
-      s.src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2";
-      s.onload=resolve;s.onerror=()=>reject(new Error("Supabase-Bibliothek konnte nicht geladen werden."));
+  function loadScript(src) {
+    return new Promise((resolve, reject) => {
+      if (window.supabase) return resolve();
+      const s = document.createElement("script");
+      s.src = src;
+      s.onload = resolve;
+      s.onerror = reject;
       document.head.appendChild(s);
     });
   }
-  await ensureSupabase();
-  const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
-  let authUnlocked=false, currentUser=null, currentProfile=null, employeeId="", entered="", busy=false;
 
-  const lock=document.getElementById("lock");
-  if(!lock)return;
+  function css() {
+    if (document.getElementById("tm-v128-login-css")) return;
+    const s = document.createElement("style");
+    s.id = "tm-v128-login-css";
+    s.textContent = `
+      .tm-login-kicker{display:inline-block;background:#101820;color:#fff;border-radius:999px;padding:7px 12px;font-size:11px;letter-spacing:2px;font-weight:900;margin-bottom:12px}
+      .tm-login-who{color:#ff6b00;font-size:29px;margin:0 0 5px;text-shadow:0 1px 0 #fff}
+      .tm-login-sub{margin:0 0 16px;color:#697680;font-size:14px}
+      .tm-login-select,.tm-login-input{width:100%;padding:13px 14px;border:2px solid #d8dee3;border-radius:11px;font-size:17px;background:#fff}
+      .tm-login-select:focus,.tm-login-input:focus{border-color:#ff6b00;outline:none;box-shadow:0 0 0 3px #ff6b0022}
+      .tm-login-load{text-align:left;color:#697680;font-size:12px;margin:8px 2px 16px}
+      .tm-login-error{color:#b00020;min-height:22px;margin:8px 0;font-weight:700}
+      .tm-pin-label{display:block;font-weight:700;margin:12px 0 6px}
+      .tm-force-card .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+      .tm-force-card .primary{background:#ff6b00;color:#fff}
+    `;
+    document.head.appendChild(s);
+  }
 
-  lock.innerHTML=`
-    <div class="card pinbox">
-      <h2 class="pin-title" id="v128Title">Wer nutzt die App?</h2>
-      <div id="v128Chooser">
-        <label for="v128Employee" style="text-align:left">Mitarbeiter</label>
-        <select id="v128Employee"><option value="">Wird geladen …</option></select>
-        <button class="primary" style="width:100%;margin-top:12px" id="v128Next">Weiter →</button>
-      </div>
-      <div id="v128Pin" style="display:none">
-        <div id="v128Name" class="muted" style="margin-bottom:10px"></div>
-        <div id="v128Dots" class="pin-dots">○ ○ ○ ○ ○ ○</div>
-        <div id="v128Error" class="error"></div>
+  function replaceLock() {
+    const lock = document.getElementById("lock");
+    if (!lock) return;
+    lock.innerHTML = `
+      <div class="card pinbox">
+        <div class="tm-login-kicker">THADEN MATERIAL</div>
+        <h2 class="tm-login-who">Wer nutzt die App?</h2>
+        <p class="tm-login-sub">Mitarbeiter auswählen und mit persönlicher PIN anmelden.</p>
+        <label class="tm-pin-label" for="tmEmployeeSelect">Mitarbeiter</label>
+        <select id="tmEmployeeSelect" class="tm-login-select">
+          <option value="">Mitarbeiter wird geladen …</option>
+        </select>
+        <div id="tmEmployeeLoad" class="tm-login-load">Mitarbeiterliste wird geladen …</div>
+        <h2 class="pin-title">PIN eingeben</h2>
+        <div id="pinDots" class="pin-dots">○ ○ ○ ○ ○ ○</div>
+        <div id="pinError" class="tm-login-error"></div>
         <div class="numpad">
-          ${[1,2,3,4,5,6,7,8,9].map(n=>`<button data-n="${n}">${n}</button>`).join("")}
-          <button class="ghost" id="v128Clear">⌫</button><button data-n="0">0</button><button class="primary" id="v128Ok">OK</button>
+          <button onclick="pin('1')">1</button><button onclick="pin('2')">2</button><button onclick="pin('3')">3</button>
+          <button onclick="pin('4')">4</button><button onclick="pin('5')">5</button><button onclick="pin('6')">6</button>
+          <button onclick="pin('7')">7</button><button onclick="pin('8')">8</button><button onclick="pin('9')">9</button>
+          <button class="ghost" onclick="pinClear()">⌫</button><button onclick="pin('0')">0</button><button class="primary" onclick="pinOk()">OK</button>
         </div>
-        <button class="ghost" style="width:100%;margin-top:12px" id="v128Back">← Mitarbeiter wechseln</button>
-      </div>
-      <div id="v128Change" style="display:none">
-        <div class="muted" style="margin-bottom:12px">Bitte lege deine persönliche PIN fest.</div>
-        <label for="v128New1" style="text-align:left">Neue PIN (6 Ziffern)</label>
-        <input id="v128New1" inputmode="numeric" autocomplete="new-password" maxlength="6" type="password" placeholder="••••••">
-        <label for="v128New2" style="text-align:left">PIN wiederholen</label>
-        <input id="v128New2" inputmode="numeric" autocomplete="new-password" maxlength="6" type="password" placeholder="••••••">
-        <div id="v128ChangeError" class="error"></div>
-        <button class="primary" style="width:100%;margin-top:12px" id="v128Save">PIN speichern →</button>
-      </div>
-    </div>`;
-
-  const $=id=>document.getElementById(id);
-  const dots=()=>{$("v128Dots").textContent=[0,1,2,3,4,5].map(i=>i<entered.length?"●":"○").join(" ")};
-  const err=t=>{$("v128Error").textContent=t||""};
-
-  // Überschreibt die bestehende show()-Funktion nur für den geschützten Startbildschirm.
-  const oldShow=window.show;
-  window.show=function(id){
-    if(id==="home" && !authUnlocked)return;
-    if(typeof oldShow==="function")oldShow(id);
-  };
-
-  function setBusy(v){busy=v;$("v128Ok").disabled=v}
-  function choose(){
-    employeeId=$("v128Employee").value;
-    if(!employeeId){err("Bitte zuerst einen Mitarbeiter auswählen.");return}
-    $("v128Name").textContent=$("v128Employee").selectedOptions[0]?.textContent||"";
-    $("v128Title").textContent="PIN eingeben";
-    $("v128Chooser").style.display="none";$("v128Pin").style.display="block";entered="";dots();err("");
+      </div>`;
+    document.getElementById("tmEmployeeSelect").addEventListener("change", function () {
+      state.selectedEmployeeId = this.value;
+      state.entered = "";
+      updateDots();
+      const e = document.getElementById("pinError");
+      if (e) e.textContent = "";
+    });
   }
-  $("v128Next").onclick=choose;
-  $("v128Back").onclick=()=>{
-    employeeId="";entered="";dots();err("");
-    $("v128Pin").style.display="none";$("v128Change").style.display="none";$("v128Chooser").style.display="block";$("v128Title").textContent="Wer nutzt die App?";
-  };
-  document.querySelectorAll("#v128Pin [data-n]").forEach(b=>b.onclick=()=>{
-    if(busy||entered.length>=6)return;
-    entered+=b.dataset.n;dots();
-    if(entered.length===6)setTimeout(login,180);
-  });
-  $("v128Clear").onclick=()=>{if(entered.length){entered=entered.slice(0,-1);dots()}};
-  $("v128Ok").onclick=login;
 
-  async function loadEmployees(){
-    try{
-      const {data,error}=await sb.functions.invoke("employee-public-list",{body:{}});
-      if(error)throw error;
-      const list=Array.isArray(data?.employees)?data.employees:[];
-      $("v128Employee").innerHTML='<option value="">Bitte auswählen …</option>'+
-        list.map(e=>`<option value="${esc(e.id)}">${esc(e.full_name)}</option>`).join("");
-      if(!list.length)$("v128Employee").innerHTML='<option value="">Keine aktiven Mitarbeiter</option>';
-    }catch(e){
-      console.error(e);
-      $("v128Employee").innerHTML='<option value="">Mitarbeiter konnten nicht geladen werden</option>';
-      err("Mitarbeiterliste konnte nicht geladen werden.");
+  function addForcePinScreen() {
+    if (document.getElementById("tmForcePin")) return;
+    const sec = document.createElement("section");
+    sec.id = "tmForcePin";
+    sec.className = "screen";
+    sec.innerHTML = `
+      <div class="card pinbox tm-force-card">
+        <div class="tm-login-kicker">ERSTE ANMELDUNG</div>
+        <h2 class="tm-login-who">Persönliche PIN festlegen</h2>
+        <p class="tm-login-sub">Bitte die Start-PIN durch deine persönliche 6-stellige PIN ersetzen.</p>
+        <label class="tm-pin-label" for="tmFirstPin">Neue PIN</label>
+        <input id="tmFirstPin" class="tm-login-input" inputmode="numeric" autocomplete="new-password" maxlength="6" type="password" placeholder="6 Ziffern">
+        <label class="tm-pin-label" for="tmFirstPin2">PIN wiederholen</label>
+        <input id="tmFirstPin2" class="tm-login-input" inputmode="numeric" autocomplete="new-password" maxlength="6" type="password" placeholder="6 Ziffern">
+        <div id="tmFirstPinError" class="tm-login-error"></div>
+        <div class="actions"><button class="primary" onclick="tmFinishFirstPin()">PIN speichern & weiter</button></div>
+      </div>`;
+    document.querySelector(".wrap").insertBefore(sec, document.getElementById("home"));
+  }
+
+  function updateDots() {
+    const d = document.getElementById("pinDots");
+    if (d) d.textContent = [0,1,2,3,4,5].map(i => i < state.entered.length ? "●" : "○").join(" ");
+  }
+
+  window.pin = function (x) {
+    if (state.entered.length >= 6) return;
+    state.entered += String(x);
+    updateDots();
+    if (state.entered.length === 6) setTimeout(window.pinOk, 180);
+  };
+
+  window.pinClear = function () {
+    state.entered = state.entered.slice(0, -1);
+    updateDots();
+  };
+
+  window.pinOk = async function () {
+    const err = document.getElementById("pinError");
+    if (!state.selectedEmployeeId) {
+      if (err) err.textContent = "Bitte zuerst einen Mitarbeiter auswählen.";
+      return;
     }
-  }
-
-  async function login(){
-    if(busy||entered.length!==6){if(entered.length!==6)err("Bitte 6 Ziffern eingeben.");return}
-    setBusy(true);err("Anmeldung läuft …");
-    try{
-      const {data,error}=await sb.functions.invoke("employee-login",{body:{user_id:employeeId,pin:entered}});
-      if(error||!data?.session)throw error||new Error("Anmeldung fehlgeschlagen.");
-      const sessionResult=await sb.auth.setSession(data.session);
-      if(sessionResult.error)throw sessionResult.error;
-      currentUser=data.user||data.session.user;
-      const {data:profile,error:pe}=await sb.from("profiles").select("id,full_name,role,must_change_pin,active").eq("id",currentUser.id).single();
-      if(pe||!profile?.active)throw pe||new Error("Benutzer ist nicht aktiv.");
-      currentProfile=profile;entered="";dots();err("");
-      if(profile.must_change_pin){
-        $("v128Pin").style.display="none";$("v128Change").style.display="block";$("v128Title").textContent="Persönliche PIN festlegen";
-      }else{
-        authUnlocked=true;
-        setTimeout(()=>window.show("home"),200);
+    if (state.entered.length !== 6) {
+      if (err) err.textContent = "Bitte 6 Ziffern eingeben.";
+      return;
+    }
+    if (err) err.textContent = "Anmeldung wird geprüft …";
+    try {
+      const { data, error } = await window.tmSupabase.functions.invoke("employee-login", {
+        body: { user_id: state.selectedEmployeeId, pin: state.entered }
+      });
+      if (error || !data || !data.session) throw new Error("login");
+      const { error: sessionError } = await window.tmSupabase.auth.setSession(data.session);
+      if (sessionError) throw sessionError;
+      const { data: profile, error: profileError } = await window.tmSupabase
+        .from("profiles")
+        .select("id,full_name,role,must_change_pin,active")
+        .eq("id", state.selectedEmployeeId)
+        .single();
+      if (profileError || !profile || !profile.active) throw new Error("profile");
+      state.profile = profile;
+      state.authReady = true;
+      state.entered = "";
+      updateDots();
+      if (profile.must_change_pin) {
+        document.querySelectorAll(".screen").forEach(x => x.classList.remove("active"));
+        document.getElementById("tmForcePin").classList.add("active");
+        window.scrollTo(0,0);
+      } else {
+        unlocked = true;
+        show("home");
       }
-    }catch(e){
-      console.error(e);err("PIN oder Mitarbeiter ist falsch.");entered="";dots();
-    }finally{setBusy(false)}
-  }
-
-  $("v128Save").onclick=async()=>{
-    const a=$("v128New1").value.trim(),b=$("v128New2").value.trim();
-    $("v128ChangeError").textContent="";
-    if(!/^\d{6}$/.test(a)){ $("v128ChangeError").textContent="Bitte genau 6 Ziffern eingeben.";return }
-    if(a!==b){$("v128ChangeError").textContent="Die PINs stimmen nicht überein.";return}
-    try{
-      const {error}=await sb.auth.updateUser({password:a}); if(error)throw error;
-      const {error:pe}=await sb.from("profiles").update({must_change_pin:false}).eq("id",currentUser.id); if(pe)throw pe;
-      await sb.from("security_events").insert({user_id:currentUser.id,event_type:"pin_changed",description:"Persönliche PIN bei der ersten Anmeldung geändert."});
-      currentProfile.must_change_pin=false;authUnlocked=true;
-      $("v128New1").value="";$("v128New2").value="";
-      setTimeout(()=>window.show("home"),200);
-    }catch(e){$("v128ChangeError").textContent=e.message||"PIN konnte nicht gespeichert werden."}
+    } catch (e) {
+      console.error(e);
+      state.entered = "";
+      updateDots();
+      if (err) err.textContent = "Falsche PIN";
+    }
   };
 
-  // PC-Tastatur
-  document.addEventListener("keydown",e=>{
-    if(!document.getElementById("lock")?.classList.contains("active")||authUnlocked)return;
-    if(/^\d$/.test(e.key)&&$("v128Pin").style.display!=="none"){e.preventDefault();document.querySelector(`#v128Pin [data-n="${e.key}"]`)?.click()}
-    if(e.key==="Backspace"&&$("v128Pin").style.display!=="none"){$("v128Clear").click()}
-    if(e.key==="Enter"){$("v128Chooser").style.display!=="none"?choose():login()}
-  });
+  window.tmFinishFirstPin = async function () {
+    const p = document.getElementById("tmFirstPin").value.trim();
+    const q = document.getElementById("tmFirstPin2").value.trim();
+    const err = document.getElementById("tmFirstPinError");
+    if (!/^\d{6}$/.test(p)) { err.textContent = "Bitte genau 6 Ziffern eingeben."; return; }
+    if (p !== q) { err.textContent = "Die PINs stimmen nicht überein."; return; }
+    try {
+      const { error } = await window.tmSupabase.auth.updateUser({ password: p });
+      if (error) throw error;
+      const id = state.profile.id;
+      const { error: pe } = await window.tmSupabase.from("profiles").update({ must_change_pin:false }).eq("id", id);
+      if (pe) throw pe;
+      await window.tmSupabase.from("security_events").insert({
+        user_id:id,
+        event_type:"pin_changed",
+        description:"Start-PIN wurde durch persönliche PIN ersetzt."
+      });
+      state.profile.must_change_pin = false;
+      err.textContent = "";
+      document.getElementById("tmFirstPin").value = "";
+      document.getElementById("tmFirstPin2").value = "";
+      unlocked = true;
+      show("home");
+    } catch (e) {
+      console.error(e);
+      err.textContent = "PIN konnte nicht gespeichert werden.";
+    }
+  };
 
-  // Bestehende lokale PIN-Einstellungen werden nicht mehr verwendet.
-  // Abmelden kann über die neue Funktion im Einstellungsbereich ergänzt werden.
-  const session=await sb.auth.getSession();
-  if(session.data?.session){
-    currentUser=session.data.session.user;
-    const {data:p}=await sb.from("profiles").select("id,full_name,role,must_change_pin,active").eq("id",currentUser.id).single();
-    if(p?.active){
-      currentProfile=p;
-      if(p.must_change_pin){
-        $("v128Chooser").style.display="none";$("v128Change").style.display="block";$("v128Title").textContent="Persönliche PIN festlegen";
-      }else{authUnlocked=true;window.show("home");return}
+  async function loadEmployees() {
+    const select = document.getElementById("tmEmployeeSelect");
+    const msg = document.getElementById("tmEmployeeLoad");
+    try {
+      const { data, error } = await window.tmSupabase.functions.invoke("employee-list", { body: {} });
+      if (error || !data || !Array.isArray(data.employees)) throw new Error("list");
+      select.innerHTML = '<option value="">Mitarbeiter auswählen …</option>' +
+        data.employees.map(x => '<option value="' + x.id + '">' + escapeHtml(x.full_name || "Mitarbeiter") + '</option>').join("");
+      msg.textContent = data.employees.length + " Mitarbeiter verfügbar.";
+      if (data.employees.length === 1) {
+        state.selectedEmployeeId = data.employees[0].id;
+        select.value = state.selectedEmployeeId;
+      }
+    } catch (e) {
+      console.error(e);
+      msg.textContent = "Mitarbeiterliste konnte nicht geladen werden.";
     }
   }
-  await loadEmployees();
+
+  function escapeHtml(v) {
+    return String(v).replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+  }
+
+  async function restoreSession() {
+    try {
+      const { data } = await window.tmSupabase.auth.getSession();
+      if (!data || !data.session) return;
+      const uid = data.session.user.id;
+      const { data: profile } = await window.tmSupabase.from("profiles")
+        .select("id,full_name,role,must_change_pin,active").eq("id", uid).single();
+      if (!profile || !profile.active) return;
+      state.profile = profile;
+      state.selectedEmployeeId = uid;
+      state.authReady = true;
+      unlocked = true;
+      if (profile.must_change_pin) {
+        document.querySelectorAll(".screen").forEach(x => x.classList.remove("active"));
+        document.getElementById("tmForcePin").classList.add("active");
+      } else {
+        show("home");
+      }
+    } catch (e) { console.warn("Session restore:", e); }
+  }
+
+  window.tmChangePin = async function () {
+    const input = document.getElementById("newPin");
+    if (!input) return;
+    const p = input.value.trim();
+    if (!/^\d{6}$/.test(p)) { alert("Bitte genau 6 Ziffern eingeben."); return; }
+    try {
+      const { error } = await window.tmSupabase.auth.updateUser({ password:p });
+      if (error) throw error;
+      await window.tmSupabase.from("profiles").update({must_change_pin:false}).eq("id", state.profile?.id || "");
+      await window.tmSupabase.from("security_events").insert({
+        user_id:state.profile?.id,event_type:"pin_changed",description:"Persönliche PIN geändert."
+      });
+      input.value = "";
+      alert("PIN gespeichert.");
+    } catch (e) { alert("PIN konnte nicht gespeichert werden."); }
+  };
+
+  async function init() {
+    css();
+    await loadScript("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2");
+    window.tmSupabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    replaceLock();
+    addForcePinScreen();
+    const oldChange = window.changePin;
+    window.changePin = window.tmChangePin;
+    await loadEmployees();
+    await restoreSession();
+  }
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init);
+  else init();
 })();

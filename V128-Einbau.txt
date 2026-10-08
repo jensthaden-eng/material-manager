@@ -1,0 +1,15 @@
+THADEN MATERIAL – V128 Login
+
+1. Diese Datei `v128-login.js` ins GitHub-Repository in den Root hochladen.
+2. In `index.html` direkt vor `</body>` diese Zeile ergänzen:
+   <script src="./v128-login.js"></script>
+3. Commit speichern.
+4. GitHub Pages neu laden.
+
+Die bestehende v127-Materialverwaltung bleibt erhalten.
+Der Login lädt die Mitarbeiter aus Supabase, meldet per 6-stelliger PIN an
+und erzwingt bei der ersten Anmeldung eine persönliche PIN.
+
+Wichtig:
+- Die Browser-Datei enthält nur den Supabase Publishable Key.
+- Niemals einen `sb_secret_...` oder alten `service_role` Key eintragen.
