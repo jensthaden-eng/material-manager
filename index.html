@@ -433,7 +433,14 @@ body{background:#f3f5f7}
 .login-button:hover::after{transform:rotate(18deg) translateX(620%)}
 .login-button:active{transform:scale(.98)!important;box-shadow:0 4px 10px rgba(16,24,32,.18)!important}
 .login-button:focus-visible{outline:3px solid rgba(255,107,0,.35)!important;outline-offset:3px}
-.loginbox{max-width:620px!important;text-align:left}.login-subtitle{color:var(--muted);margin:-14px 0 22px;line-height:1.45}.login-select{min-height:54px;font-size:18px;margin-bottom:6px}.login-button{width:100%;margin-top:14px;min-height:54px}.loginbox label{margin-top:0}.pin-input{width:100%;box-sizing:border-box;min-height:54px;border:1px solid #ccd5db;border-radius:12px;padding:0 16px;font-size:22px;letter-spacing:7px;text-align:center;background:#fff}.pin-input:focus{outline:3px solid rgba(255,107,0,.16);border-color:#ff6b00}.push-row{display:flex;gap:10px;align-items:center;margin-top:16px}.push-button{flex:1;min-height:48px}.push-state{font-size:12px;color:var(--muted)}
+.loginbox{max-width:620px!important;text-align:left}
+/* V127.3 – Orange Login Heading + soft entrance effect */
+.pin-title{color:#ff6b00!important;animation:loginTitleIn .65s cubic-bezier(.2,.8,.2,1) both;letter-spacing:.1px}
+.loginbox{animation:loginBoxIn .55s cubic-bezier(.2,.8,.2,1) both}
+@keyframes loginTitleIn{from{opacity:0;transform:translateY(8px);filter:blur(2px)}to{opacity:1;transform:translateY(0);filter:blur(0)}}
+@keyframes loginBoxIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@media (prefers-reduced-motion:reduce){.pin-title,.loginbox{animation:none}}
+.login-subtitle{color:var(--muted);margin:-14px 0 22px;line-height:1.45}.login-select{min-height:54px;font-size:18px;margin-bottom:6px}.login-button{width:100%;margin-top:14px;min-height:54px}.loginbox label{margin-top:0}.pin-input{width:100%;box-sizing:border-box;min-height:54px;border:1px solid #ccd5db;border-radius:12px;padding:0 16px;font-size:22px;letter-spacing:7px;text-align:center;background:#fff}.pin-input:focus{outline:3px solid rgba(255,107,0,.16);border-color:#ff6b00}.push-row{display:flex;gap:10px;align-items:center;margin-top:16px}.push-button{flex:1;min-height:48px}.push-state{font-size:12px;color:var(--muted)}
 .user-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:12px 0 18px;padding:11px 13px;background:#eef3f6;border-radius:13px}.user-bar small{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.7px}.user-bar b{font-size:15px}.user-bar button{padding:9px 11px;font-size:13px}
 @media(max-width:650px){.loginbox{padding:30px 20px 24px!important}.login-select{min-height:56px}.login-button{min-height:56px}.push-row{display:block}.push-button{width:100%;margin-bottom:7px}}
 </style>
