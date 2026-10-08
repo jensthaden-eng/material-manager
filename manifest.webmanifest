@@ -1,10 +1,25 @@
 {
   "name": "THADEN MATERIAL",
   "short_name": "THADEN MATERIAL",
+  "description": "Material- und Trommelverwaltung von THADEN MATERIAL",
+  "lang": "de-DE",
   "start_url": "./",
+  "scope": "./",
+  "id": "./",
   "display": "standalone",
-  "background_color": "#f3f5f7",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "orientation": "any",
+  "background_color": "#101820",
   "theme_color": "#101820",
-  "lang": "de",
-  "description": "Smart Material Logistics – Baustellen- und Lagerbestandsaufnahme"
+  "categories": ["business", "productivity"],
+  "prefer_related_applications": false,
+  "icons": [
+    {"src":"./tm-app-icon-180.png","sizes":"180x180","type":"image/png","purpose":"any"},
+    {"src":"./tm-app-icon-192.png","sizes":"192x192","type":"image/png","purpose":"any maskable"},
+    {"src":"./tm-app-icon-512.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}
+  ],
+  "shortcuts": [
+    {"name":"Material erfassen","short_name":"Material","url":"./#material","icons":[{"src":"./tm-app-icon-192.png","sizes":"192x192","type":"image/png"}]},
+    {"name":"Trommel-Rückmeldung","short_name":"Rückmeldung","url":"./#ruecklieferung","icons":[{"src":"./tm-app-icon-192.png","sizes":"192x192","type":"image/png"}]}
+  ]
 }
