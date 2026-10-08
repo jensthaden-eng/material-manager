@@ -424,6 +424,11 @@ body{background:#f3f5f7}
 @media(max-width:650px){
   #returns .photo-action{min-height:72px !important;height:72px}
 }
+
+/* V127.1 – einfache Mitarbeiter-Anmeldung statt PIN */
+.loginbox{max-width:620px!important;text-align:left}.login-subtitle{color:var(--muted);margin:-14px 0 22px;line-height:1.45}.login-select{min-height:54px;font-size:18px;margin-bottom:6px}.login-button{width:100%;margin-top:14px;min-height:54px}.loginbox label{margin-top:0}
+.user-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:12px 0 18px;padding:11px 13px;background:#eef3f6;border-radius:13px}.user-bar small{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.7px}.user-bar b{font-size:15px}.user-bar button{padding:9px 11px;font-size:13px}
+@media(max-width:650px){.loginbox{padding:30px 20px 24px!important}.login-select{min-height:56px}.login-button{min-height:56px}}
 </style>
 
 </head>
@@ -446,15 +451,19 @@ if ('serviceWorker' in navigator){
 
 <div class="wrap">
 <section id="lock" class="screen active">
-<div class="card pinbox">
-<h2 class="pin-title">PIN eingeben</h2>
-<div id="pinDots" class="pin-dots">○ ○ ○ ○</div><div id="pinError" class="error"></div>
-<div class="numpad">
-<button onclick="pin('1')">1</button><button onclick="pin('2')">2</button><button onclick="pin('3')">3</button>
-<button onclick="pin('4')">4</button><button onclick="pin('5')">5</button><button onclick="pin('6')">6</button>
-<button onclick="pin('7')">7</button><button onclick="pin('8')">8</button><button onclick="pin('9')">9</button>
-<button class="ghost" onclick="pinClear()">⌫</button><button onclick="pin('0')">0</button><button class="primary" onclick="pinOk()">OK</button>
-</div>
+<div class="card pinbox loginbox">
+<h2 class="pin-title">Wer nutzt die App?</h2>
+<p class="login-subtitle">Einmal auswählen – beim nächsten Start bleibt die Anmeldung gespeichert.</p>
+<label for="loginUser">Mitarbeiter</label>
+<select id="loginUser" class="login-select">
+<option value="">Bitte auswählen …</option>
+<option value="Mitarbeiter 1">Mitarbeiter 1</option>
+<option value="Mitarbeiter 2">Mitarbeiter 2</option>
+<option value="Mitarbeiter 3">Mitarbeiter 3</option>
+<option value="Mitarbeiter 4">Mitarbeiter 4</option>
+</select>
+<div id="loginError" class="error"></div>
+<button class="primary login-button" onclick="loginUser()">Weiter →</button>
 </div>
 </section>
 
@@ -464,6 +473,7 @@ if ('serviceWorker' in navigator){
   <p>Material im Blick. Prozesse im Griff.</p>
   <button class="primary workflow-primary" onclick="newInventory()">＋ Neue Bestandsaufnahme</button>
 </div>
+<div class="user-bar"><div><small>Angemeldet als</small><b id="currentUserLabel">–</b></div><button class="ghost" onclick="switchUser()">Benutzer wechseln</button></div>
 <div class="workflow-section">
   <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h3>Meine Lagerplätze</h3><button class="ghost" onclick="show('sites')">Alle →</button></div>
   <div id="homeSites"></div>
@@ -665,7 +675,7 @@ try{savedCables=JSON.parse(localStorage.getItem("mm_custom_cables")||"null");}ca
 try{savedPieces=JSON.parse(localStorage.getItem("mm_custom_pieces")||"null");}catch(e){savedPieces=null}
 let cables=Array.isArray(savedCables)&&savedCables.length?[...savedCables]:[...defaultCables];
 let pieces=Array.isArray(savedPieces)&&savedPieces.length?JSON.parse(JSON.stringify(savedPieces)):JSON.parse(JSON.stringify(defaultPieces));
-let pinCode=localStorage.getItem("mm_pin")||"1234", entered="", unlocked=false, selected="", drums=JSON.parse(localStorage.getItem("mm_drums")||"[]"), history=JSON.parse(localStorage.getItem("mm_history")||"[]"), current={drums:[],pieces:[]}, editingDrumIndex=-1, editingPieceIndex=-1, editingHistoryId=null;
+let currentUser=localStorage.getItem("mm_user")||"", unlocked=!!currentUser, selected="", drums=JSON.parse(localStorage.getItem("mm_drums")||"[]"), history=JSON.parse(localStorage.getItem("mm_history")||"[]"), current={drums:[],pieces:[]}, editingDrumIndex=-1, editingPieceIndex=-1, editingHistoryId=null;
 const cableMaterials=cables;
 const pieceMaterials=pieces.map(x=>x[0]);
 window.mmPieceMaster=pieceMaterials;
@@ -674,48 +684,11 @@ function today(){return new Date(Date.now()-new Date().getTimezoneOffset()*60000
 $("invDate").value=today();
 function show(id){
   if(id==="summary"){const inline=$("summarySaveConfirm"), actions=$("summaryActions"), btn=$("confirmSaveBtn"); if(inline) inline.classList.remove("show"); if(actions) actions.classList.remove("is-saved"); if(btn){btn.disabled=false;btn.textContent="✓ Aufnahme bestätigen";}}if(id==="home"&&!unlocked)return;document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));const target=document.querySelector(`.screen#${CSS.escape(id)}`);if(!target)return;target.classList.add("active");if(id==="home")renderHome();if(id==="history")renderHistory();if(id==="drums")renderDrums();if(id==="documentation")renderDocumentation();if(id==="sites")renderSites();if(id==="materials"){refreshMaterialPickers();renderCurrentEntries();}if(id==="orders")renderOrderForm();if(id==="orderList")renderOrders();if(id==="returns")renderReturnForm();if(id==="returnList")renderReturns();updateStats();window.scrollTo({top:0,left:0,behavior:"auto"});document.documentElement.scrollTop=0;document.body.scrollTop=0}
-unlocked=false;
-function pinButtonEffect(el){if(!el)return;el.classList.remove("pin-press");void el.offsetWidth;el.classList.add("pin-press");setTimeout(()=>el.classList.remove("pin-press"),110)}
-function pinDotsEffect(kind){const d=$("pinDots");if(!d)return;d.classList.remove("pin-pop","pin-success","pin-error");void d.offsetWidth;if(kind)d.classList.add(kind);if(kind!=="pin-error")setTimeout(()=>d.classList.remove(kind),220);}
-function pin(x){
-  try{if(navigator.vibrate) navigator.vibrate(18);}catch(e){}
-  const btn=[...document.querySelectorAll("#lock .numpad button")].find(b=>b.textContent.trim()===String(x));
-  pinButtonEffect(btn);
-  if(entered.length<4){entered+=x;updateDots();pinDotsEffect("pin-pop");}
-  if(entered.length===4)setTimeout(pinOk,220);
-}
-function pinClear(){
-  const btn=document.querySelector("#lock .numpad button.ghost");pinButtonEffect(btn);
-  if(entered.length){entered=entered.slice(0,-1);updateDots();pinDotsEffect("pin-pop");}
-}
-function updateDots(){$("pinDots").textContent=[0,1,2,3].map(i=>i<entered.length?"●":"○").join(" ")}
-function pinOk(){
-  const btn=document.querySelector("#lock .numpad button.primary");pinButtonEffect(btn);
-  if(entered===pinCode){
-    pinDotsEffect("pin-success");
-    unlocked=true;
-    entered="";
-    updateDots();
-    $("pinError").textContent="";
-    setTimeout(()=>show("home"),260);
-  }else{
-    pinDotsEffect("pin-error");
-    $("pinError").textContent="Falsche PIN";
-    $("pinError").classList.add("pin-error-text");
-    setTimeout(()=>{entered="";updateDots();$("pinError").classList.remove("pin-error-text");},420);
-  }
-}
-// PC-Tastatur: PIN kann direkt über die Zahlenreihe oder den Ziffernblock eingegeben werden.
-document.addEventListener("keydown",function(e){
-  const lock=$("lock");
-  if(unlocked||!lock||!lock.classList.contains("active"))return;
-  if(/^\d$/.test(e.key)){e.preventDefault();pin(e.key);return;}
-  if(e.key==="Backspace"||e.key==="Delete"){e.preventDefault();pinClear();return;}
-  if(e.key==="Enter"){e.preventDefault();pinOk();return;}
-  if(e.key==="Escape"){e.preventDefault();entered="";updateDots();$("pinError").textContent="";}
-});
-function changePin(){let p=$("newPin").value.trim();if(!/^\d{4}$/.test(p)){alert("Bitte genau 4 Ziffern eingeben.");return}pinCode=p;localStorage.setItem("mm_pin",p);$("newPin").value="";alert("PIN gespeichert.");show("home")}
-function newInventory(){current={drums:[],pieces:[]};editingDrumIndex=-1;editingPieceIndex=-1;editingHistoryId=null;$("site").value="";$("place").value="";$("postalCode").value="";$("street").value="";$("worker").value="";$("invDate").value=today();show("setup")}
+function renderLoggedInUser(){const el=$("currentUserLabel");if(el)el.textContent=currentUser||"–";}
+function loginUser(){const sel=$("loginUser");const name=(sel&&sel.value||"").trim();if(!name){$("loginError").textContent="Bitte zuerst einen Mitarbeiter auswählen.";return}currentUser=name;localStorage.setItem("mm_user",name);unlocked=true;$("loginError").textContent="";renderLoggedInUser();show("home");}
+function switchUser(){unlocked=false;currentUser="";localStorage.removeItem("mm_user");const sel=$("loginUser");if(sel)sel.value="";show("lock");}
+if(currentUser){renderLoggedInUser();setTimeout(()=>show("home"),0);}
+function newInventory(){current={drums:[],pieces:[]};editingDrumIndex=-1;editingPieceIndex=-1;editingHistoryId=null;$("site").value="";$("place").value="";$("postalCode").value="";$("street").value="";$("worker").value=currentUser||"";$("invDate").value=today();show("setup")}
 function startInventory(){show("materials")}
 function continueProject(id){
   const item=history.find(x=>x.id===id); if(!item)return;
@@ -1456,6 +1429,11 @@ function printPdfInSeparateWindow(){
   #returns .photo-action{font-size:13.5px;padding:10px}
   #returns .form-actions button{font-size:13px}
 }
+
+/* V127.1 – einfache Mitarbeiter-Anmeldung statt PIN */
+.loginbox{max-width:620px!important;text-align:left}.login-subtitle{color:var(--muted);margin:-14px 0 22px;line-height:1.45}.login-select{min-height:54px;font-size:18px;margin-bottom:6px}.login-button{width:100%;margin-top:14px;min-height:54px}.loginbox label{margin-top:0}
+.user-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:12px 0 18px;padding:11px 13px;background:#eef3f6;border-radius:13px}.user-bar small{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.7px}.user-bar b{font-size:15px}.user-bar button{padding:9px 11px;font-size:13px}
+@media(max-width:650px){.loginbox{padding:30px 20px 24px!important}.login-select{min-height:56px}.login-button{min-height:56px}}
 </style>
 
 </head><body class="pdf-print-window"><div class="pdf-toolbar no-print"><button class="pdf-close-btn" type="button" onclick="window.close()">✕ PDF schließen</button></div>${report.innerHTML}<script>window.addEventListener('load',()=>{const imgs=[...document.images];Promise.all(imgs.map(img=>img.complete?Promise.resolve():new Promise(r=>{img.onload=img.onerror=r;}))).then(()=>setTimeout(()=>window.print(),450));});<\/script></body></html>`);
