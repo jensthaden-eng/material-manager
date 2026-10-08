@@ -443,18 +443,26 @@ body{background:#f3f5f7}
 .login-subtitle{color:var(--muted);margin:-14px 0 22px;line-height:1.45}.login-select{min-height:54px;font-size:18px;margin-bottom:6px}.login-button{width:100%;margin-top:14px;min-height:54px}.loginbox label{margin-top:0}.pin-input{width:100%;box-sizing:border-box;min-height:54px;border:1px solid #ccd5db;border-radius:12px;padding:0 16px;font-size:22px;letter-spacing:7px;text-align:center;background:#fff}.pin-input:focus{outline:3px solid rgba(255,107,0,.16);border-color:#ff6b00}.push-row{display:flex;gap:10px;align-items:center;margin-top:16px}.push-button{flex:1;min-height:48px}.push-state{font-size:12px;color:var(--muted)}
 .user-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:12px 0 18px;padding:11px 13px;background:#eef3f6;border-radius:13px}.user-bar small{display:block;color:var(--muted);font-size:11px;text-transform:uppercase;letter-spacing:.7px}.user-bar b{font-size:15px}.user-bar button{padding:9px 11px;font-size:13px}
 @media(max-width:650px){.loginbox{padding:30px 20px 24px!important}.login-select{min-height:56px}.login-button{min-height:56px}.push-row{display:block}.push-button{width:100%;margin-bottom:7px}}
+
+.admin-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.admin-events{display:grid;gap:8px}.admin-event{padding:12px;border-radius:12px;background:#f4f7f9;border-left:4px solid var(--orange)}.admin-event small{color:var(--muted)}.admin-employee{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:12px;border:1px solid #e1e6ea;border-radius:12px;margin-bottom:8px}.admin-employee b{display:block}.admin-badge{font-size:11px;font-weight:800;color:#fff;background:var(--navy);padding:5px 8px;border-radius:999px}@media(max-width:650px){.admin-grid{grid-template-columns:1fr}.admin-employee{align-items:flex-start;flex-direction:column}}
 </style>
 
 </head>
 <body>
 <header class="app-header"><img class="header-logo" src="./thaden-logo-v87.png" alt="THADEN MATERIAL"></header>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./supabase-config.js"></script>
+<script>
+const SUPABASE_READY = !!(window.THADEN_SUPABASE_URL && window.THADEN_SUPABASE_PUBLISHABLE_KEY && !String(window.THADEN_SUPABASE_URL).includes("YOUR_"));
+const sb = SUPABASE_READY ? supabase.createClient(window.THADEN_SUPABASE_URL, window.THADEN_SUPABASE_PUBLISHABLE_KEY, {auth:{persistSession:true,autoRefreshToken:true}}) : null;
+</script>
 <script>
 if ('serviceWorker' in navigator){
   window.addEventListener('load',()=>{
-    navigator.serviceWorker.register('./sw.js?v=100',{updateViaCache:'none'}).then(reg=>{try{reg.update()}catch(e){}}).catch(()=>{});
+    navigator.serviceWorker.register('./sw.js?v=101',{updateViaCache:'none'}).then(reg=>{try{reg.update()}catch(e){}}).catch(()=>{});
     navigator.serviceWorker.addEventListener('controllerchange',()=>{
-      if(!sessionStorage.getItem('mm_sw_reloaded_v100')){
-        sessionStorage.setItem('mm_sw_reloaded_v100','1');
+      if(!sessionStorage.getItem('mm_sw_reloaded_v101')){
+        sessionStorage.setItem('mm_sw_reloaded_v101','1');
         setTimeout(()=>location.reload(),80);
       }
     });
@@ -467,19 +475,29 @@ if ('serviceWorker' in navigator){
 <section id="lock" class="screen active">
 <div class="card pinbox loginbox">
 <h2 class="pin-title">Wer nutzt die App?</h2>
-<p class="login-subtitle">Einmal auswählen – beim nächsten Start bleibt die Anmeldung gespeichert.</p>
+<p class="login-subtitle">Mitarbeiter auswählen und mit der persönlichen Start-PIN anmelden.</p>
 <label for="loginUser">Mitarbeiter</label>
 <select id="loginUser" class="login-select" onchange="clearLoginError()">
 <option value="">Bitte auswählen …</option>
-<option value="Mitarbeiter 1">Mitarbeiter 1</option>
-<option value="Mitarbeiter 2">Mitarbeiter 2</option>
-<option value="Mitarbeiter 3">Mitarbeiter 3</option>
-<option value="Mitarbeiter 4">Mitarbeiter 4</option>
 </select>
-<label for="loginPin">PIN</label>
-<input id="loginPin" class="pin-input" type="password" inputmode="numeric" autocomplete="one-time-code" maxlength="4" placeholder="••••" onkeydown="if(event.key==='Enter')loginUser()" oninput="this.value=this.value.replace(/\D/g,'').slice(0,4);clearLoginError()">
+<label for="loginPin">PIN / Passwort</label>
+<input id="loginPin" class="pin-input" type="password" inputmode="numeric" autocomplete="current-password" maxlength="12" placeholder="••••••" onkeydown="if(event.key==='Enter')loginUser()" oninput="clearLoginError()">
 <div id="loginError" class="error"></div>
 <button class="primary login-button" onclick="loginUser()">Anmelden →</button>
+<div id="cloudHint" class="muted" style="margin-top:14px;text-align:center"></div>
+</div>
+</section>
+
+<section id="forceChange" class="screen">
+<div class="card pinbox loginbox">
+<h2 class="pin-title">Neue persönliche PIN</h2>
+<p class="login-subtitle">Deine Start-PIN wurde nur für den ersten Login vergeben. Bitte ändere sie jetzt.</p>
+<label for="newLoginPin">Neue PIN / Passwort</label>
+<input id="newLoginPin" class="pin-input" type="password" inputmode="numeric" maxlength="12" placeholder="mind. 6 Zeichen">
+<label for="newLoginPin2">Bestätigen</label>
+<input id="newLoginPin2" class="pin-input" type="password" inputmode="numeric" maxlength="12" placeholder="erneut eingeben">
+<div id="changePinError" class="error"></div>
+<button class="primary login-button" onclick="forceChangePassword()">PIN ändern →</button>
 </div>
 </section>
 
@@ -489,7 +507,7 @@ if ('serviceWorker' in navigator){
   <p>Material im Blick. Prozesse im Griff.</p>
   <button class="primary workflow-primary" onclick="newInventory()">＋ Neue Bestandsaufnahme</button>
 </div>
-<div class="user-bar"><div><small>Angemeldet als</small><b id="currentUserLabel">–</b></div><div style="display:flex;gap:8px;align-items:center"><button class="ghost" onclick="enablePushNotifications()">🔔 Push</button><button class="ghost" onclick="switchUser()">Benutzer wechseln</button></div></div>
+<div class="user-bar"><div><small>Angemeldet als</small><b id="currentUserLabel">–</b></div><div style="display:flex;gap:8px;align-items:center"><button id="adminNavBtn" class="ghost" style="display:none" onclick="show('admin');adminLoadEmployees()">🛡️ Admin</button><button class="ghost" onclick="enablePushNotifications()">🔔 Push</button><button class="ghost" onclick="switchUser()">Benutzer wechseln</button></div></div>
 <div class="workflow-section">
   <div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h3>Meine Lagerplätze</h3><button class="ghost" onclick="show('sites')">Alle →</button></div>
   <div id="homeSites"></div>
@@ -655,6 +673,14 @@ if ('serviceWorker' in navigator){
 
 <section id="drums" class="screen"><div class="card"><h2>🧵 Trommelverwaltung</h2><div id="drumList"></div><div class="actions"><button class="ghost" onclick="show('home')">← Startseite</button></div></div></section>
 
+<section id="admin" class="screen"><div class="card">
+<h2>🛡️ Admin – Mitarbeiter</h2><p class="muted">Mitarbeiter anlegen, Start-PIN vergeben und Sicherheitsereignisse prüfen.</p>
+<div class="admin-grid"><div><label>Name</label><input id="adminName" placeholder="Max Mustermann"></div><div><label>Start-PIN / Passwort</label><input id="adminInitialPin" type="password" inputmode="numeric" placeholder="z. B. 4827"></div></div>
+<div id="adminError" class="error"></div><div class="actions"><button class="green" onclick="adminCreateEmployee()">＋ Mitarbeiter anlegen</button><button class="ghost" onclick="adminLoadEmployees()">↻ Aktualisieren</button><button class="ghost" onclick="show('home')">← Startseite</button></div>
+<div id="adminEmployees" style="margin-top:18px"></div>
+<h3 style="margin-top:24px">🔔 Sicherheitsprotokoll</h3><div id="adminEvents" class="admin-events"></div>
+</div></section>
+
 <section id="settings" class="screen"><div class="card"><h2>⚙️ Einstellungen</h2><p class="muted">Lokale App-Einstellungen</p>
 <label>Neue PIN</label><input id="newPin" inputmode="numeric" maxlength="4" placeholder="4 Ziffern"><div class="actions"><button class="green" onclick="changePin()">PIN speichern</button><button class="ghost" onclick="show('home')">← Startseite</button></div>
 <p class="muted">Die Daten bleiben in diesem Browser auf diesem Gerät. Der Prototyp ist noch nicht für vertrauliche Unternehmensdaten gedacht.</p>
@@ -691,7 +717,7 @@ try{savedCables=JSON.parse(localStorage.getItem("mm_custom_cables")||"null");}ca
 try{savedPieces=JSON.parse(localStorage.getItem("mm_custom_pieces")||"null");}catch(e){savedPieces=null}
 let cables=Array.isArray(savedCables)&&savedCables.length?[...savedCables]:[...defaultCables];
 let pieces=Array.isArray(savedPieces)&&savedPieces.length?JSON.parse(JSON.stringify(savedPieces)):JSON.parse(JSON.stringify(defaultPieces));
-let currentUser=localStorage.getItem("mm_user")||"", unlocked=!!currentUser, selected="", drums=JSON.parse(localStorage.getItem("mm_drums")||"[]"), history=JSON.parse(localStorage.getItem("mm_history")||"[]"), current={drums:[],pieces:[]}, editingDrumIndex=-1, editingPieceIndex=-1, editingHistoryId=null;
+let currentUser=localStorage.getItem("mm_user")||"", currentRole=localStorage.getItem("mm_role")||"", unlocked=!!currentUser, selected="", drums=JSON.parse(localStorage.getItem("mm_drums")||"[]"), history=JSON.parse(localStorage.getItem("mm_history")||"[]"), current={drums:[],pieces:[]}, editingDrumIndex=-1, editingPieceIndex=-1, editingHistoryId=null;
 const cableMaterials=cables;
 const pieceMaterials=pieces.map(x=>x[0]);
 window.mmPieceMaster=pieceMaterials;
@@ -700,19 +726,19 @@ function today(){return new Date(Date.now()-new Date().getTimezoneOffset()*60000
 $("invDate").value=today();
 function show(id){
   if(id==="summary"){const inline=$("summarySaveConfirm"), actions=$("summaryActions"), btn=$("confirmSaveBtn"); if(inline) inline.classList.remove("show"); if(actions) actions.classList.remove("is-saved"); if(btn){btn.disabled=false;btn.textContent="✓ Aufnahme bestätigen";}}if(id==="home"&&!unlocked)return;document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));const target=document.querySelector(`.screen#${CSS.escape(id)}`);if(!target)return;target.classList.add("active");if(id==="home")renderHome();if(id==="history")renderHistory();if(id==="drums")renderDrums();if(id==="documentation")renderDocumentation();if(id==="sites")renderSites();if(id==="materials"){refreshMaterialPickers();renderCurrentEntries();}if(id==="orders")renderOrderForm();if(id==="orderList")renderOrders();if(id==="returns")renderReturnForm();if(id==="returnList")renderReturns();updateStats();window.scrollTo({top:0,left:0,behavior:"auto"});document.documentElement.scrollTop=0;document.body.scrollTop=0}
-function renderLoggedInUser(){const el=$("currentUserLabel");if(el)el.textContent=currentUser||"–";}
+function renderLoggedInUser(){const el=$("currentUserLabel");if(el)el.textContent=currentUser||"–";const ab=$("adminNavBtn");if(ab)ab.style.display=currentRole==="admin"?"inline-block":"none";}
 function clearLoginError(){const e=$("loginError");if(e)e.textContent=""}
-function loginUser(){const sel=$("loginUser");const pinEl=$("loginPin");const name=(sel&&sel.value||"").trim();const pin=(pinEl&&pinEl.value||"").trim();if(!name){$("loginError").textContent="Bitte zuerst einen Mitarbeiter auswählen.";return}if(!/^\d{4}$/.test(pin)||loginPins[name]!==pin){$("loginError").textContent="PIN ist nicht korrekt.";if(pinEl){pinEl.value="";pinEl.focus()}return}currentUser=name;localStorage.setItem("mm_user",name);unlocked=true;$("loginError").textContent="";if(pinEl)pinEl.value="";renderLoggedInUser();show("home");}
-async function enablePushNotifications(){
-  if(!('Notification' in window)){alert('Push-Benachrichtigungen werden auf diesem Gerät/Browser nicht unterstützt.');return;}
-  try{const permission=await Notification.requestPermission();
-    if(permission==='granted'){localStorage.setItem('mm_push_enabled','1');new Notification('THADEN MATERIAL',{body:'Push-Benachrichtigungen sind aktiviert.'});}
-    else alert('Push-Benachrichtigungen wurden nicht freigegeben.');
-  }catch(e){alert('Push-Aktivierung konnte nicht gestartet werden.');}
-}
-function sendLocalPush(title,message){if(localStorage.getItem('mm_push_enabled')==='1' && 'Notification' in window && Notification.permission==='granted'){try{new Notification(title,{body:message,icon:'./icon-192.png'});}catch(e){}}}
-function switchUser(){unlocked=false;currentUser="";localStorage.removeItem("mm_user");const sel=$("loginUser");if(sel)sel.value="";show("lock");}
-if(currentUser){renderLoggedInUser();setTimeout(()=>show("home"),0);}
+async function loadEmployeeChoices(){const sel=$("loginUser");if(!sel)return;sel.innerHTML='<option value="">Bitte auswählen …</option>';if(!SUPABASE_READY){["Mitarbeiter 1","Mitarbeiter 2","Mitarbeiter 3","Mitarbeiter 4"].forEach(n=>sel.insertAdjacentHTML('beforeend',`<option value="${n}">${n}</option>`));$("cloudHint").textContent="Testmodus: Supabase ist noch nicht eingerichtet.";return;}try{const r=await fetch(`${window.THADEN_SUPABASE_URL}/functions/v1/employee-list`);const j=await r.json();if(!r.ok)throw new Error(j.error||"Fehler");(j.employees||[]).forEach(e=>sel.insertAdjacentHTML('beforeend',`<option value="${e.id}">${esc(e.name)}</option>`));$("cloudHint").textContent="Cloud-Anmeldung aktiv.";}catch(e){$("loginError").textContent="Mitarbeiter konnten nicht geladen werden.";}}
+async function loginUser(){const sel=$("loginUser"), pinEl=$("loginPin"), key=(sel&&sel.value||"").trim(), pin=(pinEl&&pinEl.value||"").trim();if(!key){$("loginError").textContent="Bitte zuerst einen Mitarbeiter auswählen.";return}if(!pin){$("loginError").textContent="Bitte PIN eingeben.";return}if(!SUPABASE_READY){$("loginError").textContent="Bitte zuerst die Supabase-Einrichtung abschließen.";return}try{const r=await fetch(`${window.THADEN_SUPABASE_URL}/functions/v1/employee-login`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({employee_id:key,password:pin})});const j=await r.json();if(!r.ok)throw new Error(j.error||"PIN ist nicht korrekt.");await sb.auth.setSession({access_token:j.session.access_token,refresh_token:j.session.refresh_token});currentUser=j.employee.name;currentRole=j.employee.role||"employee";localStorage.setItem("mm_user",currentUser);localStorage.setItem("mm_role",currentRole);unlocked=true;localStorage.setItem("mm_employee_id",j.employee.id);$("loginError").textContent="";pinEl.value="";renderLoggedInUser();if(j.employee.must_change_password){show("forceChange");}else{show("home");}}catch(e){$("loginError").textContent=e.message||"Anmeldung fehlgeschlagen.";pinEl.value="";pinEl.focus();}}
+async function forceChangePassword(){const a=$("newLoginPin").value.trim(),b=$("newLoginPin2").value.trim(),err=$("changePinError");err.textContent="";if(a.length<6){err.textContent="Bitte mindestens 6 Zeichen verwenden.";return}if(a!==b){err.textContent="Die Eingaben stimmen nicht überein.";return}try{const {data:{session}}=await sb.auth.getSession();const r=await fetch(`${window.THADEN_SUPABASE_URL}/functions/v1/employee-change-password`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${session.access_token}`},body:JSON.stringify({new_password:a})});const j=await r.json();if(!r.ok)throw new Error(j.error||"PIN konnte nicht geändert werden.");$("newLoginPin").value=$("newLoginPin2").value="";alert("Deine persönliche PIN wurde geändert.");show("home");}catch(e){err.textContent=e.message||"PIN konnte nicht geändert werden.";}}
+async function enablePushNotifications(){if(!('Notification'in window)){alert('Push-Benachrichtigungen werden nicht unterstützt.');return;}try{const p=await Notification.requestPermission();if(p==='granted'){localStorage.setItem('mm_push_enabled','1');new Notification('THADEN MATERIAL',{body:'Push-Benachrichtigungen sind aktiviert.'});}else alert('Push-Benachrichtigungen wurden nicht freigegeben.');}catch(e){alert('Push-Aktivierung konnte nicht gestartet werden.');}}
+function sendLocalPush(title,message){if(localStorage.getItem('mm_push_enabled')==='1'&&'Notification'in window&&Notification.permission==='granted'){try{new Notification(title,{body:message,icon:'./icon-192.png'});}catch(e){}}}
+function switchUser(){unlocked=false;currentUser="";currentRole="";localStorage.removeItem("mm_user");localStorage.removeItem("mm_role");localStorage.removeItem("mm_employee_id");if(sb)sb.auth.signOut();const sel=$("loginUser");if(sel)sel.value="";show("lock");loadEmployeeChoices();}
+function showAdminIfNeeded(){const ab=$("adminNavBtn");if(ab)ab.style.display=currentRole==="admin"?"inline-block":"none";}
+if(currentUser){renderLoggedInUser();setTimeout(()=>show("home"),0);} else {setTimeout(loadEmployeeChoices,0);}
+async function adminLoadEmployees(){if(currentRole!=="admin"||!sb)return;const {data:{session}}=await sb.auth.getSession();if(!session)return;const h={Authorization:`Bearer ${session.access_token}`};try{const r=await fetch(`${window.THADEN_SUPABASE_URL}/functions/v1/admin-employees`,{headers:h});const j=await r.json();if(!r.ok)throw new Error(j.error);$("adminEmployees").innerHTML=(j.employees||[]).map(e=>`<div class="admin-employee"><div><b>${esc(e.name)}</b><small>${e.active?'Aktiv':'Deaktiviert'} · ${e.must_change_password?'Start-PIN noch nicht geändert':'PIN geändert'}</small></div><span class="admin-badge">${e.role||'employee'}</span></div>`).join('')||'<p class="muted">Noch keine Mitarbeiter.</p>';
+const er=await fetch(`${window.THADEN_SUPABASE_URL}/functions/v1/admin-events`,{headers:h});const ej=await er.json();$("adminEvents").innerHTML=(ej.events||[]).map(x=>`<div class="admin-event"><b>🔐 ${esc(x.message)}</b><br><small>${new Date(x.created_at).toLocaleString('de-DE')}</small></div>`).join('')||'<p class="muted">Keine Sicherheitsereignisse.</p>';}catch(e){$("adminError").textContent=e.message||'Admin-Daten konnten nicht geladen werden.';}}
+async function adminCreateEmployee(){const name=$("adminName").value.trim(),pin=$("adminInitialPin").value.trim();$("adminError").textContent="";if(!name||pin.length<6){$("adminError").textContent="Name und eine Start-PIN mit mindestens 6 Zeichen eingeben.";return}const {data:{session}}=await sb.auth.getSession();try{const r=await fetch(`${window.THADEN_SUPABASE_URL}/functions/v1/admin-create-employee`,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${session.access_token}`},body:JSON.stringify({name,initial_password:pin})});const j=await r.json();if(!r.ok)throw new Error(j.error||'Mitarbeiter konnte nicht angelegt werden.');$("adminName").value=$("adminInitialPin").value="";alert(`Mitarbeiter ${name} wurde angelegt.`);adminLoadEmployees();loadEmployeeChoices();}catch(e){$("adminError").textContent=e.message||'Mitarbeiter konnte nicht angelegt werden.';}}
 function newInventory(){current={drums:[],pieces:[]};editingDrumIndex=-1;editingPieceIndex=-1;editingHistoryId=null;$("site").value="";$("place").value="";$("postalCode").value="";$("street").value="";$("worker").value=currentUser||"";$("invDate").value=today();show("setup")}
 function startInventory(){show("materials")}
 function continueProject(id){
