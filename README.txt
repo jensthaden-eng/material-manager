@@ -4,7 +4,7 @@ Dieses Paket enthält:
 1. v128-login.js
    - neue Anmeldung „Wer nutzt die App?“
    - Mitarbeiterauswahl
-   - 6-stellige PIN
+   - 4-stellige PIN
    - erste Anmeldung erzwingt persönliche PIN
    - Supabase Auth + security_events
    - v127 Materialverwaltung bleibt unangetastet
