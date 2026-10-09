@@ -1,0 +1,15 @@
+THADEN MATERIAL – V128 Auswahl-Fix
+
+Dieser Fix behebt den Platzhalter in der Mitarbeiterauswahl, wenn in Supabase genau ein Mitarbeiter vorhanden ist.
+
+Auf dem iPhone in GitHub:
+1. Repository thaden-material-app öffnen.
+2. Die Datei v128-login.js öffnen.
+3. Über das Stift-Symbol bearbeiten und den gesamten Inhalt durch die mitgelieferte v128-login.js ersetzen; alternativ die Datei löschen und neu hochladen.
+4. Commit changes speichern.
+5. In index.html muss die Einbindung so lauten, damit Safari die neue Version lädt:
+   <script src="./v128-login.js?v=1281"></script>
+   Falls dort bereits ein script-Tag steht, nur die URL um ?v=1281 ergänzen.
+6. App in Safari neu laden.
+
+Hinweis: Dieser Fix behebt die sichtbare Mitarbeiterauswahl. Falls nach Auswahl/automatischer Auswahl eine Meldung „Falsche PIN“ erscheint, muss als nächster Schritt die Supabase Edge Function employee-login geprüft bzw. eingerichtet werden.

@@ -190,12 +190,31 @@
     try {
       const { data, error } = await window.tmSupabase.functions.invoke("employee-list", { body: {} });
       if (error || !data || !Array.isArray(data.employees)) throw new Error("list");
-      select.innerHTML = '<option value="">Mitarbeiter auswählen …</option>' +
-        data.employees.map(x => '<option value="' + x.id + '">' + escapeHtml(x.full_name || "Mitarbeiter") + '</option>').join("");
-      msg.textContent = data.employees.length + " Mitarbeiter verfügbar.";
-      if (data.employees.length === 1) {
-        state.selectedEmployeeId = data.employees[0].id;
-        select.value = state.selectedEmployeeId;
+      const employees = data.employees.filter(x => x && x.id);
+      if (!employees.length) {
+        select.innerHTML = '<option value="">Keine aktiven Mitarbeiter</option>';
+        state.selectedEmployeeId = "";
+        msg.textContent = "Noch keine aktiven Mitarbeiter vorhanden.";
+        return;
+      }
+      if (employees.length === 1) {
+        // Bei genau einem Mitarbeiter keinen Platzhalter anzeigen: iOS Safari
+        // lässt sonst gelegentlich den Platzhalter optisch ausgewählt.
+        const employee = employees[0];
+        select.innerHTML = '';
+        const option = document.createElement("option");
+        option.value = String(employee.id);
+        option.textContent = employee.full_name || "Mitarbeiter";
+        select.appendChild(option);
+        select.selectedIndex = 0;
+        select.value = String(employee.id);
+        state.selectedEmployeeId = String(employee.id);
+        msg.textContent = "Angemeldet als Auswahl: " + (employee.full_name || "Mitarbeiter") + ".";
+      } else {
+        select.innerHTML = '<option value="">Bitte auswählen …</option>' +
+          employees.map(x => '<option value="' + escapeHtml(String(x.id)) + '">' + escapeHtml(x.full_name || "Mitarbeiter") + '</option>').join("");
+        state.selectedEmployeeId = "";
+        msg.textContent = employees.length + " Mitarbeiter verfügbar.";
       }
     } catch (e) {
       console.error(e);
