@@ -83,11 +83,11 @@
       <div class="card pinbox tm-force-card">
         <div class="tm-login-kicker">ERSTE ANMELDUNG</div>
         <h2 class="tm-login-who">Persönliche PIN festlegen</h2>
-        <p class="tm-login-sub">Bitte die Start-PIN durch deine persönliche 6-stellige PIN ersetzen.</p>
+        <p class="tm-login-sub">Bitte die Start-PIN durch deine persönliche 4-stellige PIN ersetzen.</p>
         <label class="tm-pin-label" for="tmFirstPin">Neue PIN</label>
-        <input id="tmFirstPin" class="tm-login-input" inputmode="numeric" autocomplete="new-password" maxlength="6" type="password" placeholder="6 Ziffern">
+        <input id="tmFirstPin" class="tm-login-input" inputmode="numeric" autocomplete="new-password" maxlength="4" type="password" placeholder="4 Ziffern">
         <label class="tm-pin-label" for="tmFirstPin2">PIN wiederholen</label>
-        <input id="tmFirstPin2" class="tm-login-input" inputmode="numeric" autocomplete="new-password" maxlength="6" type="password" placeholder="6 Ziffern">
+        <input id="tmFirstPin2" class="tm-login-input" inputmode="numeric" autocomplete="new-password" maxlength="4" type="password" placeholder="4 Ziffern">
         <div id="tmFirstPinError" class="tm-login-error"></div>
         <div class="actions"><button class="primary" onclick="tmFinishFirstPin()">PIN speichern & weiter</button></div>
       </div>`;
@@ -96,14 +96,14 @@
 
   function updateDots() {
     const d = document.getElementById("pinDots");
-    if (d) d.textContent = [0,1,2,3,4,5].map(i => i < state.entered.length ? "●" : "○").join(" ");
+    if (d) d.textContent = [0,1,2,3].map(i => i < state.entered.length ? "●" : "○").join(" ");
   }
 
   window.pin = function (x) {
-    if (state.entered.length >= 6) return;
+    if (state.entered.length >= 4) return;
     state.entered += String(x);
     updateDots();
-    if (state.entered.length === 6) setTimeout(window.pinOk, 180);
+    if (state.entered.length === 4) setTimeout(window.pinOk, 180);
   };
 
   window.pinClear = function () {
@@ -117,8 +117,8 @@
       if (err) err.textContent = "Bitte zuerst einen Mitarbeiter auswählen.";
       return;
     }
-    if (state.entered.length !== 6) {
-      if (err) err.textContent = "Bitte 6 Ziffern eingeben.";
+    if (state.entered.length !== 4) {
+      if (err) err.textContent = "Bitte 4 Ziffern eingeben.";
       return;
     }
     if (err) err.textContent = "Anmeldung wird geprüft …";
@@ -159,7 +159,7 @@
     const p = document.getElementById("tmFirstPin").value.trim();
     const q = document.getElementById("tmFirstPin2").value.trim();
     const err = document.getElementById("tmFirstPinError");
-    if (!/^\d{6}$/.test(p)) { err.textContent = "Bitte genau 6 Ziffern eingeben."; return; }
+    if (!/^\d{4}$/.test(p)) { err.textContent = "Bitte genau 4 Ziffern eingeben."; return; }
     if (p !== q) { err.textContent = "Die PINs stimmen nicht überein."; return; }
     try {
       const { error } = await window.tmSupabase.auth.updateUser({ password: p });
@@ -251,7 +251,7 @@
     const input = document.getElementById("newPin");
     if (!input) return;
     const p = input.value.trim();
-    if (!/^\d{6}$/.test(p)) { alert("Bitte genau 6 Ziffern eingeben."); return; }
+    if (!/^\d{4}$/.test(p)) { alert("Bitte genau 4 Ziffern eingeben."); return; }
     try {
       const { error } = await window.tmSupabase.auth.updateUser({ password:p });
       if (error) throw error;
