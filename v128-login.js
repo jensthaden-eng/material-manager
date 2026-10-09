@@ -56,7 +56,7 @@
         </select>
         <div id="tmEmployeeLoad" class="tm-login-load">Mitarbeiterliste wird geladen …</div>
         <h2 class="pin-title">PIN eingeben</h2>
-        <div id="pinDots" class="pin-dots">○ ○ ○ ○ ○ ○</div>
+        <div id="pinDots" class="pin-dots">○ ○ ○ ○</div>
         <div id="pinError" class="tm-login-error"></div>
         <div class="numpad">
           <button onclick="pin('1')">1</button><button onclick="pin('2')">2</button><button onclick="pin('3')">3</button>
