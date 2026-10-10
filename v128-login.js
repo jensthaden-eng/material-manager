@@ -56,7 +56,7 @@
         </select>
         <div id="tmEmployeeLoad" class="tm-login-load">Mitarbeiterliste wird geladen …</div>
         <h2 class="pin-title">PIN eingeben</h2>
-        <div id="pinDots" class="pin-dots">○ ○ ○ ○</div>
+        <div id="pinDots" class="pin-dots">○ ○ ○ ○ ○ ○</div>
         <div id="pinError" class="tm-login-error"></div>
         <div class="numpad">
           <button onclick="pin('1')">1</button><button onclick="pin('2')">2</button><button onclick="pin('3')">3</button>
@@ -83,11 +83,11 @@
       <div class="card pinbox tm-force-card">
         <div class="tm-login-kicker">ERSTE ANMELDUNG</div>
         <h2 class="tm-login-who">Persönliche PIN festlegen</h2>
-        <p class="tm-login-sub">Bitte die Start-PIN durch deine persönliche 4-stellige PIN ersetzen.</p>
+        <p class="tm-login-sub">Bitte die Start-PIN durch deine persönliche 6-stellige PIN ersetzen.</p>
         <label class="tm-pin-label" for="tmFirstPin">Neue PIN</label>
-        <input id="tmFirstPin" class="tm-login-input" inputmode="numeric" autocomplete="new-password" maxlength="4" type="password" placeholder="4 Ziffern">
+        <input id="tmFirstPin" class="tm-login-input" inputmode="numeric" autocomplete="new-password" maxlength="6" type="password" placeholder="6 Ziffern">
         <label class="tm-pin-label" for="tmFirstPin2">PIN wiederholen</label>
-        <input id="tmFirstPin2" class="tm-login-input" inputmode="numeric" autocomplete="new-password" maxlength="4" type="password" placeholder="4 Ziffern">
+        <input id="tmFirstPin2" class="tm-login-input" inputmode="numeric" autocomplete="new-password" maxlength="6" type="password" placeholder="6 Ziffern">
         <div id="tmFirstPinError" class="tm-login-error"></div>
         <div class="actions"><button class="primary" onclick="tmFinishFirstPin()">PIN speichern & weiter</button></div>
       </div>`;
@@ -96,14 +96,14 @@
 
   function updateDots() {
     const d = document.getElementById("pinDots");
-    if (d) d.textContent = [0,1,2,3].map(i => i < state.entered.length ? "●" : "○").join(" ");
+    if (d) d.textContent = [0,1,2,3,4,5].map(i => i < state.entered.length ? "●" : "○").join(" ");
   }
 
   window.pin = function (x) {
-    if (state.entered.length >= 4) return;
+    if (state.entered.length >= 6) return;
     state.entered += String(x);
     updateDots();
-    if (state.entered.length === 4) setTimeout(window.pinOk, 180);
+    if (state.entered.length === 6) setTimeout(window.pinOk, 180);
   };
 
   window.pinClear = function () {
@@ -117,8 +117,8 @@
       if (err) err.textContent = "Bitte zuerst einen Mitarbeiter auswählen.";
       return;
     }
-    if (state.entered.length !== 4) {
-      if (err) err.textContent = "Bitte 4 Ziffern eingeben.";
+    if (state.entered.length !== 6) {
+      if (err) err.textContent = "Bitte 6 Ziffern eingeben.";
       return;
     }
     if (err) err.textContent = "Anmeldung wird geprüft …";
@@ -159,7 +159,7 @@
     const p = document.getElementById("tmFirstPin").value.trim();
     const q = document.getElementById("tmFirstPin2").value.trim();
     const err = document.getElementById("tmFirstPinError");
-    if (!/^\d{4}$/.test(p)) { err.textContent = "Bitte genau 4 Ziffern eingeben."; return; }
+    if (!/^\d{6}$/.test(p)) { err.textContent = "Bitte genau 6 Ziffern eingeben."; return; }
     if (p !== q) { err.textContent = "Die PINs stimmen nicht überein."; return; }
     try {
       const { error } = await window.tmSupabase.auth.updateUser({ password: p });
@@ -190,31 +190,12 @@
     try {
       const { data, error } = await window.tmSupabase.functions.invoke("employee-list", { body: {} });
       if (error || !data || !Array.isArray(data.employees)) throw new Error("list");
-      const employees = data.employees.filter(x => x && x.id);
-      if (!employees.length) {
-        select.innerHTML = '<option value="">Keine aktiven Mitarbeiter</option>';
-        state.selectedEmployeeId = "";
-        msg.textContent = "Noch keine aktiven Mitarbeiter vorhanden.";
-        return;
-      }
-      if (employees.length === 1) {
-        // Bei genau einem Mitarbeiter keinen Platzhalter anzeigen: iOS Safari
-        // lässt sonst gelegentlich den Platzhalter optisch ausgewählt.
-        const employee = employees[0];
-        select.innerHTML = '';
-        const option = document.createElement("option");
-        option.value = String(employee.id);
-        option.textContent = employee.full_name || "Mitarbeiter";
-        select.appendChild(option);
-        select.selectedIndex = 0;
-        select.value = String(employee.id);
-        state.selectedEmployeeId = String(employee.id);
-        msg.textContent = "Angemeldet als Auswahl: " + (employee.full_name || "Mitarbeiter") + ".";
-      } else {
-        select.innerHTML = '<option value="">Bitte auswählen …</option>' +
-          employees.map(x => '<option value="' + escapeHtml(String(x.id)) + '">' + escapeHtml(x.full_name || "Mitarbeiter") + '</option>').join("");
-        state.selectedEmployeeId = "";
-        msg.textContent = employees.length + " Mitarbeiter verfügbar.";
+      select.innerHTML = '<option value="">Mitarbeiter auswählen …</option>' +
+        data.employees.map(x => '<option value="' + x.id + '">' + escapeHtml(x.full_name || "Mitarbeiter") + '</option>').join("");
+      msg.textContent = data.employees.length + " Mitarbeiter verfügbar.";
+      if (data.employees.length === 1) {
+        state.selectedEmployeeId = data.employees[0].id;
+        select.value = state.selectedEmployeeId;
       }
     } catch (e) {
       console.error(e);
@@ -251,7 +232,7 @@
     const input = document.getElementById("newPin");
     if (!input) return;
     const p = input.value.trim();
-    if (!/^\d{4}$/.test(p)) { alert("Bitte genau 4 Ziffern eingeben."); return; }
+    if (!/^\d{6}$/.test(p)) { alert("Bitte genau 6 Ziffern eingeben."); return; }
     try {
       const { error } = await window.tmSupabase.auth.updateUser({ password:p });
       if (error) throw error;
